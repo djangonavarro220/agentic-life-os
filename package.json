@@ -5,7 +5,8 @@
   "description": "Portable personal advisor OS built from Agent Skills.",
   "license": "MIT",
   "scripts": {
-    "lint": "node scripts/check-public-safe.mjs"
+    "lint": "node scripts/lint-skills.mjs",
+    "lint:skills": "node scripts/lint-skills.mjs"
   },
   "devDependencies": {}
 }
