@@ -1,0 +1,48 @@
+---
+name: life-os
+description: Portable personal advisor OS umbrella skill for lazy-loading Agentic Life OS subskills.
+version: 0.0.0
+license: MIT
+---
+
+# Life OS
+
+Use this skill as the stable entrypoint for Agentic Life OS.
+
+## Mission
+
+Coordinate personal advisor routines through small, portable Agent Skills while keeping private state outside the repository.
+
+## Operating model
+
+1. Detect the current runtime.
+2. Resolve the private data directory:
+   - `LIFEOS_DATA_DIR` if set
+   - otherwise the platform default data directory
+3. Read `skill-index.yaml`.
+4. Read `$LIFEOS_DATA_DIR/config.json` if it exists.
+5. Load only the subskills needed for the current request or scheduled routine.
+6. Write only Life OS routine state and tracking data to `$LIFEOS_DATA_DIR/<skill-name>/data.json`.
+
+## Privacy boundary
+
+Do not store these in the repo or Life OS data files:
+
+- secrets or tokens
+- real private memories
+- raw mail/calendar credentials
+- runtime delivery targets
+- private chat IDs
+- user logs unless explicitly exported and scrubbed
+
+Runtime-owned systems stay in the runtime. Life OS may store pointers like tool names, adapter names, and last-checked tracking metadata.
+
+## Subskill loading
+
+Subskills live under:
+
+```text
+skills/life-os/skills/<subskill>/SKILL.md
+```
+
+Default: subskills are not globally registered. `tasks-todo` is the exception candidate: installers may ask whether to register it globally for the current runtime.

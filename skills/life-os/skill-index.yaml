@@ -1,0 +1,65 @@
+version: 1
+entrypoint: life-os
+data_dir_env: LIFEOS_DATA_DIR
+subskills:
+  core-install:
+    path: skills/core-install/SKILL.md
+    category: core
+  core-doctor:
+    path: skills/core-doctor/SKILL.md
+    category: core
+  core-config:
+    path: skills/core-config/SKILL.md
+    category: core
+  routines-heartbeat:
+    path: skills/routines-heartbeat/SKILL.md
+    category: routines
+  routines-pulse:
+    path: skills/routines-pulse/SKILL.md
+    category: routines
+  routines-daily-review:
+    path: skills/routines-daily-review/SKILL.md
+    category: routines
+  routines-weekly-review:
+    path: skills/routines-weekly-review/SKILL.md
+    category: routines
+  routines-monthly-review:
+    path: skills/routines-monthly-review/SKILL.md
+    category: routines
+  routines-quarterly-review:
+    path: skills/routines-quarterly-review/SKILL.md
+    category: routines
+  context-now:
+    path: skills/context-now/SKILL.md
+    category: context
+  context-inbox:
+    path: skills/context-inbox/SKILL.md
+    category: context
+  context-commitments:
+    path: skills/context-commitments/SKILL.md
+    category: context
+  events-reminders:
+    path: skills/events-reminders/SKILL.md
+    category: events
+  people-contacts:
+    path: skills/people-contacts/SKILL.md
+    category: people
+  people-followups:
+    path: skills/people-followups/SKILL.md
+    category: people
+  gifts:
+    path: skills/gifts/SKILL.md
+    category: people
+  tasks-todo:
+    path: skills/tasks-todo/SKILL.md
+    category: tasks
+    optional_global_registration: true
+  integrations-runtime:
+    path: skills/integrations-runtime/SKILL.md
+    category: integrations
+  integrations-calendar:
+    path: skills/integrations-calendar/SKILL.md
+    category: integrations
+  integrations-mail:
+    path: skills/integrations-mail/SKILL.md
+    category: integrations

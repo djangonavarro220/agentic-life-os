@@ -1,0 +1,13 @@
+version: 1
+recommended_schedule:
+  heartbeat: every few hours
+  pulse: daily
+  daily_review: daily
+  weekly_review: weekly
+  monthly_review: monthly
+  quarterly_review: quarterly
+installer_prompt: |
+  Do you want the recommended schedule?
+  You can say "yes", "no", or give rough preferences like "less often", "mornings only", "weekends", etc.
+optional_global_skills:
+  - tasks-todo

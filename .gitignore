@@ -1,0 +1,14 @@
+node_modules/
+.DS_Store
+.env
+.env.*
+*.log
+*.tmp
+.cache/
+dist/
+build/
+__pycache__/
+*.pyc
+*.pyo
+*.swp
+.LIFEOS_DATA_DIR/

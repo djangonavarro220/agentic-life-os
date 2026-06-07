@@ -1,0 +1,19 @@
+# Agent guidance
+
+This repo contains a portable Agent Skills based personal advisor OS.
+
+## Rules
+
+- Keep the repo public-safe: no personal data, real chat IDs, secrets, tokens, local logs, or private runtime config.
+- Private state belongs in `$LIFEOS_DATA_DIR`, not committed files.
+- Runtime credentials, delivery routing, memory, vault, mail/calendar credentials, and cron ownership belong to the runtime.
+- Prefer small skills and lazy loading over one giant prompt.
+- Validate Markdown, JSON, YAML, frontmatter, and schemas before committing.
+- Add runtime-specific instructions under `runtimes/` only after checking the actual runtime docs or code.
+
+## Current architecture
+
+- `skills/life-os/SKILL.md` is the umbrella entrypoint.
+- `skills/life-os/skill-index.yaml` maps routines/tasks to subskills.
+- Subskills live under `skills/life-os/skills/<subskill>/`.
+- `tasks-todo` may optionally be registered globally by a runtime during install, but subskills are not globally exposed by default.

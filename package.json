@@ -1,0 +1,11 @@
+{
+  "name": "agentic-life-os",
+  "version": "0.0.0",
+  "private": false,
+  "description": "Portable personal advisor OS built from Agent Skills.",
+  "license": "MIT",
+  "scripts": {
+    "lint": "node scripts/check-public-safe.mjs"
+  },
+  "devDependencies": {}
+}

@@ -1,0 +1,6 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "gifts data",
+  "type": "object",
+  "additionalProperties": true
+}

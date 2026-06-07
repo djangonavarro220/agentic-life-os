@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Agentic Life OS config",
+  "type": "object",
+  "additionalProperties": true,
+  "properties": {
+    "enabled": { "type": "boolean" },
+    "runtime": { "type": "string" },
+    "schedules": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "skills": {
+      "type": "object",
+      "additionalProperties": true
+    }
+  }
+}
