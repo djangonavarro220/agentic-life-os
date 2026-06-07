@@ -19,5 +19,9 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
-      - name: Run lint
-        run: npm run lint
+      - name: Setup uv
+        uses: astral-sh/setup-uv@v5
+      - name: External Agent Skills scan
+        run: npm run lint:external
+      - name: Local skill policy lint
+        run: npm run lint:local

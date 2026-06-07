@@ -5,8 +5,10 @@
   "description": "Portable personal advisor OS built from Agent Skills.",
   "license": "MIT",
   "scripts": {
-    "lint": "node scripts/lint-skills.mjs",
-    "lint:skills": "node scripts/lint-skills.mjs"
+    "lint": "npm run lint:external && npm run lint:local",
+    "lint:external": "uvx --from agent-skills-mcp python scripts/lint-agent-skills-mcp.py",
+    "lint:local": "node scripts/lint-skills.mjs",
+    "lint:skills": "npm run lint:local"
   },
   "devDependencies": {}
 }
