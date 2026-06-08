@@ -12,6 +12,7 @@ The design is simple: keep real user data in the runtime or external system that
 - [What this is not](#what-this-is-not)
 - [Architecture at a glance](#architecture-at-a-glance)
 - [Request flow](#request-flow)
+- [Execution modes](#execution-modes)
 - [Runtime model](#runtime-model)
 - [Data model](#data-model)
 - [Skill structure](#skill-structure)
@@ -93,6 +94,30 @@ user request or scheduled job
 ```
 
 For scheduled routines, silence is allowed. The system should not manufacture noise to prove it is alive.
+
+## Execution modes
+
+Life OS should be understandable from its execution modes, not only from its folder structure. The useful modes are:
+
+- **Manual request**: the user asks for a specific thing now. Load the umbrella skill, classify the intent, load the smallest matching subskill, inspect sources, and answer or act within the normal approval rules.
+- **Now context**: a compact orientation pass for immediate focus. It answers what is active, waiting, risky, or worth doing next. It should not become a daily digest.
+- **Daily pulse / morning briefing**: a proactive daily decision surface. It checks configured sources, highlights hard constraints and 1-3 useful actions, then skips trivia. Morning is the default mental model, but the actual schedule is a runtime/user choice.
+- **Quiet heartbeat**: a frequent silent check for changed state. It reports only actionable deltas such as blockers, failures, deadlines, or watched changes. No “still alive” spam.
+- **Review routines**: daily, weekly, monthly, and quarterly reviews. These are slower reflection loops for pruning stale tasks, noticing patterns, reviewing commitments, and adjusting priorities.
+- **Domain playbook run**: a focused run inside one domain such as tasks, health trends, finance checkup, travel, purchases, documents, learning, work portfolio, or digital hygiene.
+- **Setup / doctor loop**: mechanical install plus semantic setup. It finds missing source decisions, asks only the next useful question, and stores each answer in the owning skill data file.
+- **Plan-only mode**: propose schedules, migrations, bridges, or runtime jobs without creating them. This is the safe default before side effects.
+
+Recommended baseline, adapted from the original Life OS rhythm and tightened for agent runtimes:
+
+- heartbeat: every few hours, silent unless actionable
+- daily pulse: once per day, usually morning
+- daily review: optional, useful when the user has many short-cycle commitments
+- weekly review: once per week for commitments, people, projects, and stale tasks
+- monthly review: once per month for documents, subscriptions, finance, maintenance, learning, and digital hygiene
+- quarterly review: once per quarter for direction, portfolio, large decisions, and systems cleanup
+
+These are **modes**, not mandatory cron jobs. Runtime cron creation, delivery routes, and external writes remain approval-gated. Life OS can recommend the rhythm; the runtime owns the actual schedule and delivery.
 
 ## Runtime model
 
