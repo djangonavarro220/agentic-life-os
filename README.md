@@ -108,6 +108,10 @@ npm run lint:local    # repo-specific skill policy checks
 npm test              # helper install/doctor/run smoke tests
 ```
 
+## Roadmap
+
+See [`ROADMAP.md`](ROADMAP.md) for autonomy modes, remaining Markdown playbooks, runtime adapters, schemas, examples, and non-goals.
+
 ## Status
 
 Operational scaffold: install, doctor, config, routine-run recording, skill linting, and CI are implemented. The domain routines are still playbooks; runtime-specific cron creation and external side effects remain runtime-owned and approval-gated.
