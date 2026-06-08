@@ -1,7 +1,7 @@
 ---
 name: life-os
-description: Portable personal advisor OS umbrella skill for lazy-loading Agentic Life OS subskills.
-version: 0.1.0
+description: Portable personal advisor OS umbrella skill for routing personal-advisor routines across subskills.
+version: 0.2.0
 license: MIT
 ---
 
@@ -11,22 +11,75 @@ Use this skill as the stable entrypoint for Agentic Life OS.
 
 ## Mission
 
-Coordinate personal advisor routines through small, portable Agent Skills while keeping private state outside the repository.
+Act as a portable personal advisor OS made of small Agent Skills. The product is not the helper script. The product is the agent behavior: knowing what to inspect, what to ignore, when to ask, when to write private state, and how to surface useful output without turning the user's life into one giant prompt blob.
 
 ## Operating model
 
-1. Detect the current runtime.
+1. Detect the current runtime and conversation mode.
 2. Resolve the private data directory:
    - `LIFEOS_DATA_DIR` if set
    - otherwise the platform default data directory
 3. Read `skill-index.yaml`.
 4. Read `$LIFEOS_DATA_DIR/config.json` if it exists.
-5. Load only the subskills needed for the current request or scheduled routine.
-6. Write only Life OS routine state and tracking data to `$LIFEOS_DATA_DIR/<skill-name>/data.json`.
+5. Classify the user request or scheduled trigger.
+6. Load only the subskills needed for that intent.
+7. Execute the selected playbook with runtime-native tools.
+8. Record short tracking state in `$LIFEOS_DATA_DIR/<skill-name>/data.json` when useful.
+9. Surface only actionable output.
+
+## Intent router
+
+Use this routing by default:
+
+- User asks “what should I focus on?”, “where am I?”, “catch me up”, “now” -> load `context-now`.
+- User asks to capture, review, prioritize, or update tasks -> load `tasks-todo`.
+- Scheduled frequent check or “watch this quietly” -> load `routines-heartbeat`.
+- Scheduled daily briefing or “give me my pulse” -> load `routines-pulse`.
+- User mentions someone, a promise, relationship maintenance, or “remind me to follow up” -> load `people-followups`.
+- Install/setup/repair/check -> load `core-install` or `core-doctor`.
+- Mail/calendar/runtime integration details -> load the matching `integrations-*` skill and runtime docs lazily.
+
+Do not load every subskill just because Life OS was invoked. That is prompt sludge.
+
+## Decision policy
+
+Safe to do autonomously:
+
+- read Life OS repo files and private Life OS state
+- run doctor/lint checks
+- write Life OS private tracking state
+- summarize already-available runtime state
+- propose task priorities
+- mark an internal routine run as recorded
+
+Ask before:
+
+- contacting people
+- changing external calendar/mail state
+- creating, deleting, disabling, or rescheduling runtime crons
+- changing runtime config
+- globally registering subskills
+- deleting private state
+- publishing, pushing, or rewriting public history
+- broad migrations or refactors
+
+## Output contract
+
+Prefer compact, decision-oriented output:
+
+```text
+Now:
+- Focus: ...
+- Waiting on: ...
+- Risks: ...
+- Suggested next action: ...
+```
+
+For scheduled routines, silence is valid when nothing changed. Do not manufacture noise to prove the system is alive.
 
 ## Deterministic helper
 
-Use the repo helper for state mechanics instead of improvising file layouts:
+Use the repo helper only for boring state mechanics, not for reasoning:
 
 ```bash
 python3 scripts/lifeos.py install --runtime hermes
@@ -35,24 +88,7 @@ python3 scripts/lifeos.py run pulse --summary "daily pulse completed"
 python3 scripts/lifeos.py config
 ```
 
-From the repo root, npm aliases are also available:
-
-```bash
-npm run lifeos -- install --runtime hermes
-npm run lifeos -- doctor
-npm run lifeos -- run pulse --summary "daily pulse completed"
-npm run lifeos -- config
-```
-
-The helper owns:
-
-- resolving the private data directory
-- creating `installed.json`, `runtime.json`, and `config.json`
-- creating per-subskill `data.json` files
-- validating repo/private state with `doctor`
-- recording routine runs in private state
-
-The helper does not create/delete runtime crons, configure delivery routes, store credentials, or mutate runtime memory/vault/mail/calendar systems.
+The helper owns file layout and run records. It does not decide what matters, generate the briefing, create runtime crons, configure delivery routes, store credentials, or mutate runtime memory/vault/mail/calendar systems.
 
 ## Privacy boundary
 
@@ -63,7 +99,7 @@ Do not store these in the repo or Life OS data files:
 - raw mail/calendar credentials
 - runtime delivery targets
 - private chat IDs
-- user logs unless explicitly exported and scrubbed
+- raw logs, transcripts, screenshots, or audio
 
 Runtime-owned systems stay in the runtime. Life OS may store pointers like tool names, adapter names, and last-checked tracking metadata.
 
