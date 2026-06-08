@@ -2,37 +2,180 @@
 
 A portable personal advisor OS built from Agent Skills.
 
-It is designed to work across runtimes such as Hermes and OpenClaw without turning the user's whole life into one giant prompt blob or a second personal database. The public repo contains skills, schemas, runtime adapters, and examples. Private Life OS state stores pointers, source decisions, access notes, operational state, caches, and Life-OS-specific preferences. Real user data usually stays in the runtime or external source that already owns it.
+Agentic Life OS is a skill pack for agents that need to help with day-to-day context, routines, tasks, reminders, relationships, documents, health trends, finance checks, purchases, travel, learning, work evidence, and digital hygiene without becoming a giant private database.
 
-## Core shape
+The design is simple: keep real user data in the runtime or external system that already owns it, keep public skills generic, and store only private pointers, decisions, and operational state in a local Life OS data directory.
 
-```text
-user or scheduled runtime job
-  -> life-os umbrella skill
-    -> detect runtime and data directory
-    -> read skill-index.yaml
-    -> read <data-dir>/config.json
-    -> load only the needed subskills
-    -> run the routine or manual task
-    -> persist private state in <data-dir>/<skill-name>/data.json
+## Index
+
+- [What this is](#what-this-is)
+- [What this is not](#what-this-is-not)
+- [Architecture at a glance](#architecture-at-a-glance)
+- [Request flow](#request-flow)
+- [Runtime model](#runtime-model)
+- [Data model](#data-model)
+- [Skill structure](#skill-structure)
+- [Install model](#install-model)
+- [Quick start](#quick-start)
+- [CLI helper](#cli-helper)
+- [Semantic setup loop](#semantic-setup-loop)
+- [Safety and privacy boundaries](#safety-and-privacy-boundaries)
+- [Validation](#validation)
+- [Status](#status)
+- [Roadmap](#roadmap)
+- [License](#license)
+
+## What this is
+
+Agentic Life OS is a **portable coordination layer** for personal-advisor agents.
+
+It provides:
+
+- an umbrella `life-os` skill
+- 30 lazy-loaded subskills
+- runtime adapters for Hermes and OpenClaw
+- deterministic helper commands for install, doctor, setup questions, config, and plans
+- JSON schemas for private per-skill state
+- public-safe playbooks for personal routines and domain workflows
+
+It is designed for agent runtimes that already have tools for memory, tasks, cron, mail, calendar, docs, browser, vaults, and message delivery.
+
+## What this is not
+
+Agentic Life OS is **not**:
+
+- a replacement task manager
+- a calendar backend
+- a password manager
+- a medical record system
+- a bank or finance database
+- a contact database
+- a second memory store for raw private data
+- a runtime-specific app hard-coded to one user's setup
+
+If a runtime or external app already owns the real data, Life OS stores a pointer and access notes, not a duplicate copy. Duplicating someone's life into another JSON swamp is bad architecture wearing a fake mustache.
+
+## Architecture at a glance
+
+```mermaid
+flowchart TD
+    U[User or scheduled runtime job] --> L[life-os umbrella skill]
+    L --> R[Detect active runtime]
+    L --> D[Resolve private data dir]
+    L --> I[Read skill-index.yaml]
+    L --> C[Read config.json]
+    L --> S[Load only needed subskills]
+    S --> A[Load active runtime adapter only]
+    S --> T[Use runtime-native tools]
+    T --> O[Return actionable output]
+    T --> P[Write private pointers and state]
+
+    D --> FS[$HOME/.life-os or LIFEOS_DATA_DIR]
+    P --> FS
+    A --> H[Hermes adapter]
+    A --> OC[OpenClaw adapter]
 ```
 
-## Design principles
+The important bit: runtime instructions live in separate Markdown adapter files. A task loads the active runtime adapter only. Hermes and OpenClaw instructions should not be shoved into the same prompt just because someone was too lazy to load one file.
 
-- **Portable:** built around Agent Skills, not one vendor runtime.
-- **Token-efficient:** the `life-os` umbrella skill lazy-loads subskills and runtime docs only when needed.
-- **Private by default:** personal data, secrets, memory, mail, calendar credentials, and delivery routing stay in the runtime or local data directory, not in this repo.
-- **Runtime-aware:** Hermes and OpenClaw adapters document how to discover existing runtime capabilities, install/register skills, schedule routines, and use delivery/memory/tasks without hard-coding private runtime state.
-- **Composable:** routines, people, gifts, events, mail, calendar, tasks, health, finance, household, documents, travel, purchases, learning, work, digital hygiene, decision journaling, and reviews are separate skills with their own schemas.
+## Request flow
 
-## Initial skill layout
+```text
+user request or scheduled job
+  -> life-os umbrella skill
+    -> classify intent
+    -> load only the matching subskill
+    -> load only the active runtime adapter if needed
+    -> inspect runtime/external sources read-only first
+    -> ask before side effects
+    -> save source decisions or state pointers
+    -> produce compact, actionable output
+```
+
+For scheduled routines, silence is allowed. The system should not manufacture noise to prove it is alive.
+
+## Runtime model
+
+Hermes and OpenClaw are first-class supported runtimes.
+
+Runtime-wide adapters live here:
+
+```text
+skills/life-os/runtimes/hermes.md
+skills/life-os/runtimes/openclaw.md
+```
+
+Skill-specific runtime adapters live here:
+
+```text
+skills/life-os/skills/<skill>/runtimes/hermes.md
+skills/life-os/skills/<skill>/runtimes/openclaw.md
+```
+
+Rules:
+
+- Load only the active runtime adapter for a task.
+- Do not inline Hermes and OpenClaw command blocks together in generic skills.
+- Use runtime-native discovery before proposing integrations.
+- Ask before changing runtime config, cron jobs, delivery routes, memory, mail, calendar, vaults, or external systems.
+- Keep runtime-owned data in the runtime unless the user explicitly chooses otherwise.
+
+## Data model
+
+Private Life OS state lives outside the repo.
+
+Default:
+
+```text
+$HOME/.life-os
+```
+
+Explicit override:
+
+```text
+LIFEOS_DATA_DIR=/path/to/life-os-data
+```
+
+Core files:
+
+```text
+$LIFEOS_DATA_DIR/config.json
+$LIFEOS_DATA_DIR/runtime.json
+$LIFEOS_DATA_DIR/installed.json
+$LIFEOS_DATA_DIR/<skill-name>/data.json
+```
+
+`config.json` is the private coordination map. It may store:
+
+- source decisions, such as `tasks -> runtime task system`
+- access pointers, such as how to find routine run records
+- `semantic_setup` answers
+- Life-OS-specific preferences
+- internal state, such as last check time or suppression windows
+- dated caches or summaries when useful
+
+It should not store:
+
+- credentials or tokens
+- raw runtime memory dumps
+- full mail, chat, transcript, log, calendar, contact, task, or health exports
+- private delivery targets
+- identity document numbers
+- bank credentials
+
+Use pointers by default. Store real domain data only when it is explicitly a Life OS note, preference, cache, or technical state item.
+
+## Skill structure
 
 ```text
 skills/
   life-os/
-    SKILL.md
-    skill-index.yaml
-    install.yaml
+    SKILL.md                    # umbrella entrypoint
+    skill-index.yaml            # lazy routing index
+    install.yaml                # install metadata
+    runtimes/
+      hermes.md                 # runtime-wide Hermes adapter
+      openclaw.md               # runtime-wide OpenClaw adapter
     skills/
       core-install/
       core-doctor/
@@ -66,77 +209,62 @@ skills/
       integrations-mail/
 ```
 
-## Data location
+Each domain subskill is a playbook. It defines triggers, source ownership, runtime-adapter rules, output contract, safe state, and side-effect boundaries.
 
-Private state should live outside the repo:
+## Skill groups
 
-- Default: `$HOME/.life-os`
-- Override: `LIFEOS_DATA_DIR`
+Core:
 
-Per-skill state follows:
+- `core-install`: install and runtime registration workflow
+- `core-doctor`: health checks and semantic setup checks
+- `core-config`: safe private config reads and updates
 
-```text
-$HOME/.life-os/<skill-name>/data.json
-```
+Context and routines:
 
-When `LIFEOS_DATA_DIR` is set, use:
+- `context-now`, `context-inbox`, `context-commitments`
+- `routines-heartbeat`, `routines-pulse`
+- `routines-daily-review`, `routines-weekly-review`, `routines-monthly-review`, `routines-quarterly-review`
 
-```text
-$LIFEOS_DATA_DIR/<skill-name>/data.json
-```
+People, events, tasks, and integrations:
 
-Runtime-owned capabilities stay in the runtime or external source. Life OS stores the map around them:
+- `events-reminders`
+- `people-contacts`, `people-followups`, `gifts`
+- `tasks-todo`
+- `integrations-runtime`, `integrations-calendar`, `integrations-mail`
 
-- source decisions, for example `birthdays -> calendar tool` or `tasks -> OpenClaw tasks`
-- access notes or pointers needed to retrieve the source again
-- internal routine state, for example last check time, last pulse pointer, last summary pointer, suppression windows, priority scores, and persistent dated caches
-- Life-OS-specific preferences, for example silence/noise policy
+Domain playbooks:
 
-Do not copy full birthdays, contacts, tasks, chats, memories, logs, or credentials into Life OS state unless the item is explicitly a Life OS note, preference, or technical state record. Private caches/result snapshots may include useful non-secret text and default to persistent retention; organize them as dated folders or dated records rather than throwing them into one swamp file.
-
-## Runtime support
-
-Hermes and OpenClaw are first-class supported runtimes. Runtime-specific instructions live in:
-
-```text
-skills/life-os/runtimes/hermes.md
-skills/life-os/runtimes/openclaw.md
-```
-
-For every Life OS skill, check availability and install/register through the active runtime before assuming the skill is missing. Load only the Markdown adapter for the active runtime; do not stuff Hermes and OpenClaw instructions into the same prompt just to avoid looking up one file.
-
-Hermes checks:
-
-```bash
-hermes skills list --source all | grep -E 'life-os|tasks-todo'
-hermes skills list --enabled-only | grep -E 'life-os|tasks-todo'
-```
-
-OpenClaw checks:
-
-```bash
-openclaw skills list | grep -E 'life-os|tasks-todo'
-openclaw skills info life-os
-openclaw skills check
-```
-
-If `life-os` is already available, do not re-register it. Just run the state install from the repo checkout:
-
-```bash
-npm run lifeos -- install --runtime <hermes|openclaw>
-npm run lifeos -- doctor
-```
-
-If the repo is cloned somewhere else and the runtime cannot see the skill yet, ask the user where to install it and whether they want a symlink for live development or a copy for a static snapshot.
+- `health-trends`
+- `finance-checkup`
+- `household-maintenance`
+- `documents-renewals`
+- `travel-planning`
+- `purchase-decisions`
+- `learning-projects`
+- `work-portfolio`
+- `digital-hygiene`
+- `decision-journal`
 
 ## Install model
 
-Life OS install has two layers:
+Install has two layers.
 
-- **Mechanical install:** repo files, private state files, and runtime skill visibility exist.
-- **Semantic install:** source, schedule, delivery, routine, and record-keeping decisions have been asked, answered, and saved in private config.
+Mechanical install:
 
-Do not claim Life OS is fully installed just because the mechanical layer exists. A complete install requires:
+- repo files exist
+- the runtime can see the umbrella skill
+- private state files exist
+- per-skill data containers exist
+
+Semantic install:
+
+- setup questions have been asked
+- source decisions have been saved
+- schedule and delivery policy have been chosen
+- routine record sources are known
+- runtime-owned side effects are approved before being created
+
+Do not claim a full install just because files exist. A complete install requires:
 
 ```text
 doctor.semantic_health.complete = true
@@ -144,15 +272,39 @@ safe_to_claim_fully_installed = true
 install_claim = fully_configured
 ```
 
-If `doctor` reports `install_claim: mechanical_only`, continue the setup loop: ask the next question, save the answer, and check again.
+If `doctor` says `mechanical_only`, continue the setup loop.
 
-Semantic decisions are stored in `$LIFEOS_DATA_DIR/config.json` under `semantic_setup.decisions`. Store pointers, access notes, and runtime ownership choices there, not full personal data.
+## Quick start
 
-Runtime crons and delivery routes are not created by default. Life OS can provide templates, but the active runtime owns actual schedules and delivery, and the user must approve before jobs or routes are created.
+From the repo checkout:
+
+```bash
+npm run lifeos -- install --runtime <hermes|openclaw>
+npm run lifeos -- doctor
+```
+
+If `life-os` is already visible to the runtime, do not re-register it. Just run install and doctor from the checkout.
+
+Hermes visibility check:
+
+```bash
+hermes skills list --source all | grep -E 'life-os|tasks-todo'
+hermes skills list --enabled-only | grep -E 'life-os|tasks-todo'
+```
+
+OpenClaw visibility check:
+
+```bash
+openclaw skills list | grep -E 'life-os|tasks-todo'
+openclaw skills info life-os
+openclaw skills check
+```
+
+If the runtime cannot see the skill, use the active runtime adapter to choose the right registration scope and install mode. Ask before choosing symlink vs copy, profile vs workspace, or shared vs agent-specific visibility.
 
 ## CLI helper
 
-The repo includes a small deterministic helper for the state mechanics agents should not improvise:
+The helper is deliberately boring. Good. Boring deterministic state tools beat clever scripts that silently make product decisions.
 
 ```bash
 npm run lifeos -- install --runtime <hermes|openclaw>
@@ -163,48 +315,67 @@ npm run lifeos -- plan
 npm run lifeos -- config
 ```
 
-What the commands do:
+Commands:
 
-- `install --runtime <runtime>`: creates or refreshes private state files in `$HOME/.life-os` by default. It initializes `semantic_setup` but does not create crons, delivery routes, credentials, memory entries, or migrations.
-- `doctor`: checks repo/private-state health and semantic setup status. Use `semantic_health.complete`, `install_claim`, and `safe_to_claim_fully_installed` as the truth for whether setup is complete.
-- `next-question`: returns exactly the next required semantic setup question plus a command hint for saving the answer.
-- `answer <decision-key> '<answer>'`: saves one approved setup decision in private config. Prefer runtime pointers and access notes over copied data.
-- `plan`: prints remaining setup steps and cron templates without side effects. It must not create runtime jobs or delivery routes.
-- `config`: prints private Life OS config/state. Treat this as private runtime state; do not copy secrets, raw personal data, or delivery targets into public docs.
+- `install --runtime <runtime>`: creates or refreshes private state files in `$HOME/.life-os` by default.
+- `doctor`: checks repo shape, private state, and semantic setup health.
+- `next-question`: returns the next required setup decision.
+- `answer <decision-key> '<answer>'`: saves one approved setup decision.
+- `plan`: prints remaining setup steps and cron templates without side effects.
+- `config`: prints private Life OS config/state.
 
-Semantic setup loop:
+The helper does not create runtime crons, delivery routes, credentials, memory entries, mail/calendar integrations, vault records, or migrations.
 
-1. Run `npm run lifeos -- install --runtime <runtime>` if state may be missing.
-2. Run `npm run lifeos -- doctor`.
-3. If `semantic_health.complete` is false, run `npm run lifeos -- next-question`.
-4. Ask the user that question in the setup conversation.
-5. Save the approved answer with `npm run lifeos -- answer <key> '<answer>'`.
-6. Repeat doctor -> next-question -> answer until complete, or until the user stops setup.
-7. Only after semantic setup is complete and the user approves, turn `plan` cron templates into runtime-owned jobs.
-8. Re-run runtime visibility/status checks after any runtime-owned change.
+## Semantic setup loop
 
-What it does:
+```mermaid
+flowchart TD
+    A[Run install] --> B[Run doctor]
+    B --> C{semantic_health.complete?}
+    C -- no --> D[Run next-question]
+    D --> E[Ask user]
+    E --> F[Save answer]
+    F --> B
+    C -- yes --> G[Safe to claim fully configured]
+    G --> H[Optional: propose runtime jobs]
+    H --> I{User approves side effects?}
+    I -- yes --> J[Create runtime-owned jobs/routes]
+    I -- no --> K[Keep manual or plan-only]
+```
 
-- resolves `$HOME/.life-os` or `LIFEOS_DATA_DIR`
-- creates `installed.json`, `runtime.json`, `config.json`
-- initializes config containers for `sources`, `internal_state`, and `caches`
-- initializes `semantic_setup`, a private checklist of required source, routine, delivery, and scheduling decisions
-- creates per-subskill `$LIFEOS_DATA_DIR/<skill-name>/data.json`
-- validates repo shape, private state, and semantic setup completeness with `doctor`
-- shows the next required setup question with `next-question`
-- saves approved setup answers with `answer <decision-key> '<answer>'`
-- prints a no-side-effect install plan and cron templates with `plan`
-- documents human-readable cron templates in `skills/life-os/templates/cron-jobs.md`
-- keeps runtime-owned crons, delivery, credentials, memory, task systems, and semantic routine behavior out of the helper
-- preserves existing `config.json` choices on re-run
+The loop is intentionally explicit. Setup choices shape behavior, so they should be visible and reversible.
 
-What it deliberately does not do:
+## Safety and privacy boundaries
 
-- create Telegram/Discord/email delivery routes
-- create or delete runtime cron jobs without a saved user decision and explicit approval
-- mark Life OS as fully installed while `doctor.semantic_health.complete` is false
-- store secrets, raw memories, credentials, or private chat IDs
-- replace the host runtime's memory, vault, calendar, or mail integrations
+Safe by default:
+
+- read public repo files
+- read Life OS private state
+- run doctor/lint/tests
+- inspect runtime state with read-only tools
+- summarize already available information
+- write Life OS operational state when it does not mutate external systems
+
+Requires explicit approval:
+
+- contacting people
+- changing external calendar or mail state
+- creating, deleting, disabling, or rescheduling runtime crons
+- changing runtime config
+- changing delivery routes
+- writing memory, vault, task, or contact records in the runtime
+- broad migrations or imports
+- deleting private state
+- publishing, pushing, or rewriting public history
+
+Public repo rule:
+
+- no personal data
+- no private paths
+- no real chat IDs
+- no credentials
+- no user-specific phrases or language examples
+- no raw logs, transcripts, screenshots, audio, exports, or runtime configs
 
 ## Validation
 
@@ -216,13 +387,37 @@ npm run lint:local       # repo-specific skill policy checks
 npm test                 # helper install/doctor/config smoke tests
 ```
 
-## Roadmap
+Expected current shape:
 
-See [`ROADMAP.md`](ROADMAP.md) for autonomy modes, remaining Markdown playbooks, runtime adapters, schemas, examples, and non-goals.
+```text
+31 skills checked by external scan
+30 Life OS subskills in skill-index.yaml
+public-safe scan passes
+lifeos tests ok
+lifeos doctor ok
+```
 
 ## Status
 
-Operational scaffold: install, doctor, config, semantic setup questions, answer persistence, skill linting, public-safety scanning, and CI are implemented. The domain routines are still playbooks; runtime-specific cron creation and external side effects remain runtime-owned and approval-gated.
+Operational scaffold is implemented:
+
+- umbrella skill
+- 30 subskills
+- runtime adapters
+- private state install
+- doctor checks
+- semantic setup questions
+- answer persistence
+- plan output
+- schema and skill linting
+- public-safety scan
+- CI
+
+Domain skills are playbooks. Runtime cron creation, delivery, external writes, and migrations remain runtime-owned and approval-gated.
+
+## Roadmap
+
+See [`ROADMAP.md`](ROADMAP.md) for autonomy modes, remaining playbooks, runtime adapters, schemas, examples, and non-goals.
 
 ## License
 
