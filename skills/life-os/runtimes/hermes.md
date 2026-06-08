@@ -2,7 +2,7 @@
 
 Use this adapter whenever a Life OS skill needs Hermes-specific discovery, installation, scheduling, delivery, or skill visibility behavior.
 
-Hermes docs are authoritative for Hermes behavior. Prefer the live CLI help and docs over assumptions from this repo.
+Hermes docs are authoritative for Hermes behavior. Prefer the live CLI help and docs over assumptions from this repo. Life OS should normally leave Hermes-owned data in Hermes and record config pointers/access instructions.
 
 ## Scope model
 
@@ -135,7 +135,39 @@ Hermes owns:
 - profile selection
 - session history
 
-Life OS may record pointers and private tracking state under `$HOME/.life-os`, but it must not copy Hermes secrets, delivery targets, raw memory dumps, sessions, transcripts, logs, or credentials into the public repo or Life OS state.
+Life OS may record pointers and private tracking state under `$HOME/.life-os`, but it must not copy Hermes secrets, delivery targets, raw memory dumps, sessions, transcripts, logs, or credentials into the public repo or Life OS state. Dated caches/result snapshots are allowed in private Life OS state when useful, but never credentials or full raw dumps.
+
+## Runtime-owned storage pointers
+
+Record pointers/access instructions in Life OS config when a skill needs to find Hermes-owned records later.
+
+Cron, verified against Hermes cron docs (`/docs/user-guide/features/cron`) and `cron/jobs.py` in Hermes Agent:
+
+```text
+active Hermes home/cron/jobs.json
+active Hermes home/cron/output/<job_id>/<timestamp>.md
+```
+
+Use `hermes config path` to identify the active profile/config context, then prefer:
+
+```bash
+hermes cron list --all
+hermes cron status
+```
+
+Memory:
+
+```bash
+hermes memory status
+```
+
+Sessions:
+
+```bash
+hermes sessions list
+```
+
+Do not copy full Hermes cron output, memory, transcripts, or logs into repo docs. Private Life OS state may keep pointers, last-checked timestamps, last-summary pointers, suppression windows, and caches when useful.
 
 ## Integration guidance
 
@@ -148,6 +180,6 @@ Ask before:
 - changing profile config or switching the default profile
 - enabling/disabling tools, plugins, MCP servers, or skills
 - changing memory providers or writing durable Hermes memories
-- importing or migrating Hermes-owned data into Life OS private state
+- importing, migrating, or reconnecting Hermes-owned data/references
 
 Never build path-specific Python/JS detectors for Hermes internals in this repo. Use Hermes commands, docs, and LLM reasoning at install/doctor time.

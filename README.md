@@ -2,7 +2,7 @@
 
 A portable personal advisor OS built from Agent Skills.
 
-It is designed to work across runtimes such as Hermes and OpenClaw without turning the user's whole life into one giant prompt blob. The public repo contains skills, schemas, runtime adapters, and examples. Private state lives outside the repo in a user data directory.
+It is designed to work across runtimes such as Hermes and OpenClaw without turning the user's whole life into one giant prompt blob or a second personal database. The public repo contains skills, schemas, runtime adapters, and examples. Private Life OS state stores pointers, source decisions, access notes, operational state, caches, and Life-OS-specific preferences. Real user data usually stays in the runtime or external source that already owns it.
 
 ## Core shape
 
@@ -75,7 +75,14 @@ When `LIFEOS_DATA_DIR` is set, use:
 $LIFEOS_DATA_DIR/<skill-name>/data.json
 ```
 
-Runtime-owned capabilities stay in the runtime. Life OS can store pointers and tracking metadata, not copied credentials or private memory dumps.
+Runtime-owned capabilities stay in the runtime or external source. Life OS stores the map around them:
+
+- source decisions, for example `birthdays -> calendar tool` or `tasks -> OpenClaw tasks`
+- access notes or pointers needed to retrieve the source again
+- internal routine state, for example last check time, last pulse pointer, last summary pointer, suppression windows, priority scores, and persistent dated caches
+- Life-OS-specific preferences, for example silence/noise policy
+
+Do not copy full birthdays, contacts, tasks, chats, memories, logs, or credentials into Life OS state unless the item is explicitly a Life OS note, preference, or technical state record. Private caches/result snapshots may include useful non-secret text and default to persistent retention; organize them as dated folders or dated records rather than throwing them into one swamp file.
 
 ## Runtime support
 
@@ -126,6 +133,7 @@ What it does:
 
 - resolves `$HOME/.life-os` or `LIFEOS_DATA_DIR`
 - creates `installed.json`, `runtime.json`, `config.json`
+- initializes config containers for `sources`, `internal_state`, and `caches`
 - creates per-subskill `$LIFEOS_DATA_DIR/<skill-name>/data.json`
 - validates repo shape and private state with `doctor`
 - keeps runtime-owned crons, delivery, credentials, memory, task systems, and semantic routine behavior out of the helper

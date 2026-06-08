@@ -25,5 +25,5 @@ python3 scripts/lifeos.py doctor
 
 - Missing `life-os` in Hermes is a profile/skill visibility issue, not a private-state failure.
 - Hermes cron, memory, gateway, tools, profiles, plugins, config, and sessions remain Hermes-owned.
-- Report runtime-owned systems and recommend leave/bridge/import/migrate, but do not change anything without approval.
+- Report runtime-owned systems and source decisions, then recommend leave/bridge/reference/create runtime-native store/reconnect references as appropriate. Do not change anything without approval.
 - Do not use hard-coded Hermes paths as doctor logic; use native commands and docs.

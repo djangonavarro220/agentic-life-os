@@ -4,7 +4,7 @@ This roadmap tracks the remaining work for turning Agentic Life OS from an opera
 
 ## Guiding principle
 
-The main product is the skill/playbook layer: Markdown instructions that teach an LLM what to inspect, how to reason, when to ask, when to act, and how to report. Scripts are only boring state helpers and should not become the product.
+The main product is the skill/playbook layer: Markdown instructions that teach an LLM what to inspect, how to reason, where each source of truth lives, when to ask, when to write private coordination state, and how to report. Scripts are only boring state helpers and should not become the product. Life OS is a helper over Hermes/OpenClaw/external sources, not a second database for the user's life.
 
 ## 1. Configurable autonomy modes
 
@@ -146,13 +146,14 @@ Examples should be short and public-safe.
 
 Current schemas are intentionally permissive. Future schemas should become useful without overfitting:
 
-- shared run-record schema
-- per-routine state schema
-- pointers to runtime-owned tools/sources
+- source-decision records: owner/runtime/tool/access instructions
+- operational state: last check time, suppression windows, last-summary pointer, priority score
+- dated caches/result snapshots
+- runtime-owned tool/source pointers
 - autonomy config schema
-- task/follow-up/gift minimal schemas
+- task/follow-up/gift minimal schemas for Life-OS-created notes only
 
-Do not store raw private content just because the schema can represent it.
+Do not store full raw private dumps just because the schema can represent them. Caches may contain text when needed, but they should be deliberate, dated, private-state only, and never include credentials or secrets.
 
 ## 8. Cron and routine install design
 

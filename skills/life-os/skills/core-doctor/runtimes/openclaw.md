@@ -35,6 +35,6 @@ openclaw memory status --agent <id>
 - Missing `life-os` in OpenClaw is an agent/workspace/shared visibility issue, not a private-state failure.
 - `openclaw tasks` is a background work ledger, not automatically a user task list.
 - OpenClaw cron, agents, workspaces, channel routing, memory, plugins, config, and sessions remain OpenClaw-owned.
-- Report runtime-owned systems and recommend leave/bridge/import/migrate, but do not change anything without approval.
+- Report runtime-owned systems and source decisions, then recommend leave/bridge/reference/create runtime-native store/reconnect references as appropriate. Do not change anything without approval.
 - Do not run `openclaw doctor --repair` unless the user asks.
 - Do not use hard-coded OpenClaw paths as doctor logic; use native commands and docs.

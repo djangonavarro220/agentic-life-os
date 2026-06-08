@@ -11,7 +11,7 @@ Use this skill as the stable entrypoint for Agentic Life OS.
 
 ## Mission
 
-Act as a portable personal advisor OS made of small Agent Skills. The product is not the helper script. The product is the agent behavior: knowing what to inspect, what to ignore, when to ask, when to write private state, and how to surface useful output without turning the user's life into one giant prompt blob.
+Act as a portable helper and coordination layer that makes the active runtime more useful. Life OS is not the new owner of the user's life data. The product is the agent behavior: knowing what to inspect, where each source of truth lives, what to ignore, when to ask, when to write private coordination state, and how to surface useful output without turning the user's life into one giant prompt blob or duplicated database.
 
 ## Operating model
 
@@ -27,9 +27,10 @@ Act as a portable personal advisor OS made of small Agent Skills. The product is
 6. Classify the user request or scheduled trigger.
 7. Load only the subskills needed for that intent.
 8. For setup/integration tasks, investigate existing runtime-owned systems with runtime-native discovery before proposing bridges, imports, migrations, schedules, or delivery routes.
-9. Execute the selected playbook with runtime-native tools.
-10. Record short tracking state in `$LIFEOS_DATA_DIR/<skill-name>/data.json` when useful.
-11. Surface only actionable output.
+9. Decide and record where each source of truth lives. The LLM chooses per setup and stores that decision in config so future runs remember it.
+10. Execute the selected playbook with runtime-native tools.
+11. Record short coordination state in `$LIFEOS_DATA_DIR/<skill-name>/data.json` or config when useful.
+12. Surface only actionable output.
 
 Hermes and OpenClaw are first-class supported runtimes. Runtime-specific install, visibility, scheduling, delivery, and global-registration instructions must be documented for both before a workflow is considered complete. Do not add a Hermes-only step without either adding the OpenClaw equivalent or explicitly marking it as not supported yet.
 
@@ -46,6 +47,43 @@ Use this routing by default:
 - Mail/calendar/runtime integration details -> load the matching `integrations-*` skill and runtime docs lazily.
 
 Do not load every subskill just because Life OS was invoked. That is prompt sludge.
+
+## Ownership model
+
+Default: real user data stays where it already lives, or in the runtime/external source the LLM chooses during setup. Life OS stores the map, not the territory.
+
+Examples of source decisions Life OS may store in config:
+
+```text
+birthdays -> calendar tool
+birthdays -> runtime memory
+tasks -> OpenClaw tasks
+tasks -> Hermes memory
+cron_records -> Hermes cron output
+cron_records -> OpenClaw cron run logs
+```
+
+A reference can include how to access the source, which runtime/tool owns it, which adapter to load, and short instructions needed for future runs. It should not include the actual full birthdays, tasks, contacts, memories, chats, or credentials.
+
+Life OS private state/config may store:
+
+- source decisions and access instructions
+- pointer to the last pulse or summary
+- pointer to cron/job run records
+- last time a source was checked
+- suppression windows such as “do not alert again until X”
+- pointers to task lists or memory sources
+- silence/noise preferences
+- calculated priority scores
+- caches and result snapshots, kept until the user or runtime policy clears them
+- dated folders or dated records for persistent internal state and caches
+- Life-OS-specific preferences
+- technical state for a skill
+- notes created explicitly inside Life OS
+
+If a new domain has no obvious place, prefer the runtime's own memory/notes/tasks/calendar/contact system. If the runtime lacks a suitable store, the LLM may create or choose the closest runtime-native store and record that decision in config. Store real domain data in Life OS only when it is explicitly a Life OS preference, technical state, or Life OS-created note.
+
+When moving from one runtime to another, the LLM should attempt a careful migration/reconnection of references: inspect old pointers, find the closest new runtime source, propose a mapping, and ask before changing or copying anything.
 
 ## Decision policy
 
@@ -93,20 +131,19 @@ python3 scripts/lifeos.py doctor
 python3 scripts/lifeos.py config
 ```
 
-The helper owns file layout and run records. It does not decide what matters, generate the briefing, create runtime crons, configure delivery routes, store credentials, or mutate runtime memory/vault/mail/calendar systems.
+The helper owns file layout and basic config containers. It does not decide what matters, generate the briefing, create runtime crons, configure delivery routes, store credentials, mutate runtime memory/vault/mail/calendar systems, or own semantic run history.
 
 ## Privacy boundary
 
-Do not store these in the repo or Life OS data files:
+Do not store these in the public repo:
 
 - secrets or tokens
-- real private memories
-- raw mail/calendar credentials
 - runtime delivery targets
 - private chat IDs
 - raw logs, transcripts, screenshots, or audio
+- private data files
 
-Runtime-owned systems stay in the runtime. Life OS may store pointers like tool names, adapter names, and last-checked tracking metadata.
+In Life OS private state, prefer pointers and operational state, but caches/result snapshots may include text when that is needed for the skill to function. Keep them organized by dated folders or dated records. Default retention is persistent: do not auto-delete private state, caches, source decisions, or pointers unless the user or runtime policy explicitly says to clear them. Never store credentials or secrets.
 
 ## Subskill loading
 
@@ -116,7 +153,7 @@ Subskills live under:
 skills/life-os/skills/<subskill>/SKILL.md
 ```
 
-Default: subskills are not globally registered. `tasks-todo` is the exception candidate: installers may ask whether to register it globally for the current runtime.
+Default: subskills are reached through the umbrella skill, not globally registered. If the user wants a subskill globally visible, treat that as a runtime adapter decision and ask before changing runtime skill visibility.
 
 ## Routine execution
 

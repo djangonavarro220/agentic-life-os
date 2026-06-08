@@ -36,6 +36,9 @@ def main() -> int:
         config = run("config", data_dir=data_dir)
         assert config["ok"] is True
         assert config["config"]["runtime"] == "hermes"
+        assert isinstance(config["config"]["sources"], dict)
+        assert isinstance(config["config"]["internal_state"], dict)
+        assert isinstance(config["config"]["caches"], dict)
         assert "optional_global_skills" not in config["config"]
         assert "schedules" not in config["config"]
 

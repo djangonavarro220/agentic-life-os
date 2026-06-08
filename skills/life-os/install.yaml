@@ -9,5 +9,3 @@ recommended_schedule:
 installer_prompt: |
   Do you want the recommended schedule?
   You can say "yes", "no", or give rough preferences like "less often", "mornings only", "weekends", etc.
-optional_global_skills:
-  - tasks-todo

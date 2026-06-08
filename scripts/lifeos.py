@@ -55,7 +55,6 @@ class Subskill:
     name: str
     path: str
     category: str
-    optional_global_registration: bool = False
 
 
 def parse_skill_index(path: Path = SKILL_INDEX) -> dict[str, Subskill]:
@@ -99,7 +98,6 @@ def parse_skill_index(path: Path = SKILL_INDEX) -> dict[str, Subskill]:
             name=name,
             path=str(meta.get("path", "")),
             category=str(meta.get("category", "uncategorized")),
-            optional_global_registration=bool(meta.get("optional_global_registration", False)),
         )
         for name, meta in subskills.items()
     }
@@ -179,6 +177,9 @@ def install(args: argparse.Namespace) -> dict[str, Any]:
     config.setdefault("enabled", True)
     config.setdefault("runtime", args.runtime)
     config.setdefault("skills", {name: {"enabled": True} for name in sorted(subskills)})
+    config.setdefault("sources", {})
+    config.setdefault("internal_state", {})
+    config.setdefault("caches", {})
     config.setdefault("created_at", now)
     config["updated_at"] = now
 
@@ -192,7 +193,7 @@ def install(args: argparse.Namespace) -> dict[str, Any]:
         "data_dir": str(data_dir),
         "runtime": args.runtime,
         "subskills": len(subskills),
-        "note": "Runtime cron creation, delivery routing, task migration, credentials, and memory remain runtime-owned and are not modified by this helper.",
+        "note": "Runtime cron creation, delivery routing, task source changes, credentials, and memory remain runtime-owned and are not modified by this helper.",
     }
 
 

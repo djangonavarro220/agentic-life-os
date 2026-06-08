@@ -2,7 +2,7 @@
 
 Use this adapter whenever a Life OS skill needs OpenClaw-specific discovery, installation, scheduling, delivery, agent workspace, or skill visibility behavior.
 
-OpenClaw docs are authoritative for OpenClaw behavior. Prefer `openclaw docs`, repo docs, and live CLI help over assumptions from this repo.
+OpenClaw docs are authoritative for OpenClaw behavior. Prefer `openclaw docs`, repo docs, and live CLI help over assumptions from this repo. Life OS should normally leave OpenClaw-owned data in OpenClaw and record config pointers/access instructions.
 
 ## Scope model
 
@@ -143,7 +143,43 @@ OpenClaw owns:
 - plugins and channel integrations
 - sessions and usage/status data
 
-Life OS may record pointers and private tracking state under `$HOME/.life-os`, but it must not copy OpenClaw secrets, channel targets, raw memory dumps, sessions, transcripts, logs, or credentials into the public repo or Life OS state.
+Life OS may record pointers and private tracking state under `$HOME/.life-os`, but it must not copy OpenClaw secrets, channel targets, raw memory dumps, sessions, transcripts, logs, or credentials into the public repo or Life OS state. Dated caches/result snapshots are allowed in private Life OS state when useful, but never credentials or full raw dumps.
+
+## Runtime-owned storage pointers
+
+Record pointers/access instructions in Life OS config when a skill needs to find OpenClaw-owned records later.
+
+Cron:
+
+```text
+~/.openclaw/cron/jobs.json
+~/.openclaw/cron/jobs-state.json
+~/.openclaw/cron/runs/<jobId>.jsonl
+```
+
+Prefer CLI commands before direct file reads:
+
+```bash
+openclaw cron list
+openclaw cron runs --id <job-id>
+```
+
+Tasks/background work ledger:
+
+```bash
+openclaw tasks list
+openclaw tasks show <lookup>
+openclaw tasks audit
+```
+
+Memory:
+
+```bash
+openclaw memory status
+openclaw memory search <query>
+```
+
+Do not copy full OpenClaw cron output, task records, memory, transcripts, or logs into repo docs. Private Life OS state may keep pointers, last-checked timestamps, last-summary pointers, suppression windows, priority scores, and caches when useful.
 
 ## Integration guidance
 
@@ -157,6 +193,6 @@ Ask before:
 - enabling/disabling skills, plugins, tools, or sandbox settings
 - changing memory providers or running memory promotions
 - running `openclaw doctor --repair` or config fix modes
-- importing or migrating OpenClaw-owned data into Life OS private state
+- importing, migrating, or reconnecting OpenClaw-owned data/references
 
 Never build path-specific Python/JS detectors for OpenClaw internals in this repo. Use OpenClaw commands, docs, and LLM reasoning at install/doctor time.

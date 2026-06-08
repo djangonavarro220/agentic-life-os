@@ -8,7 +8,7 @@ license: MIT
 
 # core-doctor
 
-Diagnose Agentic Life OS repo state, private state, runtime visibility, and integration readiness. The script doctor validates boring files; the LLM doctor interprets what it means and what is safe to do next.
+Diagnose Agentic Life OS repo state, private state, runtime visibility, source-decision config, and integration readiness. The script doctor validates boring files; the LLM doctor interprets what it means and what is safe to do next.
 
 ## Trigger
 
@@ -116,7 +116,8 @@ Interpretation:
 Classify every finding as one of these:
 
 - `repo`: public repo files, skill index, schemas, docs, CI metadata
-- `private-state`: `$LIFEOS_DATA_DIR` install/config/data files
+- `private-state`: `$LIFEOS_DATA_DIR` install/config/data files, including `sources`, `internal_state`, and `caches`
+- `source-decisions`: where each domain lives and how future runs should access it
 - `runtime-visibility`: runtime can or cannot see `life-os` or subskills
 - `runtime-owned`: cron, tasks ledger, memory, delivery, tools, config, profiles, agents, workspaces, plugins
 - `approval-needed`: any proposed change with side effects
@@ -130,6 +131,7 @@ Doctor:
 - Private state: <ok|missing|warning>
 - Runtime: <Hermes|OpenClaw|unknown>
 - Skill visibility: <visible|missing|ambiguous>
+- Source decisions: <configured|missing|ambiguous>
 - Runtime-owned systems: <summary>
 - Issues: <short list>
 - Safe next action: <one action>

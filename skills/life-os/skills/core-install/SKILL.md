@@ -8,7 +8,7 @@ license: MIT
 
 # core-install
 
-Install Agentic Life OS private state and make the umbrella skill visible to the current runtime. Install is a conversation and inspection workflow, not a blind script.
+Install Agentic Life OS private state and make the umbrella skill visible to the current runtime. Install is a conversation and inspection workflow, not a blind script. Life OS is a helper over the runtime: it records where things live and how to access them, rather than becoming the owner of calendars, tasks, memory, crons, vaults, or delivery.
 
 ## Trigger
 
@@ -47,9 +47,9 @@ Do not add helper-script heuristics for runtime discovery. Runtime installations
    - profiles, agents, workspaces, or channel bindings
 7. Present options before changing anything:
    - leave the runtime system alone and only read it when relevant
-   - bridge to it through runtime-native tools/pointers
-   - import a selected subset into Life OS private state
-   - migrate ownership to Life OS private state
+   - record a pointer/reference and bridge through runtime-native tools
+   - import selected pointers, access notes, or Life-OS-specific state into config
+   - migrate/reconnect references when moving between runtimes, using runtime-native stores for real data where possible
 8. Ask approval before creating any bridge, import, migration, cron, delivery route, global skill registration, config edit, or destructive change.
 9. Run private state install and doctor.
 10. Verify with runtime-native skill visibility commands and `lifeos.py doctor`.
@@ -67,7 +67,30 @@ Use `--data-dir <path>` only when the user explicitly wants a non-default privat
 
 ## Runtime-owned system discovery
 
-Discovery is read-only by default. Use it to inform the user, not to auto-migrate.
+Discovery is read-only by default. Use it to inform the user, not to auto-migrate. After the LLM decides where a domain should live, record that source decision in `config.json` so later runs do not rediscover from scratch.
+
+Config may store source records such as:
+
+```json
+{
+  "sources": {
+    "birthdays": {
+      "owner": "runtime",
+      "runtime": "hermes",
+      "source": "memory",
+      "access": "use Hermes memory search for birthday records"
+    },
+    "cron_records": {
+      "owner": "runtime",
+      "runtime": "openclaw",
+      "source": "cron.run_logs",
+      "access": "openclaw cron runs --id <job-id>; stored logs live under ~/.openclaw/cron/runs/<jobId>.jsonl"
+    }
+  }
+}
+```
+
+Do not store the actual full birthday/contact/task list just to remember where it is.
 
 ### Hermes discovery checklist
 
@@ -91,6 +114,7 @@ hermes config check
 Notes:
 
 - `hermes cron` owns scheduling. Life OS may propose jobs, but should not create or edit them without approval.
+- Hermes cron definitions live under the active Hermes home at `cron/jobs.json`; Hermes cron output is saved under `cron/output/<job_id>/<timestamp>.md`. This was checked against Hermes cron docs (`/docs/user-guide/features/cron`) and Hermes Agent `cron/jobs.py`. Prefer CLI commands (`hermes cron list --all`, `hermes cron status`) before reading files directly, and record only pointers/instructions in Life OS config.
 - Hermes profiles have separate homes and skills. Do not edit another profile unless the user selected it.
 - Hermes memory and user profile are runtime-owned. Store only pointers or safe tracking metadata in Life OS private state.
 - Telegram, Discord, and other delivery routes are runtime-owned. Do not copy raw chat IDs into repo docs or public examples.
@@ -126,6 +150,7 @@ Notes:
 
 - OpenClaw `tasks` are an activity ledger, not a task-list replacement by default.
 - OpenClaw cron runs inside the Gateway and owns schedule definitions and run history.
+- OpenClaw cron definitions live in `~/.openclaw/cron/jobs.json` by default, pending runtime state lives in `~/.openclaw/cron/jobs-state.json`, and run logs live under `~/.openclaw/cron/runs/<jobId>.jsonl`. Prefer CLI commands (`openclaw cron list`, `openclaw cron runs --id <job-id>`) before reading files directly, and record only pointers/instructions in Life OS config.
 - OpenClaw agents/workspaces can have different skill visibility and routing bindings.
 - OpenClaw memory, secrets, channel routing, and plugin config are runtime-owned.
 
@@ -149,7 +174,7 @@ If runtime detection is ambiguous, ask one concrete question: which runtime, pro
 
 - `$LIFEOS_DATA_DIR/installed.json`
 - `$LIFEOS_DATA_DIR/runtime.json`
-- `$LIFEOS_DATA_DIR/config.json`
+- `$LIFEOS_DATA_DIR/config.json` with mechanical containers for `sources`, `internal_state`, and `caches`
 - `$LIFEOS_DATA_DIR/<skill-name>/data.json` for every indexed subskill
 
 ## Boundaries

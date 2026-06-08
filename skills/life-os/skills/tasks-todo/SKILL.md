@@ -1,6 +1,6 @@
 ---
 name: tasks-todo
-description: Manage tasks and todos; may optionally be registered globally by a runtime.
+description: Help with task capture/review while keeping the task source in the runtime or selected external store.
 version: 0.2.0
 author: Agentic Life OS contributors
 license: MIT
@@ -35,12 +35,14 @@ If a task is vague, ask at most one lightweight clarification unless a safe defa
 
 ## Integration policy
 
-Runtime task systems stay runtime-owned. This skill may:
+Runtime task systems stay runtime-owned unless the user explicitly chooses a different source. This skill may:
 
-- read runtime tasks when the runtime exposes them
-- write Life OS tracking/pointers
+- discover where tasks live
+- record `sources.tasks` in Life OS config, including access instructions
+- read runtime/external tasks when the runtime exposes them
+- write Life OS operational state such as last review time, priority scores, suppression windows, and caches
 - propose task updates
-- update runtime tasks only when the user explicitly asked and the runtime tool is available
+- update runtime/external tasks only when the user explicitly asked and the runtime tool is available
 
 Do not silently migrate all tasks into Life OS data. That is how you create a second todo swamp. Terrible idea.
 
@@ -67,13 +69,13 @@ Tasks:
 
 ## Install behavior
 
-During install, ask whether the user also wants this skill registered globally for the current runtime. The helper does not record or perform global registration; it only creates private Life OS state.
+During install, do not globally register this subskill by default. If the user wants `tasks-todo` directly callable, ask first and handle it as a runtime adapter visibility decision. The helper does not record or perform global registration; it only creates private Life OS state containers.
 
 Runtime-specific registration remains an adapter step. Load the matching runtime adapter before telling the user how to expose `tasks-todo` globally.
 
 ## State update
 
-When a task review materially changes the user's active plan, record a short summary in private state. Do not store raw private task dumps unless the runtime/user explicitly chose Life OS as the task store.
+When a task review materially changes the user's active plan, record operational state and pointers in private state/config. Do not store raw private task dumps unless the item is explicitly a Life OS note or the user chose Life OS as the task source.
 
 ## Data
 

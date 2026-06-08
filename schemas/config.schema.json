@@ -6,6 +6,21 @@
   "properties": {
     "enabled": { "type": "boolean" },
     "runtime": { "type": "string" },
+    "sources": {
+      "type": "object",
+      "description": "Source-of-truth decisions and access notes. Real data normally stays in the runtime or external source.",
+      "additionalProperties": true
+    },
+    "internal_state": {
+      "type": "object",
+      "description": "Life OS operational state such as last checks, suppression windows, priority scores, and routine pointers.",
+      "additionalProperties": true
+    },
+    "caches": {
+      "type": "object",
+      "description": "Dated or named caches/result snapshots used by Life OS routines. Persistent by default; may contain non-secret text when useful.",
+      "additionalProperties": true
+    },
     "skills": {
       "type": "object",
       "additionalProperties": true
