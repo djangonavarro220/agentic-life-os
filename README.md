@@ -81,7 +81,16 @@ Runtime-owned capabilities stay in the runtime. Life OS can store pointers and t
 
 The repo includes a small deterministic helper for the state mechanics agents should not improvise:
 
-Fresh local Hermes install:
+If the skill is already installed, just run the state install from the existing checkout:
+
+```bash
+npm run lifeos -- install --runtime hermes
+npm run lifeos -- doctor
+```
+
+Fresh local Hermes install, after asking the user whether they want symlink or copy.
+
+Symlink option:
 
 ```bash
 git clone https://github.com/djangonavarro220/agentic-life-os.git
@@ -93,11 +102,23 @@ npm run lifeos -- doctor
 hermes skills list --source local | grep -E 'life-os|tasks-todo'
 ```
 
-Existing checkout:
+Copy option:
 
 ```bash
+git clone https://github.com/djangonavarro220/agentic-life-os.git
+cd agentic-life-os
+mkdir -p "$HOME/.hermes/skills/productivity"
+cp -R skills/life-os "$HOME/.hermes/skills/productivity/life-os"
 npm run lifeos -- install --runtime hermes
 npm run lifeos -- doctor
+hermes skills list --source local | grep -E 'life-os|tasks-todo'
+```
+
+The symlink/copy step is Hermes-specific. If the repo is cloned somewhere else and the runtime cannot see the skill yet, ask the user whether they want a symlink for live development or a copy for a static snapshot. Other runtimes should use their own skill-install mechanism.
+
+Common helper commands:
+
+```bash
 npm run lifeos -- run pulse --summary "daily pulse completed"
 npm run lifeos -- config
 ```
