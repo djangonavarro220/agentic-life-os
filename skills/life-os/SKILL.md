@@ -41,6 +41,16 @@ Use this routing by default:
 
 - User asks for current context, immediate focus, a next action, or a catch-up -> load `context-now`.
 - User asks to capture, review, prioritize, or update tasks -> load `tasks-todo`.
+- User asks about symptoms, habits, sleep, exercise, medication notes, or care preparation -> load `health-trends`.
+- User asks about spending signals, subscriptions, renewals, savings goals, or finance anomalies -> load `finance-checkup`.
+- User asks about home, vehicle, appliance, warranty, insurance, or maintenance obligations -> load `household-maintenance`.
+- User asks about identity documents, permits, contracts, certificates, domains, or other expirations -> load `documents-renewals`.
+- User asks about trips, reservations, packing, itineraries, travel risks, or travel follow-ups -> load `travel-planning`.
+- User asks whether to buy something, compare options, defer a purchase, or track post-purchase follow-up -> load `purchase-decisions`.
+- User asks about courses, books, practice, study plans, learning notes, or skill-building projects -> load `learning-projects`.
+- User asks about achievements, portfolio evidence, CV/interview material, opportunities, or professional narrative -> load `work-portfolio`.
+- User asks about accounts, backups, devices, 2FA, domains, abandoned services, privacy, or security hygiene -> load `digital-hygiene`.
+- User asks to record or review an important decision, options, tradeoffs, assumptions, or outcomes -> load `decision-journal`.
 - Scheduled frequent check or a quiet watch request -> load `routines-heartbeat`.
 - Scheduled daily briefing, pulse, or proactive daily synthesis -> load `routines-pulse`.
 - User mentions someone, a promise, relationship maintenance, or “remind me to follow up” -> load `people-followups`.

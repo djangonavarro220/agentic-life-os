@@ -23,7 +23,7 @@ user or scheduled runtime job
 - **Token-efficient:** the `life-os` umbrella skill lazy-loads subskills and runtime docs only when needed.
 - **Private by default:** personal data, secrets, memory, mail, calendar credentials, and delivery routing stay in the runtime or local data directory, not in this repo.
 - **Runtime-aware:** Hermes and OpenClaw adapters document how to discover existing runtime capabilities, install/register skills, schedule routines, and use delivery/memory/tasks without hard-coding private runtime state.
-- **Composable:** routines, people, gifts, events, mail, calendar, tasks, and reviews are separate skills with their own schemas.
+- **Composable:** routines, people, gifts, events, mail, calendar, tasks, health, finance, household, documents, travel, purchases, learning, work, digital hygiene, decision journaling, and reviews are separate skills with their own schemas.
 
 ## Initial skill layout
 
@@ -51,6 +51,16 @@ skills/
       people-followups/
       gifts/
       tasks-todo/
+      health-trends/
+      finance-checkup/
+      household-maintenance/
+      documents-renewals/
+      travel-planning/
+      purchase-decisions/
+      learning-projects/
+      work-portfolio/
+      digital-hygiene/
+      decision-journal/
       integrations-runtime/
       integrations-calendar/
       integrations-mail/

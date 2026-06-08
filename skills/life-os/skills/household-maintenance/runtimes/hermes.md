@@ -1,0 +1,21 @@
+# Hermes adapter for household-maintenance
+
+Load this file only when the active runtime is Hermes.
+
+## Read-only discovery
+
+Use Hermes-native tools and commands available in the active profile. Prefer runtime tools over path guesses. Useful discovery classes:
+
+- memory/profile lookup for existing source decisions or durable context
+- task/TODO tools for follow-ups
+- cron/job status for routine history
+- calendar, mail, docs, vault, or browser tools when enabled and relevant
+- session search for prior decisions when the user references earlier work
+
+## Write policy
+
+Ask before changing Hermes cron jobs, gateway delivery, channel prompts, profile config, memory providers, vault entries, mail/calendar state, or external services. Store Life OS pointers in `$LIFEOS_DATA_DIR/config.json` or `$LIFEOS_DATA_DIR/household-maintenance/data.json`, not in public repo files.
+
+## Output
+
+Return a compact summary, the source consulted, and the next action. Stay silent for scheduled runs when the saved policy says no actionable change should be delivered.

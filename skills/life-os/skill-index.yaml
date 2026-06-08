@@ -62,3 +62,33 @@ subskills:
   integrations-mail:
     path: skills/integrations-mail/SKILL.md
     category: integrations
+  health-trends:
+    path: skills/health-trends/SKILL.md
+    category: health
+  finance-checkup:
+    path: skills/finance-checkup/SKILL.md
+    category: finance
+  household-maintenance:
+    path: skills/household-maintenance/SKILL.md
+    category: household
+  documents-renewals:
+    path: skills/documents-renewals/SKILL.md
+    category: documents
+  travel-planning:
+    path: skills/travel-planning/SKILL.md
+    category: travel
+  purchase-decisions:
+    path: skills/purchase-decisions/SKILL.md
+    category: purchases
+  learning-projects:
+    path: skills/learning-projects/SKILL.md
+    category: learning
+  work-portfolio:
+    path: skills/work-portfolio/SKILL.md
+    category: work
+  digital-hygiene:
+    path: skills/digital-hygiene/SKILL.md
+    category: digital
+  decision-journal:
+    path: skills/decision-journal/SKILL.md
+    category: decisions

@@ -71,6 +71,21 @@ This should be documented in the umbrella `life-os` skill and inherited by all s
 
 Priority subskills that need real LLM instructions:
 
+Added baseline playbooks:
+
+- `health-trends`: health signals, habits, clinician-prep questions, and no-diagnosis boundaries.
+- `finance-checkup`: recurring costs, renewals, anomalies, savings goals, and pointer-only finance state.
+- `household-maintenance`: home, vehicle, appliance, warranty, insurance, and service follow-ups.
+- `documents-renewals`: identity documents, permits, contracts, domains, certificates, and expiry lead times.
+- `travel-planning`: reservations, documents, packing, itinerary risks, and travel follow-ups.
+- `purchase-decisions`: requirements, comparisons, total cost, risk, timing, and post-purchase tracking.
+- `learning-projects`: learning goals, courses, practice sessions, notes, review cadence, and blockers.
+- `work-portfolio`: achievement logs, portfolio evidence, interview stories, opportunities, and professional follow-ups.
+- `digital-hygiene`: accounts, backups, 2FA, devices, domains, abandoned services, privacy, and security hygiene.
+- `decision-journal`: decisions, options, tradeoffs, assumptions, review dates, and outcomes.
+
+Remaining priority subskills that need real LLM instructions:
+
 - `core-config`: how to read/update private config safely, including autonomy modes.
 - `core-install`: installer conversation, data-dir explanation, runtime skill visibility, runtime-owned system discovery, and approval-gated registration/bridging.
 - `core-doctor`: diagnose repo, private state, runtime visibility, runtime-owned systems, and safe next actions without repair side effects.
