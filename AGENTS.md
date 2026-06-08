@@ -27,10 +27,10 @@ This repo contains a portable Agent Skills based personal advisor OS.
 
 - A Life OS install has two layers:
   - **mechanical install:** repo/private files exist and skills are visible;
-  - **semantic install:** source, schedule, delivery, routine, and record-keeping decisions have been asked, answered, and saved in the owning skill data files, with global config retaining setup status and pointers.
+  - **semantic install:** source, schedule, delivery, routine, and record-keeping decisions have been asked and answered. Horizontal core choices live in global `config.json`; domain-specific choices live in the owning skill data files.
 - Do not say Life OS is fully installed unless `lifeos.py doctor` reports `semantic_health.complete: true` and `safe_to_claim_fully_installed: true`.
 - If `doctor` reports `install_claim: mechanical_only`, say that plainly and continue the setup loop instead of hand-waving. “Looks installed” is not enough.
-- Global setup status belongs in `$LIFEOS_DATA_DIR/config.json` under `semantic_setup`, but domain answers belong in the owning skill data file, e.g. task-source setup in `$LIFEOS_DATA_DIR/tasks-todo/data.json`. Store pointers and access notes, not full personal data. Avoid mixed prompt context by loading only the active runtime's Markdown adapter, not by splitting config into one file per runtime.
+- Horizontal core choices belong in `$LIFEOS_DATA_DIR/config.json`: task source, memory/context source, routine run records, schedule/delivery policy, and trigger defaults/overrides. Domain-specific answers belong in the owning skill data file. Store pointers and access notes, not full personal data. Avoid mixed prompt context by loading only the active runtime's Markdown adapter, not by splitting config into one file per runtime.
 - Cron jobs are runtime-owned. Life OS may provide templates and plans, but must not create, delete, enable, disable, or reschedule crons without explicit user approval.
 - Delivery routing is runtime-owned. Store a delivery pointer/alias only after the user chooses it; never commit private chat IDs or runtime config.
 - The helper script may track required questions, saved answers, install claims, and no-side-effect plans. It must not decide priorities, infer private preferences, or silently connect runtime systems.
@@ -67,7 +67,7 @@ Returns exactly the next required semantic setup question plus a command hint fo
 npm run lifeos -- answer <decision-key> '<answer or runtime pointer>'
 ```
 
-Saves one user-approved setup decision in the owning skill data file and stores only a pointer in global config. Keep answers as pointers/access notes when possible, not raw data dumps.
+Saves one user-approved setup decision. Horizontal core decisions are stored in global config; domain-specific decisions are stored in the owning skill data file. Keep answers as pointers/access notes when possible, not raw data dumps.
 
 ```bash
 npm run lifeos -- plan

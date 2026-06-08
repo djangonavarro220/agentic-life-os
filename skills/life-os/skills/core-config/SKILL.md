@@ -30,13 +30,38 @@ $LIFEOS_DATA_DIR/config.json
 
 ## Config owns
 
-Global config owns only install-wide coordination:
+Global config owns install-wide coordination plus horizontal core choices used by many skills:
 
 - `enabled`
 - active `runtime`
 - `skills`: per-skill enablement/preferences
-- `semantic_setup`: setup status and pointers to the skill that owns each answer
-- global policy that truly applies to the whole Life OS install
+- `semantic_setup`: setup status and pointers
+- `sources`: cross-skill source pointers such as tasks, memory/context, calendar, and routine run records
+- `policies`: cross-skill policies such as schedule, delivery, trigger defaults, and approval behavior
+
+These horizontal choices belong in global config because `context-now`, `routines-pulse`, `routines-weekly-review`, `people-followups`, and domain skills may all need the same task or memory source. Forcing every skill to read `tasks-todo/data.json` as a pseudo-database is fake modularity.
+
+Example global source ownership:
+
+```json
+{
+  "sources": {
+    "tasks": {
+      "answer": "runtime task system",
+      "semantic_key": "tasks_source",
+      "access": "use the active runtime task tool; do not duplicate the full task list here"
+    },
+    "memory": {
+      "answer": "runtime memory/context",
+      "semantic_key": "memory_source"
+    }
+  },
+  "policies": {
+    "delivery_policy": { "answer": "runtime-owned delivery alias" },
+    "review_cadence": { "answer": "weekly plus monthly" }
+  }
+}
+```
 
 Domain state belongs in the owning skill's data file:
 
@@ -46,24 +71,19 @@ $LIFEOS_DATA_DIR/<skill-name>/data.json
 
 Skill data may store:
 
-- `source_decisions`: where that domain's real data lives and how to access it
+- `source_decisions`: source choices only that domain owns
 - `setup_decisions`: setup answers owned by that skill
 - `internal_state`: last checks, suppression windows, priority scores, and pointers
 - `caches`: dated or named result snapshots used by that skill
 - `preferences`: Life-OS-specific preferences for that domain
 
-Example for task source ownership:
+Example task skill state:
 
 ```json
 {
   "skill": "tasks-todo",
-  "source_decisions": {
-    "tasks_source": {
-      "owner": "runtime",
-      "runtime": "<active-runtime>",
-      "source": "task-system",
-      "access": "use the active runtime task tool; do not duplicate the full task list here"
-    }
+  "preferences": {
+    "default_review_mode": "compact"
   },
   "internal_state": {
     "last_reviewed_at": "2026-01-01T09:00:00Z"
@@ -102,7 +122,8 @@ Caches and result snapshots do not have to be IDs/hashes only. They may include 
 Safe without asking:
 
 - read config
-- add/update source decisions in the owning skill data file after the user approved the setup choice or the choice is clearly part of the requested install/check
+- add/update horizontal core sources and policies in global config after the user approved the setup choice or the choice is clearly part of the requested install/check
+- add/update domain-specific source decisions in the owning skill data file
 - update internal routine state after a routine runs
 - update caches/result snapshots in private state
 

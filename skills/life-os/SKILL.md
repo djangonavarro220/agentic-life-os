@@ -64,15 +64,21 @@ Do not load every subskill just because Life OS was invoked. That is prompt slud
 
 Default: real user data stays where it already lives, or in the runtime/external source the LLM chooses during setup. Life OS stores the map, not the territory.
 
-Examples of source decisions Life OS may store in the owning skill data file:
+Horizontal source decisions live in global config because many skills need them:
 
 ```text
-birthdays -> calendar tool
-birthdays -> runtime memory
-tasks -> OpenClaw tasks
-tasks -> Hermes memory
-cron_records -> Hermes cron output
-cron_records -> OpenClaw cron run logs
+tasks -> runtime task system
+memory/context -> runtime memory or notes
+calendar -> runtime calendar tool
+cron_records -> runtime cron output history
+```
+
+Domain-specific source decisions live in the owning skill data file:
+
+```text
+birthdays -> calendar tool, if owned by events-reminders or people-contacts
+purchase history -> configured shopping or notes source, if owned by purchase-decisions
+health signals -> configured health notes source, if owned by health-trends
 ```
 
 A reference can include how to access the source, which runtime/tool owns it, which adapter to load, and short instructions needed for future runs. It should not include the actual full birthdays, tasks, contacts, memories, chats, or credentials.
@@ -93,7 +99,7 @@ Life OS private skill state may store:
 - technical state for a skill
 - notes created explicitly inside Life OS
 
-If a new domain has no obvious place, prefer the runtime's own memory/notes/tasks/calendar/contact system. If the runtime lacks a suitable store, the LLM may create or choose the closest runtime-native store and record that decision in config. Store real domain data in Life OS only when it is explicitly a Life OS preference, technical state, or Life OS-created note.
+If a new horizontal core source has no obvious place, record the pointer in global config. If a new domain has no obvious place, prefer the runtime's own memory/notes/tasks/calendar/contact system and record the domain pointer in that skill's data file. Store real domain data in Life OS only when it is explicitly a Life OS preference, technical state, or Life OS-created note.
 
 When moving from one runtime to another, the LLM should attempt a careful migration/reconnection of references: inspect old pointers, find the closest new runtime source, propose a mapping, and ask before changing or copying anything.
 

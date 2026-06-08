@@ -26,20 +26,20 @@ CONFIG_SCHEMA = PROJECT_ROOT / "schemas" / "config.schema.json"
 SEMANTIC_QUESTIONS: list[dict[str, str]] = [
     {
         "key": "tasks_source",
-        "category": "source-decisions",
-        "owner_skill": "tasks-todo",
+        "category": "core-source",
+        "owner_skill": "core-config",
         "question": "Where should Life OS read and update tasks or follow-ups for this runtime?",
     },
     {
         "key": "memory_source",
-        "category": "source-decisions",
-        "owner_skill": "integrations-runtime",
+        "category": "core-source",
+        "owner_skill": "core-config",
         "question": "Where should Life OS read durable user context and preferences?",
     },
     {
         "key": "routine_schedule_policy",
-        "category": "runtime-owned",
-        "owner_skill": "integrations-runtime",
+        "category": "core-policy",
+        "owner_skill": "core-config",
         "question": "Should Life OS stay manual, propose schedules only, or create/maintain runtime cron jobs after approval?",
     },
     {
@@ -56,8 +56,8 @@ SEMANTIC_QUESTIONS: list[dict[str, str]] = [
     },
     {
         "key": "review_cadence",
-        "category": "routine",
-        "owner_skill": "routines-weekly-review",
+        "category": "core-policy",
+        "owner_skill": "core-config",
         "question": "Which weekly, monthly, or quarterly review routines should be enabled?",
     },
     {
@@ -68,18 +68,39 @@ SEMANTIC_QUESTIONS: list[dict[str, str]] = [
     },
     {
         "key": "delivery_policy",
-        "category": "runtime-owned",
-        "owner_skill": "integrations-runtime",
+        "category": "core-policy",
+        "owner_skill": "core-config",
         "question": "Where should user-facing Life OS routine output be delivered, using runtime-owned aliases or pointers?",
     },
     {
         "key": "cron_record_source",
-        "category": "source-decisions",
-        "owner_skill": "integrations-runtime",
+        "category": "core-source",
+        "owner_skill": "core-config",
         "question": "Where should Life OS read routine run records and cron output history?",
     },
 ]
 SEMANTIC_VERSION = 1
+
+HORIZONTAL_CORE_DECISION_KEYS = {
+    "tasks_source",
+    "memory_source",
+    "cron_record_source",
+    "routine_schedule_policy",
+    "review_cadence",
+    "delivery_policy",
+}
+
+CORE_SOURCE_KEY_MAP = {
+    "tasks_source": "tasks",
+    "memory_source": "memory",
+    "cron_record_source": "cron_records",
+}
+
+CORE_POLICY_KEYS = {
+    "routine_schedule_policy",
+    "review_cadence",
+    "delivery_policy",
+}
 
 CRON_TEMPLATES: list[dict[str, Any]] = [
     {
@@ -166,13 +187,14 @@ def ensure_skill_data(data_dir: Path, name: str, now: str) -> dict[str, Any]:
 
 
 def prune_empty_legacy_root_domain_keys(config: dict[str, Any]) -> list[str]:
-    """Remove empty legacy domain containers from global config.
+    """Remove empty legacy domain-state containers from global config.
 
-    Non-empty values are preserved so the helper never silently migrates or
-    deletes user data. Doctor reports them as warnings instead.
+    `sources` is allowed in global config for horizontal core pointers such as
+    tasks, memory, and cron records. Domain-specific operational state still
+    belongs in the owning skill data file.
     """
     warnings: list[str] = []
-    for key in ("sources", "internal_state", "caches"):
+    for key in ("internal_state", "caches"):
         value = config.get(key)
         if value == {}:
             config.pop(key, None)
@@ -547,32 +569,67 @@ def answer(args: argparse.Namespace) -> dict[str, Any]:
 
     question = next(item for item in SEMANTIC_QUESTIONS if item["key"] == args.key)
     owner_skill = question["owner_skill"]
-    skill_data = ensure_skill_data(data_dir, owner_skill, now)
-    setup_decisions = skill_data.setdefault("setup_decisions", {})
-    setup_decisions[args.key] = {
-        "answer": args.answer.strip(),
-        "updated_at": now,
-        "source": "user",
-        "category": question["category"],
-    }
-    if question["category"] == "source-decisions":
-        source_decisions = skill_data.setdefault("source_decisions", {})
-        source_decisions[args.key] = {
-            "answer": args.answer.strip(),
+    answer_text = args.answer.strip()
+    note_text = args.note.strip() if args.note else None
+
+    decisions = setup.setdefault("decisions", {})
+    if args.key in HORIZONTAL_CORE_DECISION_KEYS:
+        decision_record = {
+            "answer": answer_text,
+            "updated_at": now,
+            "source": "user",
+            "category": question["category"],
+            "stored_in": "config.json",
+        }
+        if note_text:
+            decision_record["note"] = note_text
+        decisions[args.key] = decision_record
+
+        if args.key in CORE_SOURCE_KEY_MAP:
+            sources = config.setdefault("sources", {})
+            sources[CORE_SOURCE_KEY_MAP[args.key]] = {
+                "answer": answer_text,
+                "updated_at": now,
+                "source": "user",
+                "semantic_key": args.key,
+            }
+            if note_text:
+                sources[CORE_SOURCE_KEY_MAP[args.key]]["note"] = note_text
+        elif args.key in CORE_POLICY_KEYS:
+            policies = config.setdefault("policies", {})
+            policies[args.key] = {
+                "answer": answer_text,
+                "updated_at": now,
+                "source": "user",
+            }
+            if note_text:
+                policies[args.key]["note"] = note_text
+    else:
+        skill_data = ensure_skill_data(data_dir, owner_skill, now)
+        setup_decisions = skill_data.setdefault("setup_decisions", {})
+        setup_decisions[args.key] = {
+            "answer": answer_text,
+            "updated_at": now,
+            "source": "user",
+            "category": question["category"],
+        }
+        if question["category"] == "source-decisions":
+            source_decisions = skill_data.setdefault("source_decisions", {})
+            source_decisions[args.key] = {
+                "answer": answer_text,
+                "updated_at": now,
+                "source": "user",
+            }
+        if note_text:
+            setup_decisions[args.key]["note"] = note_text
+        write_json(data_dir / owner_skill / "data.json", skill_data)
+
+        decisions[args.key] = {
+            "owner_skill": owner_skill,
+            "stored_in": "config.json" if args.key in HORIZONTAL_CORE_DECISION_KEYS else f"{owner_skill}/data.json",
             "updated_at": now,
             "source": "user",
         }
-    if args.note:
-        setup_decisions[args.key]["note"] = args.note.strip()
-    write_json(data_dir / owner_skill / "data.json", skill_data)
-
-    decisions = setup.setdefault("decisions", {})
-    decisions[args.key] = {
-        "owner_skill": owner_skill,
-        "stored_in": f"{owner_skill}/data.json",
-        "updated_at": now,
-        "source": "user",
-    }
     health = refresh_semantic_status(config, now, data_dir)
     config["updated_at"] = now
     write_json(data_dir / "config.json", config)
@@ -581,7 +638,7 @@ def answer(args: argparse.Namespace) -> dict[str, Any]:
         "action": "answer",
         "data_dir": str(data_dir),
         "key": args.key,
-        "stored_in": f"{owner_skill}/data.json",
+        "stored_in": "config.json" if args.key in HORIZONTAL_CORE_DECISION_KEYS else f"{owner_skill}/data.json",
         "semantic_health": health,
     }
 

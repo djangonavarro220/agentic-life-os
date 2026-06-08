@@ -106,7 +106,7 @@ Life OS should be understandable from its execution modes, not only from its fol
 - **Review routines**: daily, weekly, monthly, and quarterly reviews. These are slower reflection loops for pruning stale tasks, noticing patterns, reviewing commitments, tuning the system, and adjusting priorities.
 - **Domain playbook run**: a focused run inside one domain such as tasks, health trends, finance checkup, travel, purchases, documents, learning, work portfolio, or digital hygiene.
 - **System improvement review**: a sprint-review-style feedback loop for Life OS itself. It reviews recent runs and user feedback, finds repeated manual steering, proposes new skills/templates/routine tuning, and keeps an improvement backlog without copying raw private history.
-- **Setup / doctor loop**: mechanical install plus semantic setup. It finds missing source decisions, asks only the next useful question, and stores each answer in the owning skill data file.
+- **Setup / doctor loop**: mechanical install plus semantic setup. It finds missing source decisions, asks only the next useful question, and stores horizontal answers in `config.json` or domain answers in the owning skill data file.
 - **Plan-only mode**: propose schedules, migrations, bridges, or runtime jobs without creating them. This is the safe default before side effects.
 
 Recommended baseline, adapted from the original Life OS rhythm and tightened for agent runtimes:
@@ -171,22 +171,33 @@ $LIFEOS_DATA_DIR/installed.json
 $LIFEOS_DATA_DIR/<skill-name>/data.json
 ```
 
-`config.json` is only the global coordination file. It may store:
+`config.json` is the global coordination file. It may store:
 
 - active runtime and enablement metadata
-- `semantic_setup` status and pointers to the skill that owns each answer
-- cross-skill policies that genuinely apply to the whole Life OS install
+- `semantic_setup` status
+- horizontal core source pointers used by many skills, such as tasks, memory/context, calendar, and routine run records
+- horizontal policies, such as trigger defaults, schedule policy, delivery policy, and approval behavior
 
-Domain decisions belong to the relevant skill's own data file. For example, the task source decision belongs in:
+Example global pointers:
 
-```text
-$LIFEOS_DATA_DIR/tasks-todo/data.json
+```json
+{
+  "sources": {
+    "tasks": { "answer": "runtime task system" },
+    "memory": { "answer": "runtime memory/context" },
+    "cron_records": { "answer": "runtime cron history" }
+  },
+  "policies": {
+    "delivery_policy": { "answer": "runtime-owned delivery alias" },
+    "review_cadence": { "answer": "weekly plus monthly" }
+  }
+}
 ```
 
-A skill `data.json` may store:
+A skill `data.json` stores only what is specific to that skill:
 
-- source decisions for that domain, such as `tasks -> runtime task system`
-- access pointers, such as how that skill finds routine run records or source data
+- source decisions for that domain only
+- access pointers only that domain needs
 - Life-OS-specific preferences for that domain
 - internal state, such as last check time or suppression windows
 - dated caches or summaries when useful
@@ -299,7 +310,8 @@ Mechanical install:
 Semantic install:
 
 - setup questions have been asked
-- source decisions have been saved in the owning skill data files
+- horizontal core sources and policies have been saved in `config.json`
+- domain-specific decisions have been saved in the owning skill data files
 - schedule and delivery policy have been chosen
 - routine record sources are known
 - system-improvement review policy and backlog source are known
@@ -365,7 +377,7 @@ Commands:
 - `plan`: prints remaining setup steps and cron templates without side effects.
 - `config`: prints private Life OS global config plus install/runtime state.
 
-The helper does not create runtime crons, delivery routes, credentials, memory entries, mail/calendar integrations, vault records, or migrations. Domain ownership choices are stored in the owning skill's `data.json`; global `config.json` keeps only install-wide setup status and pointers.
+The helper does not create runtime crons, delivery routes, credentials, memory entries, mail/calendar integrations, vault records, or migrations. Horizontal core choices such as task/memory source and delivery/schedule policy live in global `config.json`; domain-specific state and preferences live in the owning skill's `data.json`.
 
 ## Semantic setup loop
 

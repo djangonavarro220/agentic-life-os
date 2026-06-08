@@ -149,7 +149,7 @@ Life OS may record pointers and private tracking state under `$HOME/.life-os`, b
 
 ## Runtime-owned storage pointers
 
-Record pointers/access instructions in the owning skill data file when a skill needs to find Hermes-owned records later.
+Record horizontal pointers/access instructions, such as tasks, memory/context, calendar, and routine run records, in global `config.json`. Record domain-specific pointers in the owning skill data file.
 
 Cron, verified against Hermes cron docs (`/docs/user-guide/features/cron`) and `cron/jobs.py` in Hermes Agent:
 

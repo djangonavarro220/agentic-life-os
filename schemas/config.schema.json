@@ -16,7 +16,17 @@
     },
     "semantic_setup": {
       "type": "object",
-      "description": "Global semantic install status and pointers to the skill data file that owns each setup answer. Domain answers and source decisions live in per-skill data.json files.",
+      "description": "Global semantic install status. Horizontal core answers may live directly here; domain-specific answers should point to the owning skill data file.",
+      "additionalProperties": true
+    },
+    "sources": {
+      "type": "object",
+      "description": "Horizontal core source pointers used across many skills, such as tasks, memory/context, calendar, and routine run records. Store pointers/access notes, not raw exported data.",
+      "additionalProperties": true
+    },
+    "policies": {
+      "type": "object",
+      "description": "Horizontal Life OS policies such as schedule, delivery, trigger default, and approval behavior. Domain-specific preferences belong in the owning skill data file.",
       "additionalProperties": true
     }
   }
