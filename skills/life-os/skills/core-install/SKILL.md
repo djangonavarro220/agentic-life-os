@@ -52,7 +52,10 @@ Do not add helper-script heuristics for runtime discovery. Runtime installations
    - migrate/reconnect references when moving between runtimes, using runtime-native stores for real data where possible
 8. Ask approval before creating any bridge, import, migration, cron, delivery route, global skill registration, config edit, or destructive change.
 9. Run private state install and doctor.
-10. Verify with runtime-native skill visibility commands and `lifeos.py doctor`.
+10. If `doctor.semantic_health.complete` is false, ask the next pending setup question from `semantic_health.pending_questions`.
+11. Save each approved answer with `python3 scripts/lifeos.py answer <key> '<answer or runtime pointer>'`.
+12. Repeat doctor -> ask -> answer until semantic health is complete, or until the user explicitly stops setup.
+13. Verify with runtime-native skill visibility commands and `lifeos.py doctor`.
 
 ## Private state install
 
@@ -61,9 +64,12 @@ From the repo checkout:
 ```bash
 python3 scripts/lifeos.py install --runtime <hermes|openclaw|unknown>
 python3 scripts/lifeos.py doctor
+python3 scripts/lifeos.py answer <decision-key> '<answer or runtime pointer>'
 ```
 
 Use `--data-dir <path>` only when the user explicitly wants a non-default private data directory. Default private state is `$HOME/.life-os`; `LIFEOS_DATA_DIR` is an explicit override.
+
+`doctor` includes `semantic_health`. Treat `semantic_health.complete: false` as “installed, but setup is not semantically complete”. Ask the next pending question, save the answer, and check again. Do not claim a total install while required semantic decisions are missing.
 
 ## Runtime-owned system discovery
 
@@ -174,7 +180,7 @@ If runtime detection is ambiguous, ask one concrete question: which runtime, pro
 
 - `$LIFEOS_DATA_DIR/installed.json`
 - `$LIFEOS_DATA_DIR/runtime.json`
-- `$LIFEOS_DATA_DIR/config.json` with mechanical containers for `sources`, `internal_state`, and `caches`
+- `$LIFEOS_DATA_DIR/config.json` with mechanical containers for `sources`, `internal_state`, `caches`, and `semantic_setup`
 - `$LIFEOS_DATA_DIR/<skill-name>/data.json` for every indexed subskill
 
 ## Boundaries

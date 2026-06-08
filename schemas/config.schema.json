@@ -24,6 +24,11 @@
     "skills": {
       "type": "object",
       "additionalProperties": true
+    },
+    "semantic_setup": {
+      "type": "object",
+      "description": "Semantic install decisions, pending setup questions, and health-check status. Answers are private runtime/config pointers, not public repo data.",
+      "additionalProperties": true
     }
   }
 }

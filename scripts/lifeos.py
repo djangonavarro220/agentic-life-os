@@ -23,6 +23,50 @@ SKILL_INDEX = LIFE_OS_ROOT / "skill-index.yaml"
 INSTALL_YAML = LIFE_OS_ROOT / "install.yaml"
 CONFIG_SCHEMA = PROJECT_ROOT / "schemas" / "config.schema.json"
 
+SEMANTIC_QUESTIONS: list[dict[str, str]] = [
+    {
+        "key": "tasks_source",
+        "category": "source-decisions",
+        "question": "Where should Life OS read and update tasks or follow-ups for this runtime?",
+    },
+    {
+        "key": "memory_source",
+        "category": "source-decisions",
+        "question": "Where should Life OS read durable user context and preferences?",
+    },
+    {
+        "key": "routine_schedule_policy",
+        "category": "runtime-owned",
+        "question": "Should Life OS stay manual, propose schedules only, or create/maintain runtime cron jobs after approval?",
+    },
+    {
+        "key": "daily_pulse",
+        "category": "routine",
+        "question": "Should a daily pulse exist, and if yes what cadence and delivery pointer should it use?",
+    },
+    {
+        "key": "quiet_heartbeat",
+        "category": "routine",
+        "question": "Should a quiet heartbeat exist, and what frequency/no-news policy should it use?",
+    },
+    {
+        "key": "review_cadence",
+        "category": "routine",
+        "question": "Which weekly, monthly, or quarterly review routines should be enabled?",
+    },
+    {
+        "key": "delivery_policy",
+        "category": "runtime-owned",
+        "question": "Where should user-facing Life OS routine output be delivered, using runtime-owned aliases or pointers?",
+    },
+    {
+        "key": "cron_record_source",
+        "category": "source-decisions",
+        "question": "Where should Life OS read routine run records and cron output history?",
+    },
+]
+SEMANTIC_VERSION = 1
+
 def utc_now() -> str:
     return datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
 
@@ -48,6 +92,71 @@ def write_json(path: Path, data: Any) -> None:
         json.dump(data, fh, indent=2, sort_keys=True)
         fh.write("\n")
     tmp.replace(path)
+
+
+def ensure_semantic_setup(config: dict[str, Any], now: str) -> dict[str, Any]:
+    """Ensure the config contains the semantic install checklist."""
+    setup = config.setdefault("semantic_setup", {})
+    setup.setdefault("version", SEMANTIC_VERSION)
+    setup.setdefault("created_at", now)
+    setup.setdefault("decisions", {})
+    setup.setdefault(
+        "policy",
+        "Ask and save every required setup decision before claiming Life OS is fully installed.",
+    )
+
+    questions = setup.setdefault("questions", {})
+    for item in SEMANTIC_QUESTIONS:
+        questions.setdefault(
+            item["key"],
+            {
+                "key": item["key"],
+                "category": item["category"],
+                "question": item["question"],
+                "required": True,
+            },
+        )
+    setup["updated_at"] = now
+    refresh_semantic_status(config, now)
+    return setup
+
+
+def semantic_health(config: dict[str, Any] | None) -> dict[str, Any]:
+    if not isinstance(config, dict):
+        return {
+            "complete": False,
+            "answered": [],
+            "missing": [item["key"] for item in SEMANTIC_QUESTIONS],
+            "pending_questions": SEMANTIC_QUESTIONS,
+        }
+    raw_setup = config.get("semantic_setup")
+    setup = raw_setup if isinstance(raw_setup, dict) else {}
+    raw_decisions = setup.get("decisions")
+    decisions = raw_decisions if isinstance(raw_decisions, dict) else {}
+    answered: list[str] = []
+    pending: list[dict[str, str]] = []
+    for item in SEMANTIC_QUESTIONS:
+        decision = decisions.get(item["key"])
+        answer = decision.get("answer") if isinstance(decision, dict) else None
+        if isinstance(answer, str) and answer.strip():
+            answered.append(item["key"])
+        else:
+            pending.append(item)
+    return {
+        "complete": not pending,
+        "answered": answered,
+        "missing": [item["key"] for item in pending],
+        "pending_questions": pending,
+    }
+
+
+def refresh_semantic_status(config: dict[str, Any], now: str) -> dict[str, Any]:
+    setup = config.setdefault("semantic_setup", {})
+    health = semantic_health(config)
+    setup["status"] = "complete" if health["complete"] else "pending"
+    setup["missing"] = health["missing"]
+    setup["updated_at"] = now
+    return health
 
 
 @dataclass(frozen=True)
@@ -181,6 +290,7 @@ def install(args: argparse.Namespace) -> dict[str, Any]:
     config.setdefault("internal_state", {})
     config.setdefault("caches", {})
     config.setdefault("created_at", now)
+    ensure_semantic_setup(config, now)
     config["updated_at"] = now
 
     write_json(data_dir / "runtime.json", runtime)
@@ -217,6 +327,10 @@ def doctor(args: argparse.Namespace) -> dict[str, Any]:
         warnings.append("config.json missing; run install")
     if config is not None and not isinstance(config.get("skills", {}), dict):
         errors.append("config.json skills must be an object")
+    if isinstance(config, dict):
+        ensure_semantic_setup(config, utc_now())
+        write_json(data_dir / "config.json", config)
+    health = semantic_health(config)
 
     missing_data = []
     for name in subskills:
@@ -233,6 +347,47 @@ def doctor(args: argparse.Namespace) -> dict[str, Any]:
         "subskills": len(subskills),
         "errors": errors,
         "warnings": warnings,
+        "semantic_health": health,
+    }
+
+
+def answer(args: argparse.Namespace) -> dict[str, Any]:
+    data_dir = Path(args.data_dir).expanduser() if args.data_dir else default_data_dir()
+    now = utc_now()
+    config = read_json(data_dir / "config.json", {})
+    if not isinstance(config, dict):
+        config = {}
+    config.setdefault("enabled", True)
+    config.setdefault("runtime", args.runtime)
+    config.setdefault("sources", {})
+    config.setdefault("internal_state", {})
+    config.setdefault("caches", {})
+    config.setdefault("created_at", now)
+    setup = ensure_semantic_setup(config, now)
+
+    valid_keys = {item["key"] for item in SEMANTIC_QUESTIONS}
+    if args.key not in valid_keys:
+        raise ValueError(f"unknown semantic decision key: {args.key}")
+    if not args.answer.strip():
+        raise ValueError("answer must not be empty")
+
+    decisions = setup.setdefault("decisions", {})
+    decisions[args.key] = {
+        "answer": args.answer.strip(),
+        "updated_at": now,
+        "source": "user",
+    }
+    if args.note:
+        decisions[args.key]["note"] = args.note.strip()
+    health = refresh_semantic_status(config, now)
+    config["updated_at"] = now
+    write_json(data_dir / "config.json", config)
+    return {
+        "ok": True,
+        "action": "answer",
+        "data_dir": str(data_dir),
+        "key": args.key,
+        "semantic_health": health,
     }
 
 
@@ -266,6 +421,13 @@ def build_parser() -> argparse.ArgumentParser:
 
     p_doctor = sub.add_parser("doctor", help="Validate repo and private Life OS state")
     p_doctor.set_defaults(func=doctor)
+
+    p_answer = sub.add_parser("answer", help="Save one semantic setup decision")
+    p_answer.add_argument("--runtime", default="hermes", choices=["hermes", "openclaw", "unknown"])
+    p_answer.add_argument("key", help="Semantic decision key to save")
+    p_answer.add_argument("answer", help="User-approved answer or runtime pointer")
+    p_answer.add_argument("--note", help="Optional safe note about this decision")
+    p_answer.set_defaults(func=answer)
 
     p_config = sub.add_parser("config", help="Show Life OS private config/state")
     p_config.set_defaults(func=show_config)

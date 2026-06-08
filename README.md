@@ -126,6 +126,7 @@ The repo includes a small deterministic helper for the state mechanics agents sh
 ```bash
 npm run lifeos -- install --runtime <hermes|openclaw>
 npm run lifeos -- doctor
+npm run lifeos -- answer <decision-key> '<answer or runtime pointer>'
 npm run lifeos -- config
 ```
 
@@ -134,15 +135,18 @@ What it does:
 - resolves `$HOME/.life-os` or `LIFEOS_DATA_DIR`
 - creates `installed.json`, `runtime.json`, `config.json`
 - initializes config containers for `sources`, `internal_state`, and `caches`
+- initializes `semantic_setup`, a private checklist of required source, routine, delivery, and scheduling decisions
 - creates per-subskill `$LIFEOS_DATA_DIR/<skill-name>/data.json`
-- validates repo shape and private state with `doctor`
+- validates repo shape, private state, and semantic setup completeness with `doctor`
+- saves approved setup answers with `answer <decision-key> '<answer>'`
 - keeps runtime-owned crons, delivery, credentials, memory, task systems, and semantic routine behavior out of the helper
 - preserves existing `config.json` choices on re-run
 
 What it deliberately does not do:
 
 - create Telegram/Discord/email delivery routes
-- create or delete runtime cron jobs
+- create or delete runtime cron jobs without a saved user decision and explicit approval
+- mark Life OS as fully installed while `doctor.semantic_health.complete` is false
 - store secrets, raw memories, credentials, or private chat IDs
 - replace the host runtime's memory, vault, calendar, or mail integrations
 
@@ -162,7 +166,7 @@ See [`ROADMAP.md`](ROADMAP.md) for autonomy modes, remaining Markdown playbooks,
 
 ## Status
 
-Operational scaffold: install, doctor, config, skill linting, public-safety scanning, and CI are implemented. The domain routines are still playbooks; runtime-specific cron creation and external side effects remain runtime-owned and approval-gated.
+Operational scaffold: install, doctor, config, semantic setup questions, answer persistence, skill linting, public-safety scanning, and CI are implemented. The domain routines are still playbooks; runtime-specific cron creation and external side effects remain runtime-owned and approval-gated.
 
 ## License
 

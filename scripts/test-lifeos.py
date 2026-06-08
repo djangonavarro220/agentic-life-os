@@ -32,6 +32,18 @@ def main() -> int:
         doctor = run("doctor", data_dir=data_dir)
         assert doctor["ok"] is True, doctor
         assert doctor["warnings"] == [], doctor
+        assert doctor["semantic_health"]["complete"] is False, doctor
+        pending_keys = {q["key"] for q in doctor["semantic_health"]["pending_questions"]}
+        assert {
+            "tasks_source",
+            "memory_source",
+            "routine_schedule_policy",
+            "daily_pulse",
+            "quiet_heartbeat",
+            "review_cadence",
+            "delivery_policy",
+            "cron_record_source",
+        } <= pending_keys
 
         config = run("config", data_dir=data_dir)
         assert config["ok"] is True
@@ -39,8 +51,44 @@ def main() -> int:
         assert isinstance(config["config"]["sources"], dict)
         assert isinstance(config["config"]["internal_state"], dict)
         assert isinstance(config["config"]["caches"], dict)
+        assert config["config"]["semantic_setup"]["status"] == "pending"
         assert "optional_global_skills" not in config["config"]
         assert "schedules" not in config["config"]
+
+        answered = run("answer", "tasks_source", "runtime todo system", data_dir=data_dir)
+        assert answered["ok"] is True
+        assert answered["semantic_health"]["answered"] == ["tasks_source"]
+        doctor_after_one_answer = run("doctor", data_dir=data_dir)
+        assert doctor_after_one_answer["semantic_health"]["complete"] is False
+        assert "tasks_source" not in {q["key"] for q in doctor_after_one_answer["semantic_health"]["pending_questions"]}
+
+        for key in pending_keys - {"tasks_source"}:
+            run("answer", key, f"test answer for {key}", data_dir=data_dir)
+        complete_doctor = run("doctor", data_dir=data_dir)
+        assert complete_doctor["semantic_health"]["complete"] is True, complete_doctor
+        assert complete_doctor["semantic_health"]["pending_questions"] == []
+        complete_config = run("config", data_dir=data_dir)["config"]
+        assert complete_config["semantic_setup"]["status"] == "complete"
+        assert complete_config["semantic_setup"]["decisions"]["tasks_source"]["answer"] == "runtime todo system"
+
+    with tempfile.TemporaryDirectory() as tmp:
+        data_dir = Path(tmp) / "legacy-lifeos-data"
+        data_dir.mkdir()
+        (data_dir / "config.json").write_text(json.dumps({"enabled": True, "runtime": "hermes", "skills": {}}), encoding="utf-8")
+        doctor = run("doctor", data_dir=data_dir)
+        assert doctor["ok"] is True, doctor
+        saved = json.loads((data_dir / "config.json").read_text(encoding="utf-8"))
+        assert saved["semantic_setup"]["status"] == "pending"
+        assert set(saved["semantic_setup"]["missing"]) == {
+            "tasks_source",
+            "memory_source",
+            "routine_schedule_policy",
+            "daily_pulse",
+            "quiet_heartbeat",
+            "review_cadence",
+            "delivery_policy",
+            "cron_record_source",
+        }
 
     print("lifeos tests ok")
     return 0
