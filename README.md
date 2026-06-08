@@ -93,7 +93,7 @@ skills/life-os/runtimes/hermes.md
 skills/life-os/runtimes/openclaw.md
 ```
 
-For every Life OS skill, check availability and install/register through the active runtime before assuming the skill is missing.
+For every Life OS skill, check availability and install/register through the active runtime before assuming the skill is missing. Load only the Markdown adapter for the active runtime; do not stuff Hermes and OpenClaw instructions into the same prompt just to avoid looking up one file.
 
 Hermes checks:
 

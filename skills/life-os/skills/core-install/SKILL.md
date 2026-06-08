@@ -29,34 +29,35 @@ Do not add helper-script heuristics for runtime discovery. Runtime installations
 ## Procedure
 
 1. Detect the current runtime from command availability, session context, repo docs, and user request.
-2. Load the matching runtime adapter:
-   - `../../runtimes/hermes.md`
-   - `../../runtimes/openclaw.md`
-3. Check whether the umbrella `life-os` skill is already visible to that runtime.
-4. If it is visible, do not re-register it. Run only private state install/doctor from the repo checkout.
-5. If it is not visible, ask the user which registration scope and install mode they want using the runtime adapter:
+2. Load only the matching runtime adapter for the active runtime:
+   - shared runtime adapter: `../../runtimes/<runtime>.md`
+   - core-install adapter: `runtimes/<runtime>.md`
+3. Do not load both Hermes and OpenClaw adapters for a single install. Keep runtime-specific instructions in those Markdown files, not inline here.
+4. Check whether the umbrella `life-os` skill is already visible to that runtime.
+5. If it is visible, do not re-register it. Run only private state install/doctor from the repo checkout.
+6. If it is not visible, ask the user which registration scope and install mode they want using the runtime adapter:
    - symlink for live development
    - copy for a static snapshot
    - profile/workspace/agent/shared scope depending on runtime
-6. Before proposing any integration, investigate runtime-owned systems with native runtime commands or docs:
+7. Before proposing any integration, investigate runtime-owned systems with native runtime commands or docs:
    - tasks or background-task ledger
    - crons, schedules, heartbeat, reminders, hooks, standing orders
    - memory and vault/secrets systems
    - delivery routes and messaging channels
    - tools, sandboxing, model/provider config
    - profiles, agents, workspaces, or channel bindings
-7. Present options before changing anything:
+8. Present options before changing anything:
    - leave the runtime system alone and only read it when relevant
    - record a pointer/reference and bridge through runtime-native tools
    - import selected pointers, access notes, or Life-OS-specific state into config
    - migrate/reconnect references when moving between runtimes, using runtime-native stores for real data where possible
-8. Ask approval before creating any bridge, import, migration, cron, delivery route, global skill registration, config edit, or destructive change.
-9. Run private state install and doctor.
-10. If `doctor.semantic_health.complete` is false, ask the next pending setup question from `python3 scripts/lifeos.py next-question`.
-11. Save each approved answer with `python3 scripts/lifeos.py answer <key> '<answer or runtime pointer>'`.
-12. Repeat doctor -> next-question -> ask -> answer until semantic health is complete, or until the user explicitly stops setup.
-13. Use `python3 scripts/lifeos.py plan` to show runtime cron templates and remaining steps without creating jobs.
-14. Verify with runtime-native skill visibility commands and `lifeos.py doctor`.
+9. Ask approval before creating any bridge, import, migration, cron, delivery route, global skill registration, config edit, or destructive change.
+10. Run private state install and doctor.
+11. If `doctor.semantic_health.complete` is false, ask the next pending setup question from `python3 scripts/lifeos.py next-question`.
+12. Save each approved answer with `python3 scripts/lifeos.py answer <key> '<answer or runtime pointer>'`.
+13. Repeat doctor -> next-question -> ask -> answer until semantic health is complete, or until the user explicitly stops setup.
+14. Use `python3 scripts/lifeos.py plan` to show runtime cron templates and remaining steps without creating jobs.
+15. Verify with runtime-native skill visibility commands and `lifeos.py doctor`.
 
 ## Private state install
 
@@ -87,15 +88,15 @@ Config may store source records such as:
   "sources": {
     "birthdays": {
       "owner": "runtime",
-      "runtime": "hermes",
-      "source": "memory",
-      "access": "use Hermes memory search for birthday records"
+      "runtime": "<active-runtime>",
+      "source": "calendar",
+      "access": "use the active runtime calendar tool; do not duplicate birthday records here"
     },
     "cron_records": {
       "owner": "runtime",
-      "runtime": "openclaw",
+      "runtime": "<active-runtime>",
       "source": "cron.run_logs",
-      "access": "openclaw cron runs --id <job-id>; stored logs live under ~/.openclaw/cron/runs/<jobId>.jsonl"
+      "access": "use the active runtime adapter to find routine run records"
     }
   }
 }
@@ -103,67 +104,16 @@ Config may store source records such as:
 
 Do not store the actual full birthday/contact/task list just to remember where it is.
 
-### Hermes discovery checklist
+### Runtime-specific discovery checklists
 
-Load `../../runtimes/hermes.md`, then use native Hermes commands as available:
+Do not inline Hermes and OpenClaw discovery instructions in this generic skill. That forces unrelated runtime context into the same prompt, which is exactly the mess this skill pack is trying to avoid.
 
-```bash
-hermes skills list --source all
-hermes skills list --enabled-only | grep -E '(^|[[:space:]])life-os([[:space:]]|$)'
-hermes skills config
-hermes cron list --all
-hermes cron status
-hermes memory status
-hermes tools list
-hermes profile list
-hermes gateway status
-hermes status --all
-hermes config path
-hermes config check
-```
+Load only the adapter for the active runtime:
 
-Notes:
+- Hermes install flow: `runtimes/hermes.md`, plus shared adapter `../../runtimes/hermes.md`
+- OpenClaw install flow: `runtimes/openclaw.md`, plus shared adapter `../../runtimes/openclaw.md`
 
-- `hermes cron` owns scheduling. Life OS may propose jobs, but should not create or edit them without approval.
-- Hermes cron definitions live under the active Hermes home at `cron/jobs.json`; Hermes cron output is saved under `cron/output/<job_id>/<timestamp>.md`. This was checked against Hermes cron docs (`/docs/user-guide/features/cron`) and Hermes Agent `cron/jobs.py`. Prefer CLI commands (`hermes cron list --all`, `hermes cron status`) before reading files directly, and record only pointers/instructions in Life OS config.
-- Hermes profiles have separate homes and skills. Do not edit another profile unless the user selected it.
-- Hermes memory and user profile are runtime-owned. Store only pointers or safe tracking metadata in Life OS private state.
-- Telegram, Discord, and other delivery routes are runtime-owned. Do not copy raw chat IDs into repo docs or public examples.
-
-### OpenClaw discovery checklist
-
-Load `../../runtimes/openclaw.md`, then use native OpenClaw commands as available:
-
-```bash
-openclaw skills list
-openclaw skills info life-os
-openclaw skills check
-openclaw agents list --bindings
-openclaw status --all
-openclaw doctor
-openclaw config file
-openclaw config validate
-openclaw cron list
-openclaw tasks list
-openclaw memory status
-```
-
-For agent-scoped OpenClaw installs, add `--agent <id>` where supported:
-
-```bash
-openclaw skills list --agent <id>
-openclaw skills info life-os --agent <id>
-openclaw skills check --agent <id>
-openclaw memory status --agent <id>
-```
-
-Notes:
-
-- OpenClaw `tasks` are an activity ledger, not a task-list replacement by default.
-- OpenClaw cron runs inside the Gateway and owns schedule definitions and run history.
-- OpenClaw cron definitions live in `~/.openclaw/cron/jobs.json` by default, pending runtime state lives in `~/.openclaw/cron/jobs-state.json`, and run logs live under `~/.openclaw/cron/runs/<jobId>.jsonl`. Prefer CLI commands (`openclaw cron list`, `openclaw cron runs --id <job-id>`) before reading files directly, and record only pointers/instructions in Life OS config.
-- OpenClaw agents/workspaces can have different skill visibility and routing bindings.
-- OpenClaw memory, secrets, channel routing, and plugin config are runtime-owned.
+Those Markdown files own the runtime-specific commands, storage pointers, and caveats. This file owns only the generic install contract.
 
 ## Installer response contract
 

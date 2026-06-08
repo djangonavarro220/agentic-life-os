@@ -30,7 +30,7 @@ This repo contains a portable Agent Skills based personal advisor OS.
   - **semantic install:** source, schedule, delivery, routine, and record-keeping decisions have been asked, answered, and saved in private config.
 - Do not say Life OS is fully installed unless `lifeos.py doctor` reports `semantic_health.complete: true` and `safe_to_claim_fully_installed: true`.
 - If `doctor` reports `install_claim: mechanical_only`, say that plainly and continue the setup loop instead of hand-waving. “Looks installed” is not enough.
-- Setup answers belong in `$LIFEOS_DATA_DIR/config.json` under `semantic_setup.decisions`. Store pointers and access notes, not full personal data.
+- Setup answers belong in `$LIFEOS_DATA_DIR/config.json` under `semantic_setup.decisions`. Store pointers and access notes, not full personal data. Avoid mixed prompt context by loading only the active runtime's Markdown adapter, not by splitting config into one file per runtime.
 - Cron jobs are runtime-owned. Life OS may provide templates and plans, but must not create, delete, enable, disable, or reschedule crons without explicit user approval.
 - Delivery routing is runtime-owned. Store a delivery pointer/alias only after the user chooses it; never commit private chat IDs or runtime config.
 - The helper script may track required questions, saved answers, install claims, and no-side-effect plans. It must not decide priorities, infer private preferences, or silently connect runtime systems.
