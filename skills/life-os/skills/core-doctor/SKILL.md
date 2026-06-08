@@ -54,7 +54,7 @@ Load `../../runtimes/hermes.md`, then use native Hermes commands as available:
 
 ```bash
 hermes skills list --source all
-hermes skills inspect life-os
+hermes skills list --enabled-only | grep -E '(^|[[:space:]])life-os([[:space:]]|$)'
 hermes skills config
 hermes cron list --all
 hermes cron status

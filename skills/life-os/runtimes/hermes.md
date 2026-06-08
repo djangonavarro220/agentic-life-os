@@ -29,7 +29,7 @@ hermes config path
 hermes config check
 hermes profile list
 hermes skills list --source all
-hermes skills inspect life-os
+hermes skills list --enabled-only | grep -E '(^|[[:space:]])life-os([[:space:]]|$)'
 hermes skills config
 hermes cron list --all
 hermes cron status
@@ -49,7 +49,7 @@ From the machine/profile where Hermes runs:
 
 ```bash
 hermes skills list --source all | grep -E '(^|[[:space:]])life-os([[:space:]]|$)'
-hermes skills inspect life-os
+hermes skills list --enabled-only | grep -E '(^|[[:space:]])life-os([[:space:]]|$)'
 ```
 
 Optional subskill visibility check:
@@ -58,7 +58,17 @@ Optional subskill visibility check:
 hermes skills list --source all | grep -E '(^|[[:space:]])tasks-todo([[:space:]]|$)'
 ```
 
-If `life-os` is listed, do not re-register the skill. Run the state installer from the repo checkout instead:
+If `life-os` is listed and enabled, Hermes can see the installed local skill. Do not use `hermes skills inspect life-os` as the installed-skill check: in current Hermes it previews registry/hub skills and can say "No skill named" even when `hermes skills list` shows the local skill. That false negative is exactly the kind of CLI paper cut that wastes an afternoon.
+
+Explicit load smoke test:
+
+```bash
+hermes -s life-os chat -q 'Use the loaded life-os skill and answer exactly: LIFE_OS_EXPLICIT_LOAD_OK' -Q
+```
+
+If explicit loading works but a generic message does not auto-load `life-os`, the install is fine and the remaining problem is runtime skill routing/discovery for that conversation mode. Fix that in the runtime/channel routing layer or by explicitly invoking `/skill life-os`; do not re-register the skill or duplicate Life OS data.
+
+If `life-os` is listed and enabled, do not re-register the skill. Run the state installer from the repo checkout instead:
 
 ```bash
 cd <agentic-life-os-checkout>

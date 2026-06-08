@@ -99,7 +99,7 @@ Hermes checks:
 
 ```bash
 hermes skills list --source all | grep -E 'life-os|tasks-todo'
-hermes skills inspect life-os
+hermes skills list --enabled-only | grep -E 'life-os|tasks-todo'
 ```
 
 OpenClaw checks:

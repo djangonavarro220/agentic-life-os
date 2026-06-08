@@ -8,7 +8,7 @@ Core-doctor validates both Life OS private state and Hermes visibility. It is re
 
 ```bash
 hermes skills list --source all
-hermes skills inspect life-os
+hermes skills list --enabled-only | grep -E '(^|[[:space:]])life-os([[:space:]]|$)'
 hermes skills config
 hermes cron list --all
 hermes cron status

@@ -68,7 +68,7 @@ Use current Hermes docs and CLI help as source of truth. Useful read-only comman
 
 ```bash
 hermes skills list --source all
-hermes skills inspect life-os
+hermes skills list --enabled-only | grep -E '(^|[[:space:]])life-os([[:space:]]|$)'
 hermes skills config
 hermes cron list --all
 hermes cron status
