@@ -80,25 +80,6 @@ function parseSkillIndexSubskills(file) {
   return names;
 }
 
-function validatePublicSafety() {
-  const forbidden = [
-    /ghp_[A-Za-z0-9_]+/,
-    /sk-[A-Za-z0-9_-]+/,
-    /xox[baprs]-[A-Za-z0-9-]+/,
-    /BEGIN (RSA |OPENSSH |EC |DSA )?PRIVATE KEY/,
-    /telegram:-?\d+:[0-9]+/,
-    /TELEGRAM_[A-Z_]*TOKEN\s*=/,
-    /Authorization:\s*Bearer\s+[A-Za-z0-9_.-]+/i
-  ];
-  for (const file of listFiles(root)) {
-    const rel = path.relative(root, file);
-    const text = readText(file);
-    for (const rx of forbidden) {
-      if (rx.test(text)) error(`${rel}: public-safety match ${rx}`);
-    }
-  }
-}
-
 function validateJson() {
   for (const file of listFiles(root, f => f.endsWith('.json'))) {
     const rel = path.relative(root, file);
@@ -160,7 +141,6 @@ function validateSkills() {
   }
 }
 
-validatePublicSafety();
 validateJson();
 validateSkills();
 

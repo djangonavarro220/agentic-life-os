@@ -64,11 +64,7 @@ Keep it short. One concrete alert is better than a dashboard dump.
 
 ## State update
 
-After a run, record a short summary with:
-
-```bash
-python3 scripts/lifeos.py run heartbeat --summary "<short status>"
-```
+When a heartbeat observes a meaningful change, record safe tracking metadata only when the current runtime policy allows it. Use Life OS private state or runtime-native state as appropriate; do not use helper scripts to decide or perform semantic monitoring behavior.
 
 The summary should be safe tracking metadata, not raw private content.
 

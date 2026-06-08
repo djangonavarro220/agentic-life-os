@@ -67,15 +67,9 @@ Tasks:
 
 ## Install behavior
 
-`tasks-todo` is part of Life OS. During install, ask whether the user also wants this skill registered globally for the current runtime.
+During install, ask whether the user also wants this skill registered globally for the current runtime. The helper does not record or perform global registration; it only creates private Life OS state.
 
-Record the preference with:
-
-```bash
-python3 scripts/lifeos.py install --runtime <hermes|openclaw> --global-tasks-todo
-```
-
-The helper records the preference but does not mutate runtime skill registration by itself. Runtime-specific registration remains an adapter step. Load the matching runtime adapter before telling the user how to expose `tasks-todo` globally.
+Runtime-specific registration remains an adapter step. Load the matching runtime adapter before telling the user how to expose `tasks-todo` globally.
 
 ## State update
 

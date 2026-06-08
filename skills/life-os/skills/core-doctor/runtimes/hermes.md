@@ -2,12 +2,28 @@
 
 Use `skills/life-os/runtimes/hermes.md` as the central Hermes runtime adapter.
 
-Core-doctor should validate both Life OS state and Hermes visibility:
+Core-doctor validates both Life OS private state and Hermes visibility. It is read-only unless the user explicitly asks for a repair.
+
+## Read-only checks
 
 ```bash
-hermes skills list --source all | grep -E 'life-os|tasks-todo'
+hermes skills list --source all
 hermes skills inspect life-os
+hermes skills config
+hermes cron list --all
+hermes cron status
+hermes memory status
+hermes tools list
+hermes profile list
+hermes gateway status
+hermes status --all
+hermes config check
 python3 scripts/lifeos.py doctor
 ```
 
-Report missing Hermes visibility as a runtime registration issue, not as missing Life OS private state. Do not change Hermes config, tools, cron jobs, delivery routes, or profiles during doctor unless the user explicitly asks.
+## Interpretation
+
+- Missing `life-os` in Hermes is a profile/skill visibility issue, not a private-state failure.
+- Hermes cron, memory, gateway, tools, profiles, plugins, config, and sessions remain Hermes-owned.
+- Report runtime-owned systems and recommend leave/bridge/import/migrate, but do not change anything without approval.
+- Do not use hard-coded Hermes paths as doctor logic; use native commands and docs.

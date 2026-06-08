@@ -23,26 +23,6 @@ SKILL_INDEX = LIFE_OS_ROOT / "skill-index.yaml"
 INSTALL_YAML = LIFE_OS_ROOT / "install.yaml"
 CONFIG_SCHEMA = PROJECT_ROOT / "schemas" / "config.schema.json"
 
-DEFAULT_SCHEDULES = {
-    "heartbeat": "every few hours",
-    "pulse": "daily",
-    "daily_review": "daily",
-    "weekly_review": "weekly",
-    "monthly_review": "monthly",
-    "quarterly_review": "quarterly",
-}
-
-ROUTINE_TO_SKILL = {
-    "heartbeat": "routines-heartbeat",
-    "pulse": "routines-pulse",
-    "daily-review": "routines-daily-review",
-    "weekly-review": "routines-weekly-review",
-    "monthly-review": "routines-monthly-review",
-    "quarterly-review": "routines-quarterly-review",
-    "now": "context-now",
-}
-
-
 def utc_now() -> str:
     return datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
 
@@ -198,9 +178,7 @@ def install(args: argparse.Namespace) -> dict[str, Any]:
     config = read_json(data_dir / "config.json", {})
     config.setdefault("enabled", True)
     config.setdefault("runtime", args.runtime)
-    config.setdefault("schedules", DEFAULT_SCHEDULES)
     config.setdefault("skills", {name: {"enabled": True} for name in sorted(subskills)})
-    config.setdefault("optional_global_skills", {"tasks-todo": bool(args.global_tasks_todo)})
     config.setdefault("created_at", now)
     config["updated_at"] = now
 
@@ -214,8 +192,7 @@ def install(args: argparse.Namespace) -> dict[str, Any]:
         "data_dir": str(data_dir),
         "runtime": args.runtime,
         "subskills": len(subskills),
-        "global_tasks_todo_requested": bool(args.global_tasks_todo),
-        "note": "Runtime cron creation and delivery routing remain runtime-owned and are not modified by this helper.",
+        "note": "Runtime cron creation, delivery routing, task migration, credentials, and memory remain runtime-owned and are not modified by this helper.",
     }
 
 
@@ -258,40 +235,6 @@ def doctor(args: argparse.Namespace) -> dict[str, Any]:
     }
 
 
-def run_routine(args: argparse.Namespace) -> dict[str, Any]:
-    data_dir = Path(args.data_dir).expanduser() if args.data_dir else default_data_dir()
-    routine = args.routine
-    skill = ROUTINE_TO_SKILL.get(routine, routine)
-    subskills = parse_skill_index()
-    if skill not in subskills:
-        raise SystemExit(f"unknown routine or skill: {routine}")
-
-    now = utc_now()
-    skill_data_path = data_dir / skill / "data.json"
-    data = read_json(skill_data_path, {"skill": skill, "created_at": now, "runs": []})
-    runs = data.setdefault("runs", [])
-    run = {
-        "routine": routine,
-        "skill": skill,
-        "ran_at": now,
-        "status": "recorded",
-        "summary": args.summary or f"{routine} routine recorded. Agent should execute the playbook and update actionable state.",
-    }
-    runs.append(run)
-    data["last_run_at"] = now
-    data["last_run"] = run
-    write_json(skill_data_path, data)
-
-    return {
-        "ok": True,
-        "action": "run",
-        "routine": routine,
-        "skill": skill,
-        "data_file": str(skill_data_path),
-        "run": run,
-    }
-
-
 def show_config(args: argparse.Namespace) -> dict[str, Any]:
     data_dir = Path(args.data_dir).expanduser() if args.data_dir else default_data_dir()
     return {
@@ -318,16 +261,10 @@ def build_parser() -> argparse.ArgumentParser:
 
     p_install = sub.add_parser("install", help="Create private Life OS state files")
     p_install.add_argument("--runtime", default="hermes", choices=["hermes", "openclaw", "unknown"])
-    p_install.add_argument("--global-tasks-todo", action="store_true", help="Record that tasks-todo should be globally registered by the runtime")
     p_install.set_defaults(func=install)
 
     p_doctor = sub.add_parser("doctor", help="Validate repo and private Life OS state")
     p_doctor.set_defaults(func=doctor)
-
-    p_run = sub.add_parser("run", help="Record a routine/subskill run in private state")
-    p_run.add_argument("routine", choices=sorted(set(ROUTINE_TO_SKILL) | set(ROUTINE_TO_SKILL.values())))
-    p_run.add_argument("--summary", help="Short run summary to store")
-    p_run.set_defaults(func=run_routine)
 
     p_config = sub.add_parser("config", help="Show Life OS private config/state")
     p_config.set_defaults(func=show_config)

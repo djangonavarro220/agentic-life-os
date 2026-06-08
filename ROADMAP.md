@@ -72,9 +72,9 @@ This should be documented in the umbrella `life-os` skill and inherited by all s
 Priority subskills that need real LLM instructions:
 
 - `core-config`: how to read/update private config safely, including autonomy modes.
-- `core-install`: installer conversation, data-dir explanation, optional `tasks-todo` global registration, runtime-specific handoff.
-- `core-doctor`: diagnose repo, private state, runtime pointers, missing crons, stale data, broken config.
-- `integrations-runtime`: how to discover runtime capabilities without hard-coding private state.
+- `core-install`: installer conversation, data-dir explanation, runtime skill visibility, runtime-owned system discovery, and approval-gated registration/bridging.
+- `core-doctor`: diagnose repo, private state, runtime visibility, runtime-owned systems, and safe next actions without repair side effects.
+- `integrations-runtime`: how to discover runtime capabilities with native commands/docs, classify ownership, and choose leave/bridge/import/migrate without hard-coding private state.
 
 ## 3. Flesh out routine skills
 
@@ -107,7 +107,7 @@ Needed next:
 
 ## 5. Runtime adapters
 
-Runtime docs should be lazy-loaded and adapter-specific. Hermes and OpenClaw are both first-class support targets.
+Runtime docs should be lazy-loaded and adapter-specific. Hermes and OpenClaw are both first-class support targets. The central adapters now include native discovery commands for skills, cron/schedules, tasks/background ledgers, memory, delivery, tools/plugins, profiles/agents/workspaces, and config/doctor checks.
 
 Central adapters now exist at:
 

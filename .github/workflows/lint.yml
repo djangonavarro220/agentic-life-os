@@ -23,6 +23,8 @@ jobs:
         uses: astral-sh/setup-uv@v5
       - name: External Agent Skills scan
         run: npm run lint:external
+      - name: Public secret/token scan
+        run: npm run lint:public-safe
       - name: Local skill policy lint
         run: npm run lint:local
       - name: Life OS helper tests

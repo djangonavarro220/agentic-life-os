@@ -2,14 +2,60 @@
 
 Use this adapter whenever a Life OS skill needs Hermes-specific discovery, installation, scheduling, delivery, or skill visibility behavior.
 
+Hermes docs are authoritative for Hermes behavior. Prefer the live CLI help and docs over assumptions from this repo.
+
+## Scope model
+
+Hermes state is profile-scoped. Each Hermes profile can have its own:
+
+- skills
+- config
+- cron jobs
+- plugins and tools
+- memories and sessions
+- gateway/platform routing
+
+Do not write into another Hermes profile unless the user explicitly selected that profile.
+
+## Read-only discovery
+
+Use these commands to understand the current Hermes runtime before proposing changes:
+
+```bash
+hermes --help
+hermes status --all
+hermes doctor
+hermes config path
+hermes config check
+hermes profile list
+hermes skills list --source all
+hermes skills inspect life-os
+hermes skills config
+hermes cron list --all
+hermes cron status
+hermes memory status
+hermes tools list
+hermes gateway status
+hermes plugins list
+hermes mcp list
+hermes sessions list
+```
+
+If a command is unavailable in the installed Hermes version, run the closest `--help` command and adapt. Do not guess hidden paths.
+
 ## Check whether Life OS is already available
 
 From the machine/profile where Hermes runs:
 
 ```bash
-hermes skills list --source all | grep -E '(^| )life-os( |$)'
-hermes skills list --source all | grep -E '(^| )tasks-todo( |$)'
+hermes skills list --source all | grep -E '(^|[[:space:]])life-os([[:space:]]|$)'
 hermes skills inspect life-os
+```
+
+Optional subskill visibility check:
+
+```bash
+hermes skills list --source all | grep -E '(^|[[:space:]])tasks-todo([[:space:]]|$)'
 ```
 
 If `life-os` is listed, do not re-register the skill. Run the state installer from the repo checkout instead:
@@ -40,8 +86,6 @@ Named profiles use that profile's Hermes home, for example:
 $HOME/.hermes/profiles/<profile>/skills/productivity/life-os/
 ```
 
-Do not write into another Hermes profile unless the user explicitly selects that profile.
-
 ## Fresh local install from a repo checkout
 
 If the user cloned `agentic-life-os` but Hermes cannot see `life-os`, ask whether they want a symlink or a copy.
@@ -69,19 +113,41 @@ npm run lifeos -- install --runtime hermes
 npm run lifeos -- doctor
 ```
 
+If the target is a named profile, replace `$HOME/.hermes` with that profile's Hermes home after the user selects it.
+
 ## Skill visibility rule
 
 The umbrella `life-os` skill is the normal entrypoint. Subskills remain lazily loaded by the umbrella. If Hermes also discovers nested subskills such as `tasks-todo`, treat that as optional runtime visibility, not a reason to bypass the umbrella unless the user explicitly asks for that subskill.
 
-## Runtime-owned boundaries
+## Runtime-owned capabilities
 
 Hermes owns:
 
-- cron jobs
+- skills and skill enablement
+- cron jobs and scheduled jobs
 - Telegram, Discord, and other delivery routing
-- tool availability
+- gateway/platform state
+- tools and tool availability
 - model/provider config
-- memory and vault integrations
+- memory provider config and built-in memory
+- vault/secrets integrations
+- plugins and MCP servers
 - profile selection
+- session history
 
-Life OS may record pointers and private tracking state under `$HOME/.life-os`, but it must not copy Hermes secrets, delivery targets, raw memory dumps, or credentials into the public repo or Life OS state.
+Life OS may record pointers and private tracking state under `$HOME/.life-os`, but it must not copy Hermes secrets, delivery targets, raw memory dumps, sessions, transcripts, logs, or credentials into the public repo or Life OS state.
+
+## Integration guidance
+
+Default recommendation: leave Hermes-owned systems in Hermes and bridge through Hermes tools/pointers.
+
+Ask before:
+
+- creating/editing/removing `hermes cron` jobs
+- changing gateway delivery routes or channel prompts
+- changing profile config or switching the default profile
+- enabling/disabling tools, plugins, MCP servers, or skills
+- changing memory providers or writing durable Hermes memories
+- importing or migrating Hermes-owned data into Life OS private state
+
+Never build path-specific Python/JS detectors for Hermes internals in this repo. Use Hermes commands, docs, and LLM reasoning at install/doctor time.

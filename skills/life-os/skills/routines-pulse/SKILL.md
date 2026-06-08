@@ -1,6 +1,6 @@
 ---
 name: routines-pulse
-description: Daily proactive briefing routine.
+description: Daily proactive briefing routine. Use when the user asks for a daily pulse, daily briefing, proactive synthesis, or morning/evening catch-up.
 version: 0.2.0
 author: Agentic Life OS contributors
 license: MIT
@@ -15,8 +15,12 @@ Produce the daily proactive briefing. Pulse is not a giant summary; it is a shor
 Use for:
 
 - daily scheduled briefing
-- “give me my pulse”
+- daily pulse requests
+- daily briefing requests
+- proactive daily synthesis
 - morning/evening catch-up when the user wants proactive synthesis
+
+Keep triggers language-neutral in spirit: route by intent, not by examples tied to a specific user's phrasing.
 
 Do not use Pulse for tiny status checks. Use `routines-heartbeat` for silent monitoring and `context-now` for immediate focus.
 
@@ -63,11 +67,7 @@ Rules:
 
 ## State update
 
-After producing or intentionally skipping a pulse, record a safe summary:
-
-```bash
-python3 scripts/lifeos.py run pulse --summary "<short pulse summary>"
-```
+After producing or intentionally skipping a pulse, record safe tracking metadata only when the current runtime policy allows it. Use Life OS private state or runtime-native state as appropriate; do not use helper scripts to decide or perform semantic routine behavior.
 
 The summary should be tracking metadata, not raw mail/calendar/memory content.
 

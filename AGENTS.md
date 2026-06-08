@@ -11,6 +11,9 @@ This repo contains a portable Agent Skills based personal advisor OS.
 - Validate Markdown, JSON, YAML, frontmatter, and schemas before committing.
 - Add runtime-specific instructions under `runtimes/` only after checking the actual runtime docs or code.
 - Treat Hermes and OpenClaw as first-class supported runtimes. For any workflow that mentions skill availability, install/register paths, scheduling, delivery, or global skill visibility, document both runtime paths or explicitly mark the missing runtime path as pending with the fact that must be verified.
+- Keep scripts strictly mechanical and deterministic: validation, schema/frontmatter checks, public-safety scans, boring file-layout/state creation, and smoke tests. Do not encode semantic product decisions in scripts.
+- Runtime discovery and integration decisions belong to the agent playbooks, not helper scripts. The LLM should inspect the active runtime with runtime-native tools/docs, then decide whether tasks, crons/schedules, reminders, memory, delivery routes, or other existing systems should be left alone, bridged, imported, or migrated. Ask the user before changing any runtime-owned system.
+- When tempted to add a script, first classify it: mechanical guardrail or state helper is acceptable; heuristic discovery, policy choice, prioritization, migration strategy, routing, or integration ownership is agent semantics and should be written as skill instructions instead.
 
 ## Current architecture
 

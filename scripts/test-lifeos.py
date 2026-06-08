@@ -21,7 +21,7 @@ def main() -> int:
     with tempfile.TemporaryDirectory() as tmp:
         data_dir = Path(tmp) / "lifeos-data"
 
-        install = run("install", "--runtime", "hermes", "--global-tasks-todo", data_dir=data_dir)
+        install = run("install", "--runtime", "hermes", data_dir=data_dir)
         assert install["ok"] is True
         assert install["subskills"] == 20
         assert (data_dir / "installed.json").exists()
@@ -33,15 +33,11 @@ def main() -> int:
         assert doctor["ok"] is True, doctor
         assert doctor["warnings"] == [], doctor
 
-        pulse = run("run", "pulse", "--summary", "test pulse", data_dir=data_dir)
-        assert pulse["ok"] is True
-        assert pulse["skill"] == "routines-pulse"
-        pulse_data = json.loads((data_dir / "routines-pulse" / "data.json").read_text())
-        assert pulse_data["last_run"]["summary"] == "test pulse"
-
         config = run("config", data_dir=data_dir)
         assert config["ok"] is True
-        assert config["config"]["optional_global_skills"]["tasks-todo"] is True
+        assert config["config"]["runtime"] == "hermes"
+        assert "optional_global_skills" not in config["config"]
+        assert "schedules" not in config["config"]
 
     print("lifeos tests ok")
     return 0

@@ -1,6 +1,6 @@
 ---
 name: life-os
-description: Portable personal advisor OS umbrella skill for routing personal-advisor routines across subskills.
+description: Portable personal advisor OS umbrella skill. Use when the user asks for a pulse, briefing, current context, what to focus on, what to look at now, or the next action.
 version: 0.2.0
 license: MIT
 ---
@@ -26,9 +26,10 @@ Act as a portable personal advisor OS made of small Agent Skills. The product is
 5. Read `<data-dir>/config.json` if it exists.
 6. Classify the user request or scheduled trigger.
 7. Load only the subskills needed for that intent.
-8. Execute the selected playbook with runtime-native tools.
-9. Record short tracking state in `$LIFEOS_DATA_DIR/<skill-name>/data.json` when useful.
-10. Surface only actionable output.
+8. For setup/integration tasks, investigate existing runtime-owned systems with runtime-native discovery before proposing bridges, imports, migrations, schedules, or delivery routes.
+9. Execute the selected playbook with runtime-native tools.
+10. Record short tracking state in `$LIFEOS_DATA_DIR/<skill-name>/data.json` when useful.
+11. Surface only actionable output.
 
 Hermes and OpenClaw are first-class supported runtimes. Runtime-specific install, visibility, scheduling, delivery, and global-registration instructions must be documented for both before a workflow is considered complete. Do not add a Hermes-only step without either adding the OpenClaw equivalent or explicitly marking it as not supported yet.
 
@@ -36,10 +37,10 @@ Hermes and OpenClaw are first-class supported runtimes. Runtime-specific install
 
 Use this routing by default:
 
-- User asks “what should I focus on?”, “where am I?”, “catch me up”, “now” -> load `context-now`.
+- User asks for current context, immediate focus, a next action, or a catch-up -> load `context-now`.
 - User asks to capture, review, prioritize, or update tasks -> load `tasks-todo`.
-- Scheduled frequent check or “watch this quietly” -> load `routines-heartbeat`.
-- Scheduled daily briefing or “give me my pulse” -> load `routines-pulse`.
+- Scheduled frequent check or a quiet watch request -> load `routines-heartbeat`.
+- Scheduled daily briefing, pulse, or proactive daily synthesis -> load `routines-pulse`.
 - User mentions someone, a promise, relationship maintenance, or “remind me to follow up” -> load `people-followups`.
 - Install/setup/repair/check -> load `core-install` or `core-doctor`.
 - Mail/calendar/runtime integration details -> load the matching `integrations-*` skill and runtime docs lazily.
@@ -89,7 +90,6 @@ Use the repo helper only for boring state mechanics, not for reasoning:
 ```bash
 python3 scripts/lifeos.py install --runtime <hermes|openclaw>
 python3 scripts/lifeos.py doctor
-python3 scripts/lifeos.py run pulse --summary "daily pulse completed"
 python3 scripts/lifeos.py config
 ```
 
@@ -125,15 +125,5 @@ For scheduled or manual routines:
 1. Run `doctor` if install state is uncertain.
 2. Load the matching routine subskill from `skill-index.yaml`.
 3. Execute the playbook with runtime-native tools.
-4. Record the run with `lifeos.py run <routine> --summary <short summary>`.
+4. Record useful tracking state only when the user/runtime policy allows it, using Life OS private state or runtime-native state as appropriate.
 5. Surface only actionable output to the user.
-
-Supported routine aliases in the helper:
-
-- `heartbeat`
-- `pulse`
-- `daily-review`
-- `weekly-review`
-- `monthly-review`
-- `quarterly-review`
-- `now`

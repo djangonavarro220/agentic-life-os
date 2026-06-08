@@ -22,7 +22,7 @@ user or scheduled runtime job
 - **Portable:** built around Agent Skills, not one vendor runtime.
 - **Token-efficient:** the `life-os` umbrella skill lazy-loads subskills and runtime docs only when needed.
 - **Private by default:** personal data, secrets, memory, mail, calendar credentials, and delivery routing stay in the runtime or local data directory, not in this repo.
-- **Runtime-aware:** Hermes and OpenClaw adapters document how to install, schedule, and call the skills without hard-coding private runtime state.
+- **Runtime-aware:** Hermes and OpenClaw adapters document how to discover existing runtime capabilities, install/register skills, schedule routines, and use delivery/memory/tasks without hard-coding private runtime state.
 - **Composable:** routines, people, gifts, events, mail, calendar, tasks, and reviews are separate skills with their own schemas.
 
 ## Initial skill layout
@@ -119,7 +119,6 @@ The repo includes a small deterministic helper for the state mechanics agents sh
 ```bash
 npm run lifeos -- install --runtime <hermes|openclaw>
 npm run lifeos -- doctor
-npm run lifeos -- run pulse --summary "daily pulse completed"
 npm run lifeos -- config
 ```
 
@@ -129,8 +128,8 @@ What it does:
 - creates `installed.json`, `runtime.json`, `config.json`
 - creates per-subskill `$LIFEOS_DATA_DIR/<skill-name>/data.json`
 - validates repo shape and private state with `doctor`
-- records routine runs without touching runtime-owned crons, delivery, credentials, or memory
-- preserves existing `config.json` choices on re-run, including any earlier optional global skill selection
+- keeps runtime-owned crons, delivery, credentials, memory, task systems, and semantic routine behavior out of the helper
+- preserves existing `config.json` choices on re-run
 
 What it deliberately does not do:
 
@@ -142,10 +141,11 @@ What it deliberately does not do:
 ## Validation
 
 ```bash
-npm run lint          # external Agent Skills scan + local policy lint
-npm run lint:external # agent-skills-mcp scanner
-npm run lint:local    # repo-specific skill policy checks
-npm test              # helper install/doctor/run smoke tests
+npm run lint             # external scan + public-safety scan + local policy lint
+npm run lint:external    # agent-skills-mcp scanner
+npm run lint:public-safe # secret/token pattern scan only
+npm run lint:local       # repo-specific skill policy checks
+npm test                 # helper install/doctor/config smoke tests
 ```
 
 ## Roadmap
@@ -154,7 +154,7 @@ See [`ROADMAP.md`](ROADMAP.md) for autonomy modes, remaining Markdown playbooks,
 
 ## Status
 
-Operational scaffold: install, doctor, config, routine-run recording, skill linting, and CI are implemented. The domain routines are still playbooks; runtime-specific cron creation and external side effects remain runtime-owned and approval-gated.
+Operational scaffold: install, doctor, config, skill linting, public-safety scanning, and CI are implemented. The domain routines are still playbooks; runtime-specific cron creation and external side effects remain runtime-owned and approval-gated.
 
 ## License
 

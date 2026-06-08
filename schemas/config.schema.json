@@ -6,10 +6,6 @@
   "properties": {
     "enabled": { "type": "boolean" },
     "runtime": { "type": "string" },
-    "schedules": {
-      "type": "object",
-      "additionalProperties": true
-    },
     "skills": {
       "type": "object",
       "additionalProperties": true

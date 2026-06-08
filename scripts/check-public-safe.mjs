@@ -4,6 +4,7 @@ import path from 'node:path';
 const root = process.cwd();
 const skipDirs = new Set(['.git', 'node_modules', 'dist', 'build']);
 const files = [];
+let failed = false;
 
 function walk(dir) {
   for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
@@ -19,12 +20,9 @@ function fail(message) {
   failed = true;
 }
 
-walk(root);
-let failed = false;
-
-const forbidden = [
+const secretPatterns = [
   /ghp_[A-Za-z0-9_]+/,
-  /sk-[A-Za-z0-9_-]+/,
+  /sk-[A-Za-z0-9_-]{20,}/,
   /xox[baprs]-[A-Za-z0-9-]+/,
   /BEGIN (RSA |OPENSSH |EC |DSA )?PRIVATE KEY/,
   /telegram:-?\d+:[0-9]+/,
@@ -32,45 +30,15 @@ const forbidden = [
   /Authorization:\s*Bearer\s+[A-Za-z0-9_.-]+/i
 ];
 
-for (const file of files) {
+walk(root);
+
+for (const file of files.sort()) {
   const rel = path.relative(root, file);
   const text = fs.readFileSync(file, 'utf8');
-
-  for (const rx of forbidden) {
-    if (rx.test(text)) fail(`public-safety match ${rx} in ${rel}`);
-  }
-
-  if (rel.endsWith('.json')) {
-    try {
-      JSON.parse(text);
-    } catch (error) {
-      fail(`invalid JSON in ${rel}: ${error.message}`);
-    }
-  }
-
-  if (rel.endsWith('SKILL.md')) {
-    if (!text.startsWith('---\n')) fail(`SKILL frontmatter must start at byte 0 in ${rel}`);
-    const end = text.indexOf('\n---\n', 4);
-    if (end === -1) {
-      fail(`SKILL frontmatter missing closing marker in ${rel}`);
-      continue;
-    }
-    const frontmatter = text.slice(4, end).split('\n');
-    const body = text.slice(end + 5).trim();
-    const fields = new Map();
-    for (const line of frontmatter) {
-      const match = line.match(/^([A-Za-z0-9_.-]+):\s*(.*)$/);
-      if (match) fields.set(match[1], match[2].trim());
-    }
-    const name = fields.get('name');
-    const description = fields.get('description');
-    if (!name) fail(`SKILL missing name in ${rel}`);
-    if (!description) fail(`SKILL missing description in ${rel}`);
-    if (name && !/^[a-z0-9][a-z0-9-]{0,63}$/.test(name)) fail(`SKILL invalid name '${name}' in ${rel}`);
-    if (description && description.length > 1024) fail(`SKILL description too long in ${rel}`);
-    if (!body) fail(`SKILL body is empty in ${rel}`);
+  for (const pattern of secretPatterns) {
+    if (pattern.test(text)) fail(`secret/token pattern ${pattern} in ${rel}`);
   }
 }
 
 if (failed) process.exit(1);
-console.log(`lint ok (${files.length} files checked)`);
+console.log(`public-safe ok (${files.length} files scanned for secret/token patterns)`);

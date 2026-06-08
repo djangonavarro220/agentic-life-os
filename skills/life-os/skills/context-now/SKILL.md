@@ -1,6 +1,6 @@
 ---
 name: context-now
-description: Build the current actionable context.
+description: Build the current actionable context. Use when the user asks for current context, immediate focus, what to look at now, a catch-up, next action, or what is active/waiting.
 version: 0.1.0
 author: Agentic Life OS contributors
 license: MIT
@@ -12,14 +12,17 @@ Build a compact view of what matters now. This is the user-facing “where am I 
 
 ## Trigger
 
-Use when the user asks:
+Use when the user asks for a compact current-context or next-action view, including:
 
 - what should I focus on?
+- what should I look at now?
 - catch me up
 - where are we?
 - what is active now?
 - what am I waiting on?
 - what should the next action be?
+
+Keep triggers language-neutral in spirit: examples may be English, but the intent is current context, immediate focus, catch-up, and next action in any user language.
 
 ## Context sources
 
@@ -62,11 +65,7 @@ Keep it short. If the user wants detail, expand from the private/source pointers
 
 ## State update
 
-If this was a meaningful context rebuild, record it:
-
-```bash
-python3 scripts/lifeos.py run now --summary "<short now summary>"
-```
+If this was a meaningful context rebuild, record a short summary in Life OS private state or runtime-native state only when the current runtime policy allows it. Do not use helper scripts for semantic routine decisions.
 
 ## Data
 
