@@ -8,7 +8,9 @@
     "lint": "npm run lint:external && npm run lint:local",
     "lint:external": "uvx --from agent-skills-mcp python scripts/lint-agent-skills-mcp.py",
     "lint:local": "node scripts/lint-skills.mjs",
-    "lint:skills": "npm run lint:local"
+    "lint:skills": "npm run lint:local",
+    "test": "python3 scripts/test-lifeos.py",
+    "lifeos": "python3 scripts/lifeos.py"
   },
   "devDependencies": {}
 }

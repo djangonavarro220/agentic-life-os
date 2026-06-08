@@ -25,3 +25,5 @@ jobs:
         run: npm run lint:external
       - name: Local skill policy lint
         run: npm run lint:local
+      - name: Life OS helper tests
+        run: npm test

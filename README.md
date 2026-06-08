@@ -73,9 +73,44 @@ $LIFEOS_DATA_DIR/<skill-name>/data.json
 
 Runtime-owned capabilities stay in the runtime. Life OS can store pointers and tracking metadata, not copied credentials or private memory dumps.
 
+## CLI helper
+
+The repo includes a small deterministic helper for the state mechanics agents should not improvise:
+
+```bash
+npm run lifeos -- install --runtime hermes
+npm run lifeos -- doctor
+npm run lifeos -- run pulse --summary "daily pulse completed"
+npm run lifeos -- config
+```
+
+What it does:
+
+- resolves `LIFEOS_DATA_DIR` or the platform default data directory
+- creates `installed.json`, `runtime.json`, `config.json`
+- creates per-subskill `$LIFEOS_DATA_DIR/<skill-name>/data.json`
+- validates repo shape and private state with `doctor`
+- records routine runs without touching runtime-owned crons, delivery, credentials, or memory
+
+What it deliberately does not do:
+
+- create Telegram/Discord/email delivery routes
+- create or delete runtime cron jobs
+- store secrets, raw memories, credentials, or private chat IDs
+- replace the host runtime's memory, vault, calendar, or mail integrations
+
+## Validation
+
+```bash
+npm run lint          # external Agent Skills scan + local policy lint
+npm run lint:external # agent-skills-mcp scanner
+npm run lint:local    # repo-specific skill policy checks
+npm test              # helper install/doctor/run smoke tests
+```
+
 ## Status
 
-Early design scaffold. The repository is public-safe and intentionally light until the implementation decisions settle.
+Operational scaffold: install, doctor, config, routine-run recording, skill linting, and CI are implemented. The domain routines are still playbooks; runtime-specific cron creation and external side effects remain runtime-owned and approval-gated.
 
 ## License
 
