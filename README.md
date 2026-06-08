@@ -119,6 +119,27 @@ npm run lifeos -- doctor
 
 If the repo is cloned somewhere else and the runtime cannot see the skill yet, ask the user where to install it and whether they want a symlink for live development or a copy for a static snapshot.
 
+## Install model
+
+Life OS install has two layers:
+
+- **Mechanical install:** repo files, private state files, and runtime skill visibility exist.
+- **Semantic install:** source, schedule, delivery, routine, and record-keeping decisions have been asked, answered, and saved in private config.
+
+Do not claim Life OS is fully installed just because the mechanical layer exists. A complete install requires:
+
+```text
+doctor.semantic_health.complete = true
+safe_to_claim_fully_installed = true
+install_claim = fully_configured
+```
+
+If `doctor` reports `install_claim: mechanical_only`, continue the setup loop: ask the next question, save the answer, and check again.
+
+Semantic decisions are stored in `$LIFEOS_DATA_DIR/config.json` under `semantic_setup.decisions`. Store pointers, access notes, and runtime ownership choices there, not full personal data.
+
+Runtime crons and delivery routes are not created by default. Life OS can provide templates, but the active runtime owns actual schedules and delivery, and the user must approve before jobs or routes are created.
+
 ## CLI helper
 
 The repo includes a small deterministic helper for the state mechanics agents should not improvise:
@@ -131,6 +152,26 @@ npm run lifeos -- answer <decision-key> '<answer or runtime pointer>'
 npm run lifeos -- plan
 npm run lifeos -- config
 ```
+
+What the commands do:
+
+- `install --runtime <runtime>`: creates or refreshes private state files in `$HOME/.life-os` by default. It initializes `semantic_setup` but does not create crons, delivery routes, credentials, memory entries, or migrations.
+- `doctor`: checks repo/private-state health and semantic setup status. Use `semantic_health.complete`, `install_claim`, and `safe_to_claim_fully_installed` as the truth for whether setup is complete.
+- `next-question`: returns exactly the next required semantic setup question plus a command hint for saving the answer.
+- `answer <decision-key> '<answer>'`: saves one approved setup decision in private config. Prefer runtime pointers and access notes over copied data.
+- `plan`: prints remaining setup steps and cron templates without side effects. It must not create runtime jobs or delivery routes.
+- `config`: prints private Life OS config/state. Treat this as private runtime state; do not copy secrets, raw personal data, or delivery targets into public docs.
+
+Semantic setup loop:
+
+1. Run `npm run lifeos -- install --runtime <runtime>` if state may be missing.
+2. Run `npm run lifeos -- doctor`.
+3. If `semantic_health.complete` is false, run `npm run lifeos -- next-question`.
+4. Ask the user that question in the setup conversation.
+5. Save the approved answer with `npm run lifeos -- answer <key> '<answer>'`.
+6. Repeat doctor -> next-question -> answer until complete, or until the user stops setup.
+7. Only after semantic setup is complete and the user approves, turn `plan` cron templates into runtime-owned jobs.
+8. Re-run runtime visibility/status checks after any runtime-owned change.
 
 What it does:
 
