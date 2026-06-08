@@ -30,50 +30,51 @@ $LIFEOS_DATA_DIR/config.json
 
 ## Config owns
 
-Life OS config may store:
+Global config owns only install-wide coordination:
 
-- `sources`: where each domain's real data lives and how to access it
-- `internal_state`: operational state such as last checks, suppression windows, priority scores, and last-summary pointers
-- `caches`: dated or named result snapshots used by routines; these may include text when useful and default to persistent retention
+- `enabled`
+- active `runtime`
 - `skills`: per-skill enablement/preferences
-- Life-OS-specific preferences, such as silence/noise policy
+- `semantic_setup`: setup status and pointers to the skill that owns each answer
+- global policy that truly applies to the whole Life OS install
 
-Example:
+Domain state belongs in the owning skill's data file:
+
+```text
+$LIFEOS_DATA_DIR/<skill-name>/data.json
+```
+
+Skill data may store:
+
+- `source_decisions`: where that domain's real data lives and how to access it
+- `setup_decisions`: setup answers owned by that skill
+- `internal_state`: last checks, suppression windows, priority scores, and pointers
+- `caches`: dated or named result snapshots used by that skill
+- `preferences`: Life-OS-specific preferences for that domain
+
+Example for task source ownership:
 
 ```json
 {
-  "sources": {
-    "birthdays": {
+  "skill": "tasks-todo",
+  "source_decisions": {
+    "tasks_source": {
       "owner": "runtime",
-      "runtime": "openclaw",
-      "source": "calendar",
-      "access": "use the runtime calendar tool; do not duplicate birthday records here"
-    },
-    "cron_records": {
-      "owner": "runtime",
-      "runtime": "hermes",
-      "source": "cron.output",
-      "access": "hermes cron list --all; output lives under active Hermes home/cron/output/<job_id>/<timestamp>.md"
+      "runtime": "<active-runtime>",
+      "source": "task-system",
+      "access": "use the active runtime task tool; do not duplicate the full task list here"
     }
   },
   "internal_state": {
-    "birthdays_last_checked_at": "2026-01-01T09:00:00Z",
-    "last_pulse": { "pointer": "runtime cron output or Life OS dated cache path" },
-    "last_summary_sent": { "pointer": "runtime message/session/output reference" },
-    "do_not_alert_until": {},
-    "priority_scores": {}
+    "last_reviewed_at": "2026-01-01T09:00:00Z"
   },
-  "caches": {
-    "2026/01/01": {
-      "pulse_candidates": []
-    }
-  }
+  "caches": {}
 }
 ```
 
 ## Config does not own
 
-Do not put these in Life OS config as the main source of truth:
+Do not put these in global config or skill data as the main source of truth:
 
 - full birthday/contact/task lists
 - raw runtime memories
@@ -81,11 +82,11 @@ Do not put these in Life OS config as the main source of truth:
 - runtime secrets, tokens, vault entries, credentials, or real delivery targets
 - runtime cron definitions or job IDs beyond pointers/access notes
 
-If the user explicitly creates a Life OS note, preference, or technical state item, config/private state may store it. Otherwise real domain data should live in the runtime or external source selected by the LLM.
+If the user explicitly creates a Life OS note, preference, or technical state item, the owning skill data file may store it. Otherwise real domain data should live in the runtime or external source selected by the LLM.
 
 ## Retention and layout
 
-Default retention is persistent. Do not auto-delete config entries, pointers, source decisions, suppression windows, priority scores, or caches unless the user or runtime policy explicitly says to clear them.
+Default retention is persistent. Do not auto-delete global config entries, skill data pointers, source decisions, suppression windows, priority scores, or caches unless the user or runtime policy explicitly says to clear them.
 
 Organize durable caches and routine artifacts by dated folders or dated records, for example:
 
@@ -101,7 +102,7 @@ Caches and result snapshots do not have to be IDs/hashes only. They may include 
 Safe without asking:
 
 - read config
-- add/update source decisions after the user approved the setup choice or the choice is clearly part of the requested install/check
+- add/update source decisions in the owning skill data file after the user approved the setup choice or the choice is clearly part of the requested install/check
 - update internal routine state after a routine runs
 - update caches/result snapshots in private state
 
@@ -115,7 +116,7 @@ Ask before:
 
 ## Runtime move policy
 
-When moving between runtimes, the LLM should inspect existing `sources`, load the new runtime adapter, attempt to map old references to new runtime-native sources, then ask before making changes. Do not silently discard old references.
+When moving between runtimes, the LLM should inspect the relevant skill data files, load the new runtime adapter, attempt to map old references to new runtime-native sources, then ask before making changes. Do not silently discard old references.
 
 ## Data
 

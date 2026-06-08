@@ -88,7 +88,7 @@ user request or scheduled job
     -> load only the active runtime adapter if needed
     -> inspect runtime/external sources read-only first
     -> ask before side effects
-    -> save source decisions or state pointers
+    -> save skill-specific source decisions or state pointers
     -> produce compact, actionable output
 ```
 
@@ -145,16 +145,27 @@ $LIFEOS_DATA_DIR/installed.json
 $LIFEOS_DATA_DIR/<skill-name>/data.json
 ```
 
-`config.json` is the private coordination map. It may store:
+`config.json` is only the global coordination file. It may store:
 
-- source decisions, such as `tasks -> runtime task system`
-- access pointers, such as how to find routine run records
-- `semantic_setup` answers
-- Life-OS-specific preferences
+- active runtime and enablement metadata
+- `semantic_setup` status and pointers to the skill that owns each answer
+- cross-skill policies that genuinely apply to the whole Life OS install
+
+Domain decisions belong to the relevant skill's own data file. For example, the task source decision belongs in:
+
+```text
+$LIFEOS_DATA_DIR/tasks-todo/data.json
+```
+
+A skill `data.json` may store:
+
+- source decisions for that domain, such as `tasks -> runtime task system`
+- access pointers, such as how that skill finds routine run records or source data
+- Life-OS-specific preferences for that domain
 - internal state, such as last check time or suppression windows
 - dated caches or summaries when useful
 
-It should not store:
+Neither global config nor skill data should store:
 
 - credentials or tokens
 - raw runtime memory dumps
@@ -259,7 +270,7 @@ Mechanical install:
 Semantic install:
 
 - setup questions have been asked
-- source decisions have been saved
+- source decisions have been saved in the owning skill data files
 - schedule and delivery policy have been chosen
 - routine record sources are known
 - runtime-owned side effects are approved before being created
@@ -322,9 +333,9 @@ Commands:
 - `next-question`: returns the next required setup decision.
 - `answer <decision-key> '<answer>'`: saves one approved setup decision.
 - `plan`: prints remaining setup steps and cron templates without side effects.
-- `config`: prints private Life OS config/state.
+- `config`: prints private Life OS global config plus install/runtime state.
 
-The helper does not create runtime crons, delivery routes, credentials, memory entries, mail/calendar integrations, vault records, or migrations.
+The helper does not create runtime crons, delivery routes, credentials, memory entries, mail/calendar integrations, vault records, or migrations. Domain ownership choices are stored in the owning skill's `data.json`; global `config.json` keeps only install-wide setup status and pointers.
 
 ## Semantic setup loop
 

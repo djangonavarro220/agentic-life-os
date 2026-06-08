@@ -2,5 +2,41 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "routines-daily-review data",
   "type": "object",
-  "additionalProperties": true
+  "additionalProperties": true,
+  "properties": {
+    "skill": {
+      "type": "string"
+    },
+    "created_at": {
+      "type": "string"
+    },
+    "runs": {
+      "type": "array"
+    },
+    "source_decisions": {
+      "type": "object",
+      "description": "Domain-specific source ownership decisions and access pointers for this skill.",
+      "additionalProperties": true
+    },
+    "setup_decisions": {
+      "type": "object",
+      "description": "Semantic setup answers owned by this skill. Global config stores pointers here, not duplicate answers.",
+      "additionalProperties": true
+    },
+    "internal_state": {
+      "type": "object",
+      "description": "Operational state for this skill, such as last checks, suppression windows, scores, and pointers.",
+      "additionalProperties": true
+    },
+    "caches": {
+      "type": "object",
+      "description": "Dated or named caches/result snapshots owned by this skill.",
+      "additionalProperties": true
+    },
+    "preferences": {
+      "type": "object",
+      "description": "Life-OS-specific preferences for this skill domain.",
+      "additionalProperties": true
+    }
+  }
 }

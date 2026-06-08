@@ -49,7 +49,7 @@ The helper checks:
 - per-subskill private data files exist, if installed
 - `semantic_health`: whether required source, schedule, delivery, and routine decisions have been asked and saved
 
-If `semantic_health.complete` is false, the install is mechanically present but semantically incomplete. The helper persists the semantic checklist into private `config.json`, then the agent should ask the next pending question with `python3 scripts/lifeos.py next-question`, save it with `python3 scripts/lifeos.py answer <key> '<answer>'`, and run doctor again.
+If `semantic_health.complete` is false, the install is mechanically present but semantically incomplete. The helper persists global setup status in private `config.json` and saves each answer in the owning skill data file. The agent should ask the next pending question with `python3 scripts/lifeos.py next-question`, save it with `python3 scripts/lifeos.py answer <key> '<answer>'`, and run doctor again.
 
 ## Hermes doctor checklist
 
@@ -134,7 +134,7 @@ Doctor:
 - Private state: <ok|missing|warning>
 - Runtime: <Hermes|OpenClaw|unknown>
 - Skill visibility: <visible|missing|ambiguous>
-- Source decisions: <configured|missing|ambiguous>
+- Skill-owned source state: <configured|missing|ambiguous>
 - Semantic setup: <complete|pending, next question>
 - Runtime-owned systems: <summary>
 - Issues: <short list>

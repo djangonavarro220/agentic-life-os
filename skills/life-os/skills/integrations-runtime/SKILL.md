@@ -8,7 +8,7 @@ license: MIT
 
 # integrations-runtime
 
-Bridge Life OS playbooks to runtime-owned capabilities without duplicating secrets or private data. Life OS is a helper/coordination layer: it records source decisions, pointers, access instructions, operational state, caches, and Life-OS-specific preferences; real user data usually stays in Hermes/OpenClaw or an external source.
+Bridge Life OS playbooks to runtime-owned capabilities without duplicating secrets or private data. Life OS is a helper/coordination layer: each skill records its own source decisions, pointers, access instructions, operational state, caches, and Life-OS-specific preferences; real user data usually stays in Hermes/OpenClaw or an external source.
 
 ## Trigger
 
@@ -27,7 +27,7 @@ Use when a Life OS workflow needs to inspect, use, bridge, import from, or confi
 
 Discovery and integration choices are semantic agent work. Do not encode them in helper scripts.
 
-The LLM should inspect the active runtime with runtime-native commands and docs, explain what it found, choose or propose the source of truth, then record that decision in Life OS config. Helper scripts may validate files or create local state containers, but they must not decide which runtime system to use or migrate.
+The LLM should inspect the active runtime with runtime-native commands and docs, explain what it found, choose or propose the source of truth, then record that decision in the owning skill data file. Helper scripts may validate files or create local state containers, but they must not decide which runtime system to use or migrate.
 
 ## Runtime adapters
 
@@ -60,7 +60,7 @@ The adapters are central and apply to all Life OS skills. Individual subskills m
    - create a runtime-native store when no suitable source exists, then record the pointer
    - migrate/reconnect references when moving runtimes, with approval before changes
 6. Ask approval before any side effect.
-7. Store source decisions, access notes, operational state, caches, and Life-OS-specific preferences in `$LIFEOS_DATA_DIR`. Do not store full real-domain data just to make Life OS the owner.
+7. Store domain source decisions, access notes, operational state, caches, and Life-OS-specific preferences in the owning skill data file under `$LIFEOS_DATA_DIR/<skill-name>/data.json`. Do not store full real-domain data just to make Life OS the owner.
 
 ## Hermes native discovery helpers
 
@@ -87,7 +87,7 @@ hermes plugins list
 Hermes ownership notes:
 
 - `hermes skills` owns visibility and enablement.
-- `hermes cron` owns scheduled jobs. Hermes cron definitions live under the active Hermes home at `cron/jobs.json`; cron output is saved under `cron/output/<job_id>/<timestamp>.md`. Prefer `hermes cron list --all` and `hermes cron status`; store pointers/access instructions in Life OS config.
+- `hermes cron` owns scheduled jobs. Hermes cron definitions live under the active Hermes home at `cron/jobs.json`; cron output is saved under `cron/output/<job_id>/<timestamp>.md`. Prefer `hermes cron list --all` and `hermes cron status`; store pointers/access instructions in the owning skill data file.
 - `hermes memory` owns external memory provider config; built-in memory remains Hermes-owned.
 - `hermes tools` owns tool availability per platform/session.
 - `hermes profile` owns profile scoping; each profile can have separate skills, config, memory, sessions, and cron jobs.
@@ -130,7 +130,7 @@ OpenClaw ownership notes:
 - `openclaw skills` owns workspace/agent skill visibility.
 - `openclaw agents list --bindings` shows agent/workspace/channel routing.
 - `openclaw tasks` is an activity ledger for background work, not automatically a user task database.
-- `openclaw cron` owns Gateway scheduled jobs and run history. Cron definitions live in `~/.openclaw/cron/jobs.json` by default, pending runtime state lives in `~/.openclaw/cron/jobs-state.json`, and run logs live under `~/.openclaw/cron/runs/<jobId>.jsonl`. Prefer `openclaw cron list` and `openclaw cron runs --id <job-id>`; store pointers/access instructions in Life OS config.
+- `openclaw cron` owns Gateway scheduled jobs and run history. Cron definitions live in `~/.openclaw/cron/jobs.json` by default, pending runtime state lives in `~/.openclaw/cron/jobs-state.json`, and run logs live under `~/.openclaw/cron/runs/<jobId>.jsonl`. Prefer `openclaw cron list` and `openclaw cron runs --id <job-id>`; store pointers/access instructions in the owning skill data file.
 - `openclaw memory` owns semantic memory indexing/search/promote flows.
 - `openclaw config` owns runtime configuration; use read-only `get/file/validate` by default.
 - `openclaw doctor --repair` mutates runtime state. Do not run repair without approval.

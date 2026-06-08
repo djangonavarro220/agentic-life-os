@@ -23,7 +23,7 @@ Do not use for deep weekly review, full daily briefing, or open-ended life plann
 
 ## Inputs to inspect
 
-Load only sources enabled in `$LIFEOS_DATA_DIR/config.json`. Runtime-owned sources may include:
+Load only sources configured in the relevant skill data files under `$LIFEOS_DATA_DIR/<skill-name>/data.json`. Runtime-owned sources may include:
 
 - runtime TODO/task system
 - runtime cron/job state

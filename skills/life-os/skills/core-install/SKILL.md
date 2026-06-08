@@ -79,24 +79,24 @@ Use `--data-dir <path>` only when the user explicitly wants a non-default privat
 
 ## Runtime-owned system discovery
 
-Discovery is read-only by default. Use it to inform the user, not to auto-migrate. After the LLM decides where a domain should live, record that source decision in `config.json` so later runs do not rediscover from scratch.
+Discovery is read-only by default. Use it to inform the user, not to auto-migrate. After the LLM decides where a domain should live, record that source decision in the owning skill's `data.json` so later runs do not rediscover from scratch.
 
-Config may store source records such as:
+Examples:
+
+- task source decisions -> `$LIFEOS_DATA_DIR/tasks-todo/data.json`
+- contact source decisions -> `$LIFEOS_DATA_DIR/people-contacts/data.json`
+- cron run record source decisions -> `$LIFEOS_DATA_DIR/integrations-runtime/data.json`
+
+Skill data may store source records such as:
 
 ```json
 {
-  "sources": {
-    "birthdays": {
+  "source_decisions": {
+    "records_source": {
       "owner": "runtime",
       "runtime": "<active-runtime>",
-      "source": "calendar",
-      "access": "use the active runtime calendar tool; do not duplicate birthday records here"
-    },
-    "cron_records": {
-      "owner": "runtime",
-      "runtime": "<active-runtime>",
-      "source": "cron.run_logs",
-      "access": "use the active runtime adapter to find routine run records"
+      "source": "calendar-or-cron-or-task-system",
+      "access": "use the active runtime adapter; do not duplicate the real records here"
     }
   }
 }
@@ -135,8 +135,8 @@ If runtime detection is ambiguous, ask one concrete question: which runtime, pro
 
 - `$LIFEOS_DATA_DIR/installed.json`
 - `$LIFEOS_DATA_DIR/runtime.json`
-- `$LIFEOS_DATA_DIR/config.json` with mechanical containers for `sources`, `internal_state`, `caches`, and `semantic_setup`
-- `$LIFEOS_DATA_DIR/<skill-name>/data.json` for every indexed subskill
+- `$LIFEOS_DATA_DIR/config.json` with install-wide metadata, skill enablement, and `semantic_setup` pointers
+- `$LIFEOS_DATA_DIR/<skill-name>/data.json` for every indexed subskill, including that skill's source decisions, state, caches, and preferences
 
 ## Boundaries
 

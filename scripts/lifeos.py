@@ -27,41 +27,49 @@ SEMANTIC_QUESTIONS: list[dict[str, str]] = [
     {
         "key": "tasks_source",
         "category": "source-decisions",
+        "owner_skill": "tasks-todo",
         "question": "Where should Life OS read and update tasks or follow-ups for this runtime?",
     },
     {
         "key": "memory_source",
         "category": "source-decisions",
+        "owner_skill": "integrations-runtime",
         "question": "Where should Life OS read durable user context and preferences?",
     },
     {
         "key": "routine_schedule_policy",
         "category": "runtime-owned",
+        "owner_skill": "integrations-runtime",
         "question": "Should Life OS stay manual, propose schedules only, or create/maintain runtime cron jobs after approval?",
     },
     {
         "key": "daily_pulse",
         "category": "routine",
+        "owner_skill": "routines-pulse",
         "question": "Should a daily pulse exist, and if yes what cadence and delivery pointer should it use?",
     },
     {
         "key": "quiet_heartbeat",
         "category": "routine",
+        "owner_skill": "routines-heartbeat",
         "question": "Should a quiet heartbeat exist, and what frequency/no-news policy should it use?",
     },
     {
         "key": "review_cadence",
         "category": "routine",
+        "owner_skill": "routines-weekly-review",
         "question": "Which weekly, monthly, or quarterly review routines should be enabled?",
     },
     {
         "key": "delivery_policy",
         "category": "runtime-owned",
+        "owner_skill": "integrations-runtime",
         "question": "Where should user-facing Life OS routine output be delivered, using runtime-owned aliases or pointers?",
     },
     {
         "key": "cron_record_source",
         "category": "source-decisions",
+        "owner_skill": "integrations-runtime",
         "question": "Where should Life OS read routine run records and cron output history?",
     },
 ]
@@ -82,7 +90,7 @@ CRON_TEMPLATES: list[dict[str, Any]] = [
         "skills": ["life-os", "routines-heartbeat"],
         "delivery": "runtime-owned destination selected during setup",
         "create_by_default": False,
-        "prompt": "Run the Life OS quiet heartbeat. Read semantic_setup first. Check configured sources only. Return [SILENT] unless the saved policy says a change is actionable.",
+        "prompt": "Run the Life OS quiet heartbeat. Read semantic_setup first, then check only the sources configured in the relevant skill data files. Return [SILENT] unless the saved policy says a change is actionable.",
     },
     {
         "name": "weekly_review",
@@ -90,7 +98,7 @@ CRON_TEMPLATES: list[dict[str, Any]] = [
         "skills": ["life-os", "routines-weekly-review"],
         "delivery": "runtime-owned destination selected during setup",
         "create_by_default": False,
-        "prompt": "Run the Life OS weekly review. Read semantic_setup and configured source pointers. Summarize only decisions, risks, waiting items, and next actions.",
+        "prompt": "Run the Life OS weekly review. Read semantic_setup and the relevant skill-owned source pointers. Summarize only decisions, risks, waiting items, and next actions.",
     },
 ]
 
@@ -121,6 +129,79 @@ def write_json(path: Path, data: Any) -> None:
     tmp.replace(path)
 
 
+def default_skill_data(name: str, now: str) -> dict[str, Any]:
+    return {
+        "skill": name,
+        "created_at": now,
+        "runs": [],
+        "source_decisions": {},
+        "setup_decisions": {},
+        "internal_state": {},
+        "caches": {},
+        "preferences": {},
+    }
+
+
+def ensure_skill_data(data_dir: Path, name: str, now: str) -> dict[str, Any]:
+    path = data_dir / name / "data.json"
+    data = read_json(path, default_skill_data(name, now))
+    if not isinstance(data, dict):
+        data = default_skill_data(name, now)
+    data.setdefault("skill", name)
+    data.setdefault("created_at", now)
+    data.setdefault("runs", [])
+    data.setdefault("source_decisions", {})
+    data.setdefault("setup_decisions", {})
+    data.setdefault("internal_state", {})
+    data.setdefault("caches", {})
+    data.setdefault("preferences", {})
+    write_json(path, data)
+    return data
+
+
+def prune_empty_legacy_root_domain_keys(config: dict[str, Any]) -> list[str]:
+    """Remove empty legacy domain containers from global config.
+
+    Non-empty values are preserved so the helper never silently migrates or
+    deletes user data. Doctor reports them as warnings instead.
+    """
+    warnings: list[str] = []
+    for key in ("sources", "internal_state", "caches"):
+        value = config.get(key)
+        if value == {}:
+            config.pop(key, None)
+        elif value is not None:
+            warnings.append(
+                f"legacy global config key '{key}' is non-empty; move domain entries to the owning skill data file after user approval"
+            )
+    return warnings
+
+
+def semantic_decision_answer(data_dir: Path | None, setup: dict[str, Any], key: str) -> str | None:
+    decision = setup.get("decisions", {}).get(key)
+    if not isinstance(decision, dict):
+        return None
+    direct_answer = decision.get("answer")
+    if isinstance(direct_answer, str) and direct_answer.strip():
+        return direct_answer
+    if data_dir is None:
+        return None
+    owner_skill = decision.get("owner_skill")
+    if not isinstance(owner_skill, str) or not owner_skill:
+        return None
+    skill_data = read_json(data_dir / owner_skill / "data.json", {})
+    if not isinstance(skill_data, dict):
+        return None
+    setup_decisions = skill_data.get("setup_decisions", {})
+    if not isinstance(setup_decisions, dict):
+        return None
+    stored = setup_decisions.get(key)
+    if not isinstance(stored, dict):
+        return None
+    answer = stored.get("answer")
+    return answer if isinstance(answer, str) and answer.strip() else None
+
+
 def ensure_semantic_setup(config: dict[str, Any], now: str) -> dict[str, Any]:
     """Ensure the config contains the semantic install checklist."""
     setup = config.setdefault("semantic_setup", {})
@@ -140,6 +221,7 @@ def ensure_semantic_setup(config: dict[str, Any], now: str) -> dict[str, Any]:
                 "key": item["key"],
                 "category": item["category"],
                 "question": item["question"],
+                "owner_skill": item["owner_skill"],
                 "required": True,
             },
         )
@@ -148,7 +230,7 @@ def ensure_semantic_setup(config: dict[str, Any], now: str) -> dict[str, Any]:
     return setup
 
 
-def semantic_health(config: dict[str, Any] | None) -> dict[str, Any]:
+def semantic_health(config: dict[str, Any] | None, data_dir: Path | None = None) -> dict[str, Any]:
     if not isinstance(config, dict):
         return {
             "complete": False,
@@ -158,13 +240,10 @@ def semantic_health(config: dict[str, Any] | None) -> dict[str, Any]:
         }
     raw_setup = config.get("semantic_setup")
     setup = raw_setup if isinstance(raw_setup, dict) else {}
-    raw_decisions = setup.get("decisions")
-    decisions = raw_decisions if isinstance(raw_decisions, dict) else {}
     answered: list[str] = []
     pending: list[dict[str, str]] = []
     for item in SEMANTIC_QUESTIONS:
-        decision = decisions.get(item["key"])
-        answer = decision.get("answer") if isinstance(decision, dict) else None
+        answer = semantic_decision_answer(data_dir, setup, item["key"])
         if isinstance(answer, str) and answer.strip():
             answered.append(item["key"])
         else:
@@ -177,9 +256,9 @@ def semantic_health(config: dict[str, Any] | None) -> dict[str, Any]:
     }
 
 
-def refresh_semantic_status(config: dict[str, Any], now: str) -> dict[str, Any]:
+def refresh_semantic_status(config: dict[str, Any], now: str, data_dir: Path | None = None) -> dict[str, Any]:
     setup = config.setdefault("semantic_setup", {})
-    health = semantic_health(config)
+    health = semantic_health(config, data_dir)
     setup["status"] = "complete" if health["complete"] else "pending"
     setup["missing"] = health["missing"]
     setup["updated_at"] = now
@@ -286,9 +365,7 @@ def install(args: argparse.Namespace) -> dict[str, Any]:
 
     data_dir.mkdir(parents=True, exist_ok=True)
     for name in subskills:
-        skill_data_path = data_dir / name / "data.json"
-        if not skill_data_path.exists():
-            write_json(skill_data_path, {"skill": name, "created_at": now, "runs": []})
+        ensure_skill_data(data_dir, name, now)
 
     runtime = {
         "runtime": args.runtime,
@@ -313,17 +390,16 @@ def install(args: argparse.Namespace) -> dict[str, Any]:
     config.setdefault("enabled", True)
     config.setdefault("runtime", args.runtime)
     config.setdefault("skills", {name: {"enabled": True} for name in sorted(subskills)})
-    config.setdefault("sources", {})
-    config.setdefault("internal_state", {})
-    config.setdefault("caches", {})
     config.setdefault("created_at", now)
+    legacy_warnings = prune_empty_legacy_root_domain_keys(config)
     ensure_semantic_setup(config, now)
+    refresh_semantic_status(config, now, data_dir)
     config["updated_at"] = now
 
     write_json(data_dir / "runtime.json", runtime)
     write_json(data_dir / "installed.json", installed)
     write_json(data_dir / "config.json", config)
-    health = semantic_health(config)
+    health = semantic_health(config, data_dir)
 
     return {
         "ok": True,
@@ -334,6 +410,7 @@ def install(args: argparse.Namespace) -> dict[str, Any]:
         "semantic_health": health,
         "install_claim": "fully_configured" if health["complete"] else "mechanical_only",
         "safe_to_claim_fully_installed": bool(health["complete"]),
+        "warnings": legacy_warnings,
         "note": "Runtime cron creation, delivery routing, task source changes, credentials, and memory remain runtime-owned and are not modified by this helper.",
     }
 
@@ -359,9 +436,12 @@ def doctor(args: argparse.Namespace) -> dict[str, Any]:
     if config is not None and not isinstance(config.get("skills", {}), dict):
         errors.append("config.json skills must be an object")
     if isinstance(config, dict):
-        ensure_semantic_setup(config, utc_now())
+        now = utc_now()
+        warnings.extend(prune_empty_legacy_root_domain_keys(config))
+        ensure_semantic_setup(config, now)
+        refresh_semantic_status(config, now, data_dir)
         write_json(data_dir / "config.json", config)
-    health = semantic_health(config)
+    health = semantic_health(config, data_dir)
 
     missing_data = []
     for name in subskills:
@@ -388,9 +468,11 @@ def next_question(args: argparse.Namespace) -> dict[str, Any]:
     data_dir = Path(args.data_dir).expanduser() if args.data_dir else default_data_dir()
     config = read_json(data_dir / "config.json", None)
     if isinstance(config, dict):
-        ensure_semantic_setup(config, utc_now())
+        now = utc_now()
+        ensure_semantic_setup(config, now)
+        refresh_semantic_status(config, now, data_dir)
         write_json(data_dir / "config.json", config)
-    health = semantic_health(config)
+    health = semantic_health(config, data_dir)
     if health["complete"]:
         return {
             "ok": True,
@@ -417,9 +499,11 @@ def plan(args: argparse.Namespace) -> dict[str, Any]:
     data_dir = Path(args.data_dir).expanduser() if args.data_dir else default_data_dir()
     config = read_json(data_dir / "config.json", None)
     if isinstance(config, dict):
-        ensure_semantic_setup(config, utc_now())
+        now = utc_now()
+        ensure_semantic_setup(config, now)
+        refresh_semantic_status(config, now, data_dir)
         write_json(data_dir / "config.json", config)
-    health = semantic_health(config)
+    health = semantic_health(config, data_dir)
     steps = [
         "answer all pending semantic setup questions and save them with lifeos.py answer",
         "run lifeos.py doctor until semantic_health.complete is true",
@@ -445,10 +529,8 @@ def answer(args: argparse.Namespace) -> dict[str, Any]:
         config = {}
     config.setdefault("enabled", True)
     config.setdefault("runtime", args.runtime)
-    config.setdefault("sources", {})
-    config.setdefault("internal_state", {})
-    config.setdefault("caches", {})
     config.setdefault("created_at", now)
+    prune_empty_legacy_root_domain_keys(config)
     setup = ensure_semantic_setup(config, now)
 
     valid_keys = {item["key"] for item in SEMANTIC_QUESTIONS}
@@ -457,15 +539,35 @@ def answer(args: argparse.Namespace) -> dict[str, Any]:
     if not args.answer.strip():
         raise ValueError("answer must not be empty")
 
-    decisions = setup.setdefault("decisions", {})
-    decisions[args.key] = {
+    question = next(item for item in SEMANTIC_QUESTIONS if item["key"] == args.key)
+    owner_skill = question["owner_skill"]
+    skill_data = ensure_skill_data(data_dir, owner_skill, now)
+    setup_decisions = skill_data.setdefault("setup_decisions", {})
+    setup_decisions[args.key] = {
         "answer": args.answer.strip(),
         "updated_at": now,
         "source": "user",
+        "category": question["category"],
     }
+    if question["category"] == "source-decisions":
+        source_decisions = skill_data.setdefault("source_decisions", {})
+        source_decisions[args.key] = {
+            "answer": args.answer.strip(),
+            "updated_at": now,
+            "source": "user",
+        }
     if args.note:
-        decisions[args.key]["note"] = args.note.strip()
-    health = refresh_semantic_status(config, now)
+        setup_decisions[args.key]["note"] = args.note.strip()
+    write_json(data_dir / owner_skill / "data.json", skill_data)
+
+    decisions = setup.setdefault("decisions", {})
+    decisions[args.key] = {
+        "owner_skill": owner_skill,
+        "stored_in": f"{owner_skill}/data.json",
+        "updated_at": now,
+        "source": "user",
+    }
+    health = refresh_semantic_status(config, now, data_dir)
     config["updated_at"] = now
     write_json(data_dir / "config.json", config)
     return {
@@ -473,6 +575,7 @@ def answer(args: argparse.Namespace) -> dict[str, Any]:
         "action": "answer",
         "data_dir": str(data_dir),
         "key": args.key,
+        "stored_in": f"{owner_skill}/data.json",
         "semantic_health": health,
     }
 

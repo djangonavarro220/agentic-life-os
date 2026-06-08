@@ -4,22 +4,11 @@
   "type": "object",
   "additionalProperties": true,
   "properties": {
-    "enabled": { "type": "boolean" },
-    "runtime": { "type": "string" },
-    "sources": {
-      "type": "object",
-      "description": "Source-of-truth decisions and access notes. Real data normally stays in the runtime or external source.",
-      "additionalProperties": true
+    "enabled": {
+      "type": "boolean"
     },
-    "internal_state": {
-      "type": "object",
-      "description": "Life OS operational state such as last checks, suppression windows, priority scores, and routine pointers.",
-      "additionalProperties": true
-    },
-    "caches": {
-      "type": "object",
-      "description": "Dated or named caches/result snapshots used by Life OS routines. Persistent by default; may contain non-secret text when useful.",
-      "additionalProperties": true
+    "runtime": {
+      "type": "string"
     },
     "skills": {
       "type": "object",
@@ -27,7 +16,7 @@
     },
     "semantic_setup": {
       "type": "object",
-      "description": "Semantic install decisions, pending setup questions, and health-check status. Answers are private runtime/config pointers, not public repo data.",
+      "description": "Global semantic install status and pointers to the skill data file that owns each setup answer. Domain answers and source decisions live in per-skill data.json files.",
       "additionalProperties": true
     }
   }

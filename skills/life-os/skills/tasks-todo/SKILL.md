@@ -38,7 +38,7 @@ If a task is vague, ask at most one lightweight clarification unless a safe defa
 Runtime task systems stay runtime-owned unless the user explicitly chooses a different source. This skill may:
 
 - discover where tasks live
-- record `sources.tasks` in Life OS config, including access instructions
+- record task source decisions in `$LIFEOS_DATA_DIR/tasks-todo/data.json`, including access instructions
 - read runtime/external tasks when the runtime exposes them
 - write Life OS operational state such as last review time, priority scores, suppression windows, and caches
 - propose task updates
@@ -75,7 +75,7 @@ Runtime-specific registration remains an adapter step. Load the matching runtime
 
 ## State update
 
-When a task review materially changes the user's active plan, record operational state and pointers in private state/config. Do not store raw private task dumps unless the item is explicitly a Life OS note or the user chose Life OS as the task source.
+When a task review materially changes the user's active plan, record operational state and pointers in `$LIFEOS_DATA_DIR/tasks-todo/data.json`. Do not store raw private task dumps unless the item is explicitly a Life OS note or the user chose Life OS as the task source.
 
 ## Data
 

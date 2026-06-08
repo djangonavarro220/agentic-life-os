@@ -14,7 +14,7 @@ Use Hermes-native tools and commands available in the active profile. Prefer run
 
 ## Write policy
 
-Ask before changing Hermes cron jobs, gateway delivery, channel prompts, profile config, memory providers, vault entries, mail/calendar state, or external services. Store Life OS pointers in `$LIFEOS_DATA_DIR/config.json` or `$LIFEOS_DATA_DIR/purchase-decisions/data.json`, not in public repo files.
+Ask before changing Hermes cron jobs, gateway delivery, channel prompts, profile config, memory providers, vault entries, mail/calendar state, or external services. Store domain pointers in `$LIFEOS_DATA_DIR/purchase-decisions/data.json`; global `config.json` should keep only setup status and pointers, not domain state. Do not write private pointers to public repo files.
 
 ## Output
 

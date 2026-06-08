@@ -27,7 +27,7 @@ Act as a portable helper and coordination layer that makes the active runtime mo
 6. Classify the user request or scheduled trigger.
 7. Load only the subskills needed for that intent.
 8. For setup/integration tasks, investigate existing runtime-owned systems with runtime-native discovery before proposing bridges, imports, migrations, schedules, or delivery routes.
-9. Run the semantic doctor. If required setup decisions are missing, ask the next pending question and save the answer in config before claiming the install is complete.
+9. Run the semantic doctor. If required setup decisions are missing, ask the next pending question and save the answer in the owning skill data file before claiming the install is complete.
 10. Decide and record where each source of truth lives. The LLM chooses per setup and stores that decision in config so future runs remember it.
 11. Execute the selected playbook with runtime-native tools.
 12. Record short coordination state in `$LIFEOS_DATA_DIR/<skill-name>/data.json` or config when useful.
@@ -63,7 +63,7 @@ Do not load every subskill just because Life OS was invoked. That is prompt slud
 
 Default: real user data stays where it already lives, or in the runtime/external source the LLM chooses during setup. Life OS stores the map, not the territory.
 
-Examples of source decisions Life OS may store in config:
+Examples of source decisions Life OS may store in the owning skill data file:
 
 ```text
 birthdays -> calendar tool
@@ -76,7 +76,7 @@ cron_records -> OpenClaw cron run logs
 
 A reference can include how to access the source, which runtime/tool owns it, which adapter to load, and short instructions needed for future runs. It should not include the actual full birthdays, tasks, contacts, memories, chats, or credentials.
 
-Life OS private state/config may store:
+Life OS private skill state may store:
 
 - source decisions and access instructions
 - pointer to the last pulse or summary

@@ -29,7 +29,7 @@ Run the Life OS daily pulse. Read semantic_setup first. If setup is incomplete, 
 Prompt:
 
 ```text
-Run the Life OS quiet heartbeat. Read semantic_setup first. Check configured sources only. Return [SILENT] unless the saved policy says a change is actionable.
+Run the Life OS quiet heartbeat. Read semantic_setup first, then check only the sources configured in the relevant skill data files. Return [SILENT] unless the saved policy says a change is actionable.
 ```
 
 ## Weekly review
@@ -42,5 +42,5 @@ Run the Life OS quiet heartbeat. Read semantic_setup first. Check configured sou
 Prompt:
 
 ```text
-Run the Life OS weekly review. Read semantic_setup and configured source pointers. Summarize only decisions, risks, waiting items, and next actions.
+Run the Life OS weekly review. Read semantic_setup and the relevant skill-owned source pointers. Summarize only decisions, risks, waiting items, and next actions.
 ```

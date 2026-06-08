@@ -14,7 +14,7 @@ Use OpenClaw-native tools and docs available to the active agent/workspace. Pref
 
 ## Write policy
 
-Ask before changing OpenClaw jobs, channel routes, agent/workspace config, memory providers, vault entries, mail/calendar state, or external services. Store Life OS pointers in `$LIFEOS_DATA_DIR/config.json` or `$LIFEOS_DATA_DIR/finance-checkup/data.json`, not in public repo files.
+Ask before changing OpenClaw jobs, channel routes, agent/workspace config, memory providers, vault entries, mail/calendar state, or external services. Store domain pointers in `$LIFEOS_DATA_DIR/finance-checkup/data.json`; global `config.json` should keep only setup status and pointers, not domain state. Do not write private pointers to public repo files.
 
 ## Output
 

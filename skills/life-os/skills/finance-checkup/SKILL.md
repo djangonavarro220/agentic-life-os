@@ -33,11 +33,11 @@ Use when the user asks to:
 
 ## Source decision
 
-Store the source choice in Life OS config when useful:
+Store the source choice in `$LIFEOS_DATA_DIR/finance-checkup/data.json` when useful:
 
 ```json
 {
-  "sources": {
+  "source_decisions": {
     "finance_records": {
       "owner": "runtime|external|life-os",
       "runtime": "<active-runtime>",
@@ -48,7 +48,7 @@ Store the source choice in Life OS config when useful:
 }
 ```
 
-Use Life OS as the source of truth only for Life-OS-specific preferences, technical state, or notes explicitly created inside Life OS. Do not silently create a second private database when the runtime or an external system already owns the real data.
+This JSON shape belongs in `$LIFEOS_DATA_DIR/<skill-name>/data.json`, not global `config.json`. Use Life OS as the source of truth only for Life-OS-specific preferences, technical state, or notes explicitly created inside Life OS. Do not silently create a second private database when the runtime or an external system already owns the real data.
 
 ## Output contract
 

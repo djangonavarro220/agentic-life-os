@@ -50,10 +50,14 @@ def main() -> int:
         config = run("config", data_dir=data_dir)
         assert config["ok"] is True
         assert config["config"]["runtime"] == "hermes"
-        assert isinstance(config["config"]["sources"], dict)
-        assert isinstance(config["config"]["internal_state"], dict)
-        assert isinstance(config["config"]["caches"], dict)
+        assert "sources" not in config["config"]
+        assert "internal_state" not in config["config"]
+        assert "caches" not in config["config"]
         assert config["config"]["semantic_setup"]["status"] == "pending"
+        tasks_data = json.loads((data_dir / "tasks-todo" / "data.json").read_text(encoding="utf-8"))
+        assert isinstance(tasks_data["source_decisions"], dict)
+        assert isinstance(tasks_data["internal_state"], dict)
+        assert isinstance(tasks_data["caches"], dict)
         assert "optional_global_skills" not in config["config"]
         assert "schedules" not in config["config"]
 
@@ -74,7 +78,14 @@ def main() -> int:
 
         answered = run("answer", "tasks_source", "runtime todo system", data_dir=data_dir)
         assert answered["ok"] is True
+        assert answered["stored_in"] == "tasks-todo/data.json"
         assert answered["semantic_health"]["answered"] == ["tasks_source"]
+        tasks_data = json.loads((data_dir / "tasks-todo" / "data.json").read_text(encoding="utf-8"))
+        assert tasks_data["source_decisions"]["tasks_source"]["answer"] == "runtime todo system"
+        assert tasks_data["setup_decisions"]["tasks_source"]["answer"] == "runtime todo system"
+        config_after_answer = run("config", data_dir=data_dir)["config"]
+        assert config_after_answer["semantic_setup"]["decisions"]["tasks_source"]["stored_in"] == "tasks-todo/data.json"
+        assert "answer" not in config_after_answer["semantic_setup"]["decisions"]["tasks_source"]
         doctor_after_one_answer = run("doctor", data_dir=data_dir)
         assert doctor_after_one_answer["semantic_health"]["complete"] is False
         assert "tasks_source" not in {q["key"] for q in doctor_after_one_answer["semantic_health"]["pending_questions"]}
@@ -90,7 +101,8 @@ def main() -> int:
         assert run("next-question", data_dir=data_dir)["complete"] is True
         complete_config = run("config", data_dir=data_dir)["config"]
         assert complete_config["semantic_setup"]["status"] == "complete"
-        assert complete_config["semantic_setup"]["decisions"]["tasks_source"]["answer"] == "runtime todo system"
+        assert complete_config["semantic_setup"]["decisions"]["tasks_source"]["stored_in"] == "tasks-todo/data.json"
+        assert "answer" not in complete_config["semantic_setup"]["decisions"]["tasks_source"]
 
     with tempfile.TemporaryDirectory() as tmp:
         data_dir = Path(tmp) / "legacy-lifeos-data"
