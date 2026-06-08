@@ -10,6 +10,7 @@ This repo contains a portable Agent Skills based personal advisor OS.
 - Prefer small skills and lazy loading over one giant prompt.
 - Validate Markdown, JSON, YAML, frontmatter, and schemas before committing.
 - Add runtime-specific instructions under `runtimes/` only after checking the actual runtime docs or code.
+- Treat Hermes and OpenClaw as first-class supported runtimes. For any workflow that mentions skill availability, install/register paths, scheduling, delivery, or global skill visibility, document both runtime paths or explicitly mark the missing runtime path as pending with the fact that must be verified.
 
 ## Current architecture
 

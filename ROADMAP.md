@@ -107,28 +107,26 @@ Needed next:
 
 ## 5. Runtime adapters
 
-Runtime docs should be lazy-loaded and adapter-specific.
+Runtime docs should be lazy-loaded and adapter-specific. Hermes and OpenClaw are both first-class support targets.
 
-### Hermes adapter
+Central adapters now exist at:
 
-Document how to use Hermes-native mechanisms:
+- `skills/life-os/runtimes/hermes.md`
+- `skills/life-os/runtimes/openclaw.md`
 
-- skills and symlink install
+For every Life OS skill, runtime docs should cover both runtimes whenever the workflow touches:
+
+- checking whether the skill is already visible
+- where to install/register the skill
+- symlink vs copy choices
+- profile/workspace/agent/shared scope
 - cron creation/listing/status
-- memory/profile/canonical boundaries
-- TODO/task tools if present
-- Telegram/Discord delivery remains runtime-owned
-- approval before gateway restarts or config changes
+- memory/profile/workspace boundaries
+- tool availability and sandboxing
+- Telegram/Discord/channel delivery ownership
+- approval before gateway/runtime config changes
 
-### OpenClaw adapter
-
-Document OpenClaw equivalents without assuming Hermes paths:
-
-- skill install/loader model
-- memory/canonical access
-- cron/scheduler model
-- runtime config boundaries
-- topic/channel delivery ownership
+If one runtime path is not known yet, mark exactly what needs verification. Do not leave generic `Pending` stubs without the missing fact.
 
 ## 6. Output contracts and examples
 

@@ -16,16 +16,21 @@ Act as a portable personal advisor OS made of small Agent Skills. The product is
 ## Operating model
 
 1. Detect the current runtime and conversation mode.
-2. Resolve the private data directory:
+2. If the task touches runtime behavior, load the matching runtime adapter:
+   - `runtimes/hermes.md` for Hermes
+   - `runtimes/openclaw.md` for OpenClaw
+3. Resolve the private data directory:
    - `$HOME/.life-os` by default
    - `LIFEOS_DATA_DIR` if set
-3. Read `skill-index.yaml`.
-4. Read `<data-dir>/config.json` if it exists.
-5. Classify the user request or scheduled trigger.
-6. Load only the subskills needed for that intent.
-7. Execute the selected playbook with runtime-native tools.
-8. Record short tracking state in `$LIFEOS_DATA_DIR/<skill-name>/data.json` when useful.
-9. Surface only actionable output.
+4. Read `skill-index.yaml`.
+5. Read `<data-dir>/config.json` if it exists.
+6. Classify the user request or scheduled trigger.
+7. Load only the subskills needed for that intent.
+8. Execute the selected playbook with runtime-native tools.
+9. Record short tracking state in `$LIFEOS_DATA_DIR/<skill-name>/data.json` when useful.
+10. Surface only actionable output.
+
+Hermes and OpenClaw are first-class supported runtimes. Runtime-specific install, visibility, scheduling, delivery, and global-registration instructions must be documented for both before a workflow is considered complete. Do not add a Hermes-only step without either adding the OpenClaw equivalent or explicitly marking it as not supported yet.
 
 ## Intent router
 
@@ -82,7 +87,7 @@ For scheduled routines, silence is valid when nothing changed. Do not manufactur
 Use the repo helper only for boring state mechanics, not for reasoning:
 
 ```bash
-python3 scripts/lifeos.py install --runtime hermes
+python3 scripts/lifeos.py install --runtime <hermes|openclaw>
 python3 scripts/lifeos.py doctor
 python3 scripts/lifeos.py run pulse --summary "daily pulse completed"
 python3 scripts/lifeos.py config

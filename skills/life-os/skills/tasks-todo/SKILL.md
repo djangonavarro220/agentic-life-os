@@ -72,10 +72,10 @@ Tasks:
 Record the preference with:
 
 ```bash
-python3 scripts/lifeos.py install --runtime hermes --global-tasks-todo
+python3 scripts/lifeos.py install --runtime <hermes|openclaw> --global-tasks-todo
 ```
 
-The helper records the preference but does not mutate runtime skill registration by itself. Runtime-specific registration remains an adapter step.
+The helper records the preference but does not mutate runtime skill registration by itself. Runtime-specific registration remains an adapter step. Load the matching runtime adapter before telling the user how to expose `tasks-todo` globally.
 
 ## State update
 
