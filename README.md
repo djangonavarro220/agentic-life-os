@@ -33,11 +33,11 @@ Agentic Life OS is a **portable coordination layer** for personal-advisor agents
 It provides:
 
 - an umbrella `life-os` skill
-- 30 lazy-loaded subskills
+- 31 lazy-loaded subskills
 - runtime adapters for Hermes and OpenClaw
 - deterministic helper commands for install, doctor, setup questions, config, and plans
 - JSON schemas for private per-skill state
-- public-safe playbooks for personal routines and domain workflows
+- public-safe playbooks for personal routines, domain workflows, and system self-improvement
 
 It is designed for agent runtimes that already have tools for memory, tasks, cron, mail, calendar, docs, browser, vaults, and message delivery.
 
@@ -103,8 +103,9 @@ Life OS should be understandable from its execution modes, not only from its fol
 - **Now context**: a compact orientation pass for immediate focus. It answers what is active, waiting, risky, or worth doing next. It should not become a daily digest.
 - **Daily pulse / morning briefing**: a proactive daily decision surface. It checks configured sources, highlights hard constraints and 1-3 useful actions, then skips trivia. Morning is the default mental model, but the actual schedule is a runtime/user choice.
 - **Quiet heartbeat**: a frequent silent check for changed state. It reports only actionable deltas such as blockers, failures, deadlines, or watched changes. No “still alive” spam.
-- **Review routines**: daily, weekly, monthly, and quarterly reviews. These are slower reflection loops for pruning stale tasks, noticing patterns, reviewing commitments, and adjusting priorities.
+- **Review routines**: daily, weekly, monthly, and quarterly reviews. These are slower reflection loops for pruning stale tasks, noticing patterns, reviewing commitments, tuning the system, and adjusting priorities.
 - **Domain playbook run**: a focused run inside one domain such as tasks, health trends, finance checkup, travel, purchases, documents, learning, work portfolio, or digital hygiene.
+- **System improvement review**: a sprint-review-style feedback loop for Life OS itself. It reviews recent runs and user feedback, finds repeated manual steering, proposes new skills/templates/routine tuning, and keeps an improvement backlog without copying raw private history.
 - **Setup / doctor loop**: mechanical install plus semantic setup. It finds missing source decisions, asks only the next useful question, and stores each answer in the owning skill data file.
 - **Plan-only mode**: propose schedules, migrations, bridges, or runtime jobs without creating them. This is the safe default before side effects.
 
@@ -113,9 +114,9 @@ Recommended baseline, adapted from the original Life OS rhythm and tightened for
 - heartbeat: every few hours, silent unless actionable
 - daily pulse: once per day, usually morning
 - daily review: optional, useful when the user has many short-cycle commitments
-- weekly review: once per week for commitments, people, projects, and stale tasks
+- weekly review: once per week for commitments, people, projects, stale tasks, and system-improvement candidates
 - monthly review: once per month for documents, subscriptions, finance, maintenance, learning, and digital hygiene
-- quarterly review: once per quarter for direction, portfolio, large decisions, and systems cleanup
+- quarterly review: once per quarter for direction, portfolio, large decisions, systems cleanup, and whether Life OS itself is still useful
 
 These are **modes**, not mandatory cron jobs. Runtime cron creation, delivery routes, and external writes remain approval-gated. Life OS can recommend the rhythm; the runtime owns the actual schedule and delivery.
 
@@ -240,6 +241,7 @@ skills/
       work-portfolio/
       digital-hygiene/
       decision-journal/
+      system-improvement/
       integrations-runtime/
       integrations-calendar/
       integrations-mail/
@@ -260,6 +262,7 @@ Context and routines:
 - `context-now`, `context-inbox`, `context-commitments`
 - `routines-heartbeat`, `routines-pulse`
 - `routines-daily-review`, `routines-weekly-review`, `routines-monthly-review`, `routines-quarterly-review`
+- `system-improvement`
 
 People, events, tasks, and integrations:
 
@@ -280,6 +283,7 @@ Domain playbooks:
 - `work-portfolio`
 - `digital-hygiene`
 - `decision-journal`
+- `system-improvement`
 
 ## Install model
 
@@ -298,6 +302,7 @@ Semantic install:
 - source decisions have been saved in the owning skill data files
 - schedule and delivery policy have been chosen
 - routine record sources are known
+- system-improvement review policy and backlog source are known
 - runtime-owned side effects are approved before being created
 
 Do not claim a full install just because files exist. A complete install requires:
@@ -426,8 +431,8 @@ npm test                 # helper install/doctor/config smoke tests
 Expected current shape:
 
 ```text
-31 skills checked by external scan
-30 Life OS subskills in skill-index.yaml
+32 skills checked by external scan
+31 Life OS subskills in skill-index.yaml
 public-safe scan passes
 lifeos tests ok
 lifeos doctor ok
@@ -438,7 +443,7 @@ lifeos doctor ok
 Operational scaffold is implemented:
 
 - umbrella skill
-- 30 subskills
+- 31 subskills
 - runtime adapters
 - private state install
 - doctor checks

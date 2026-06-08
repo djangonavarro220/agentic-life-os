@@ -23,7 +23,7 @@ def main() -> int:
 
         install = run("install", "--runtime", "hermes", data_dir=data_dir)
         assert install["ok"] is True
-        assert install["subskills"] == 30
+        assert install["subskills"] == 31
         assert install["semantic_health"]["complete"] is False
         assert install["install_claim"] == "mechanical_only"
         assert (data_dir / "installed.json").exists()
@@ -43,6 +43,7 @@ def main() -> int:
             "daily_pulse",
             "quiet_heartbeat",
             "review_cadence",
+            "system_improvement_review",
             "delivery_policy",
             "cron_record_source",
         } <= pending_keys
@@ -119,6 +120,7 @@ def main() -> int:
             "daily_pulse",
             "quiet_heartbeat",
             "review_cadence",
+            "system_improvement_review",
             "delivery_policy",
             "cron_record_source",
         }

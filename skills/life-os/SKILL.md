@@ -51,6 +51,7 @@ Use this routing by default:
 - User asks about achievements, portfolio evidence, CV/interview material, opportunities, or professional narrative -> load `work-portfolio`.
 - User asks about accounts, backups, devices, 2FA, domains, abandoned services, privacy, or security hygiene -> load `digital-hygiene`.
 - User asks to record or review an important decision, options, tradeoffs, assumptions, or outcomes -> load `decision-journal`.
+- User asks how Life OS itself is working, asks for a retrospective/sprint review, or mentions new reusable skills/templates/routine tuning -> load `system-improvement`.
 - Scheduled frequent check or a quiet watch request -> load `routines-heartbeat`.
 - Scheduled daily briefing, pulse, or proactive daily synthesis -> load `routines-pulse`.
 - User mentions someone, a promise, relationship maintenance, or “remind me to follow up” -> load `people-followups`.
@@ -79,7 +80,7 @@ A reference can include how to access the source, which runtime/tool owns it, wh
 Life OS private skill state may store:
 
 - source decisions and access instructions
-- pointer to the last pulse or summary
+- pointer to the last pulse, review, or system-improvement summary
 - pointer to cron/job run records
 - last time a source was checked
 - suppression windows such as “do not alert again until X”

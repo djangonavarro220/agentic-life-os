@@ -92,3 +92,6 @@ subskills:
   decision-journal:
     path: skills/decision-journal/SKILL.md
     category: decisions
+  system-improvement:
+    path: skills/system-improvement/SKILL.md
+    category: system

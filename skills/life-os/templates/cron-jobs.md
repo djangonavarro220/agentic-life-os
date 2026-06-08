@@ -36,11 +36,11 @@ Run the Life OS quiet heartbeat. Read semantic_setup first, then check only the 
 
 - name: `life-os-weekly-review`
 - schedule: `0 18 * * 0`
-- skills: `life-os`, `routines-weekly-review`
+- skills: `life-os`, `routines-weekly-review`, `system-improvement`
 - delivery: runtime-owned destination selected during setup
 
 Prompt:
 
 ```text
-Run the Life OS weekly review. Read semantic_setup and the relevant skill-owned source pointers. Summarize only decisions, risks, waiting items, and next actions.
+Run the Life OS weekly review. Read semantic_setup and the relevant skill-owned source pointers. Summarize decisions, risks, waiting items, next actions, and a small system-improvement section with skill candidates or routine tuning only when useful.
 ```

@@ -61,6 +61,12 @@ SEMANTIC_QUESTIONS: list[dict[str, str]] = [
         "question": "Which weekly, monthly, or quarterly review routines should be enabled?",
     },
     {
+        "key": "system_improvement_review",
+        "category": "routine",
+        "owner_skill": "system-improvement",
+        "question": "Should Life OS run a periodic system-improvement review, and where should improvement backlog items or skill candidates be tracked?",
+    },
+    {
         "key": "delivery_policy",
         "category": "runtime-owned",
         "owner_skill": "integrations-runtime",
@@ -95,10 +101,10 @@ CRON_TEMPLATES: list[dict[str, Any]] = [
     {
         "name": "weekly_review",
         "schedule": "0 18 * * 0",
-        "skills": ["life-os", "routines-weekly-review"],
+        "skills": ["life-os", "routines-weekly-review", "system-improvement"],
         "delivery": "runtime-owned destination selected during setup",
         "create_by_default": False,
-        "prompt": "Run the Life OS weekly review. Read semantic_setup and the relevant skill-owned source pointers. Summarize only decisions, risks, waiting items, and next actions.",
+        "prompt": "Run the Life OS weekly review. Read semantic_setup and the relevant skill-owned source pointers. Summarize decisions, risks, waiting items, next actions, and a small system-improvement section with skill candidates or routine tuning only when useful.",
     },
 ]
 

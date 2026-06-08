@@ -83,6 +83,7 @@ Added baseline playbooks:
 - `work-portfolio`: achievement logs, portfolio evidence, interview stories, opportunities, and professional follow-ups.
 - `digital-hygiene`: accounts, backups, 2FA, devices, domains, abandoned services, privacy, and security hygiene.
 - `decision-journal`: decisions, options, tradeoffs, assumptions, review dates, and outcomes.
+- `system-improvement`: retrospectives, skill candidates, routine tuning, and a lightweight improvement backlog.
 
 Remaining priority subskills that need real LLM instructions:
 
@@ -179,7 +180,7 @@ Default recommendation:
 - heartbeat: every few hours, silent unless actionable
 - pulse: daily
 - daily review: daily, optional
-- weekly review: weekly
+- weekly review: weekly, including system-improvement candidates
 - monthly review: monthly
 - quarterly review: quarterly
 
@@ -217,3 +218,4 @@ Avoid these until explicitly approved:
 - silently creating or deleting crons
 - globally registering every subskill
 - making noisy heartbeat/pulse outputs
+- turning self-improvement into endless refactoring instead of small shipped improvements

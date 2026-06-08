@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "system-improvement data",
+  "type": "object",
+  "additionalProperties": true,
+  "properties": {
+    "skill": { "type": "string" },
+    "created_at": { "type": "string" },
+    "runs": { "type": "array" },
+    "source_decisions": {
+      "type": "object",
+      "description": "Source ownership decisions and access pointers for system improvement signals.",
+      "additionalProperties": true
+    },
+    "setup_decisions": {
+      "type": "object",
+      "description": "Semantic setup answers owned by this skill.",
+      "additionalProperties": true
+    },
+    "internal_state": {
+      "type": "object",
+      "description": "Operational state such as last review, improvement backlog pointers, and suppression windows.",
+      "additionalProperties": true
+    },
+    "caches": {
+      "type": "object",
+      "description": "Dated or named system-review snapshots owned by this skill.",
+      "additionalProperties": true
+    },
+    "preferences": {
+      "type": "object",
+      "description": "Life-OS-specific preferences for system improvement reviews.",
+      "additionalProperties": true
+    }
+  }
+}

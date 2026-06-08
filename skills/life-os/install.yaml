@@ -4,6 +4,7 @@ recommended_schedule:
   pulse: daily
   daily_review: daily
   weekly_review: weekly
+  system_review: weekly, usually inside weekly_review
   monthly_review: monthly
   quarterly_review: quarterly
 installer_prompt: |
