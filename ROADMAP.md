@@ -31,7 +31,7 @@ allow-all
 
 ### Future config shape
 
-Potential private config in `$LIFEOS_DATA_DIR/config.json`:
+Potential private config in `$HOME/.life-os/config.json` unless `LIFEOS_DATA_DIR` overrides it:
 
 ```json
 {

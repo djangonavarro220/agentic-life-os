@@ -11,4 +11,4 @@ __pycache__/
 *.pyc
 *.pyo
 *.swp
-.LIFEOS_DATA_DIR/
+.life-os/

@@ -11,7 +11,6 @@ from __future__ import annotations
 import argparse
 import json
 import os
-import platform
 import sys
 from dataclasses import dataclass
 from datetime import datetime, timezone
@@ -52,16 +51,7 @@ def default_data_dir() -> Path:
     override = os.environ.get("LIFEOS_DATA_DIR")
     if override:
         return Path(override).expanduser()
-
-    system = platform.system().lower()
-    home = Path.home()
-    if system == "darwin":
-        return home / "Library" / "Application Support" / "agentic-life-os"
-    if system == "windows":
-        local = os.environ.get("LOCALAPPDATA")
-        return Path(local) / "agentic-life-os" if local else home / "AppData" / "Local" / "agentic-life-os"
-    xdg = os.environ.get("XDG_DATA_HOME")
-    return (Path(xdg).expanduser() if xdg else home / ".local" / "share") / "agentic-life-os"
+    return Path.home() / ".life-os"
 
 
 def read_json(path: Path, default: Any) -> Any:

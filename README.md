@@ -11,10 +11,10 @@ user or scheduled runtime job
   -> life-os umbrella skill
     -> detect runtime and data directory
     -> read skill-index.yaml
-    -> read $LIFEOS_DATA_DIR/config.json
+    -> read <data-dir>/config.json
     -> load only the needed subskills
     -> run the routine or manual task
-    -> persist private state in $LIFEOS_DATA_DIR/<skill-name>/data.json
+    -> persist private state in <data-dir>/<skill-name>/data.json
 ```
 
 ## Design principles
@@ -60,12 +60,16 @@ skills/
 
 Private state should live outside the repo:
 
-- Linux: `$XDG_DATA_HOME/agentic-life-os` or `~/.local/share/agentic-life-os`
-- macOS: `~/Library/Application Support/agentic-life-os`
-- Windows: `%LOCALAPPDATA%\\agentic-life-os`
+- Default: `$HOME/.life-os`
 - Override: `LIFEOS_DATA_DIR`
 
 Per-skill state follows:
+
+```text
+$HOME/.life-os/<skill-name>/data.json
+```
+
+When `LIFEOS_DATA_DIR` is set, use:
 
 ```text
 $LIFEOS_DATA_DIR/<skill-name>/data.json
@@ -86,7 +90,7 @@ npm run lifeos -- config
 
 What it does:
 
-- resolves `LIFEOS_DATA_DIR` or the platform default data directory
+- resolves `$HOME/.life-os` or `LIFEOS_DATA_DIR`
 - creates `installed.json`, `runtime.json`, `config.json`
 - creates per-subskill `$LIFEOS_DATA_DIR/<skill-name>/data.json`
 - validates repo shape and private state with `doctor`

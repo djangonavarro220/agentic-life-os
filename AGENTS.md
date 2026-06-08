@@ -5,7 +5,7 @@ This repo contains a portable Agent Skills based personal advisor OS.
 ## Rules
 
 - Keep the repo public-safe: no personal data, real chat IDs, secrets, tokens, local logs, or private runtime config.
-- Private state belongs in `$LIFEOS_DATA_DIR`, not committed files.
+- Private state belongs in `$HOME/.life-os` by default, or `LIFEOS_DATA_DIR` when explicitly set. Never commit private state files.
 - Runtime credentials, delivery routing, memory, vault, mail/calendar credentials, and cron ownership belong to the runtime.
 - Prefer small skills and lazy loading over one giant prompt.
 - Validate Markdown, JSON, YAML, frontmatter, and schemas before committing.

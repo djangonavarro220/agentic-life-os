@@ -17,10 +17,10 @@ Act as a portable personal advisor OS made of small Agent Skills. The product is
 
 1. Detect the current runtime and conversation mode.
 2. Resolve the private data directory:
+   - `$HOME/.life-os` by default
    - `LIFEOS_DATA_DIR` if set
-   - otherwise the platform default data directory
 3. Read `skill-index.yaml`.
-4. Read `$LIFEOS_DATA_DIR/config.json` if it exists.
+4. Read `<data-dir>/config.json` if it exists.
 5. Classify the user request or scheduled trigger.
 6. Load only the subskills needed for that intent.
 7. Execute the selected playbook with runtime-native tools.
