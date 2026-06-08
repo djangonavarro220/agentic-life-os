@@ -81,6 +81,20 @@ Runtime-owned capabilities stay in the runtime. Life OS can store pointers and t
 
 The repo includes a small deterministic helper for the state mechanics agents should not improvise:
 
+Fresh local Hermes install:
+
+```bash
+git clone https://github.com/djangonavarro220/agentic-life-os.git
+cd agentic-life-os
+mkdir -p "$HOME/.hermes/skills/productivity"
+ln -sfn "$PWD/skills/life-os" "$HOME/.hermes/skills/productivity/life-os"
+npm run lifeos -- install --runtime hermes
+npm run lifeos -- doctor
+hermes skills list --source local | grep -E 'life-os|tasks-todo'
+```
+
+Existing checkout:
+
 ```bash
 npm run lifeos -- install --runtime hermes
 npm run lifeos -- doctor
@@ -95,6 +109,7 @@ What it does:
 - creates per-subskill `$LIFEOS_DATA_DIR/<skill-name>/data.json`
 - validates repo shape and private state with `doctor`
 - records routine runs without touching runtime-owned crons, delivery, credentials, or memory
+- preserves existing `config.json` choices on re-run, including any earlier optional global skill selection
 
 What it deliberately does not do:
 
