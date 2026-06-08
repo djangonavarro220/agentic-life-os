@@ -52,10 +52,11 @@ Do not add helper-script heuristics for runtime discovery. Runtime installations
    - migrate/reconnect references when moving between runtimes, using runtime-native stores for real data where possible
 8. Ask approval before creating any bridge, import, migration, cron, delivery route, global skill registration, config edit, or destructive change.
 9. Run private state install and doctor.
-10. If `doctor.semantic_health.complete` is false, ask the next pending setup question from `semantic_health.pending_questions`.
+10. If `doctor.semantic_health.complete` is false, ask the next pending setup question from `python3 scripts/lifeos.py next-question`.
 11. Save each approved answer with `python3 scripts/lifeos.py answer <key> '<answer or runtime pointer>'`.
-12. Repeat doctor -> ask -> answer until semantic health is complete, or until the user explicitly stops setup.
-13. Verify with runtime-native skill visibility commands and `lifeos.py doctor`.
+12. Repeat doctor -> next-question -> ask -> answer until semantic health is complete, or until the user explicitly stops setup.
+13. Use `python3 scripts/lifeos.py plan` to show runtime cron templates and remaining steps without creating jobs.
+14. Verify with runtime-native skill visibility commands and `lifeos.py doctor`.
 
 ## Private state install
 
@@ -64,12 +65,16 @@ From the repo checkout:
 ```bash
 python3 scripts/lifeos.py install --runtime <hermes|openclaw|unknown>
 python3 scripts/lifeos.py doctor
+python3 scripts/lifeos.py next-question
 python3 scripts/lifeos.py answer <decision-key> '<answer or runtime pointer>'
+python3 scripts/lifeos.py plan
 ```
 
 Use `--data-dir <path>` only when the user explicitly wants a non-default private data directory. Default private state is `$HOME/.life-os`; `LIFEOS_DATA_DIR` is an explicit override.
 
-`doctor` includes `semantic_health`. Treat `semantic_health.complete: false` as “installed, but setup is not semantically complete”. Ask the next pending question, save the answer, and check again. Do not claim a total install while required semantic decisions are missing.
+`doctor` includes `semantic_health`. Treat `semantic_health.complete: false` as “installed, but setup is not semantically complete”. Ask the next pending question through `next-question`, save the answer, and check again. Do not claim a total install while required semantic decisions are missing.
+
+`plan` returns no-side-effect cron templates for daily pulse, quiet heartbeat, and weekly review. These are examples for the runtime adapter to turn into real jobs only after the user has approved cadence and delivery.
 
 ## Runtime-owned system discovery
 

@@ -67,6 +67,33 @@ SEMANTIC_QUESTIONS: list[dict[str, str]] = [
 ]
 SEMANTIC_VERSION = 1
 
+CRON_TEMPLATES: list[dict[str, Any]] = [
+    {
+        "name": "daily_pulse",
+        "schedule": "0 9 * * *",
+        "skills": ["life-os", "routines-pulse"],
+        "delivery": "runtime-owned destination selected during setup",
+        "create_by_default": False,
+        "prompt": "Run the Life OS daily pulse. Read semantic_setup first. If setup is incomplete, report the next missing decision instead of pretending the routine is live. If there is no actionable change, stay silent according to the saved delivery policy.",
+    },
+    {
+        "name": "quiet_heartbeat",
+        "schedule": "every 3h",
+        "skills": ["life-os", "routines-heartbeat"],
+        "delivery": "runtime-owned destination selected during setup",
+        "create_by_default": False,
+        "prompt": "Run the Life OS quiet heartbeat. Read semantic_setup first. Check configured sources only. Return [SILENT] unless the saved policy says a change is actionable.",
+    },
+    {
+        "name": "weekly_review",
+        "schedule": "0 18 * * 0",
+        "skills": ["life-os", "routines-weekly-review"],
+        "delivery": "runtime-owned destination selected during setup",
+        "create_by_default": False,
+        "prompt": "Run the Life OS weekly review. Read semantic_setup and configured source pointers. Summarize only decisions, risks, waiting items, and next actions.",
+    },
+]
+
 def utc_now() -> str:
     return datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
 
@@ -296,6 +323,7 @@ def install(args: argparse.Namespace) -> dict[str, Any]:
     write_json(data_dir / "runtime.json", runtime)
     write_json(data_dir / "installed.json", installed)
     write_json(data_dir / "config.json", config)
+    health = semantic_health(config)
 
     return {
         "ok": True,
@@ -303,6 +331,9 @@ def install(args: argparse.Namespace) -> dict[str, Any]:
         "data_dir": str(data_dir),
         "runtime": args.runtime,
         "subskills": len(subskills),
+        "semantic_health": health,
+        "install_claim": "fully_configured" if health["complete"] else "mechanical_only",
+        "safe_to_claim_fully_installed": bool(health["complete"]),
         "note": "Runtime cron creation, delivery routing, task source changes, credentials, and memory remain runtime-owned and are not modified by this helper.",
     }
 
@@ -348,6 +379,61 @@ def doctor(args: argparse.Namespace) -> dict[str, Any]:
         "errors": errors,
         "warnings": warnings,
         "semantic_health": health,
+        "install_claim": "fully_configured" if health["complete"] else "mechanical_only",
+        "safe_to_claim_fully_installed": bool(health["complete"]),
+    }
+
+
+def next_question(args: argparse.Namespace) -> dict[str, Any]:
+    data_dir = Path(args.data_dir).expanduser() if args.data_dir else default_data_dir()
+    config = read_json(data_dir / "config.json", None)
+    if isinstance(config, dict):
+        ensure_semantic_setup(config, utc_now())
+        write_json(data_dir / "config.json", config)
+    health = semantic_health(config)
+    if health["complete"]:
+        return {
+            "ok": True,
+            "action": "next-question",
+            "data_dir": str(data_dir),
+            "complete": True,
+            "question": None,
+            "command_hint": None,
+            "semantic_health": health,
+        }
+    question = health["pending_questions"][0]
+    return {
+        "ok": True,
+        "action": "next-question",
+        "data_dir": str(data_dir),
+        "complete": False,
+        "question": question,
+        "command_hint": f"lifeos.py answer {question['key']} '<answer or runtime pointer>'",
+        "semantic_health": health,
+    }
+
+
+def plan(args: argparse.Namespace) -> dict[str, Any]:
+    data_dir = Path(args.data_dir).expanduser() if args.data_dir else default_data_dir()
+    config = read_json(data_dir / "config.json", None)
+    if isinstance(config, dict):
+        ensure_semantic_setup(config, utc_now())
+        write_json(data_dir / "config.json", config)
+    health = semantic_health(config)
+    steps = [
+        "answer all pending semantic setup questions and save them with lifeos.py answer",
+        "run lifeos.py doctor until semantic_health.complete is true",
+        "only after approval, create runtime-owned cron jobs from the templates",
+        "run runtime-native visibility and cron status checks after any runtime change",
+    ]
+    return {
+        "ok": True,
+        "action": "plan",
+        "data_dir": str(data_dir),
+        "semantic_health": health,
+        "steps": steps,
+        "cron_templates": CRON_TEMPLATES,
+        "side_effects": "none; this command does not create runtime crons or delivery routes",
     }
 
 
@@ -421,6 +507,12 @@ def build_parser() -> argparse.ArgumentParser:
 
     p_doctor = sub.add_parser("doctor", help="Validate repo and private Life OS state")
     p_doctor.set_defaults(func=doctor)
+
+    p_next = sub.add_parser("next-question", help="Show the next required semantic setup question")
+    p_next.set_defaults(func=next_question)
+
+    p_plan = sub.add_parser("plan", help="Show semantic setup and cron-template plan without side effects")
+    p_plan.set_defaults(func=plan)
 
     p_answer = sub.add_parser("answer", help="Save one semantic setup decision")
     p_answer.add_argument("--runtime", default="hermes", choices=["hermes", "openclaw", "unknown"])

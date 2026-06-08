@@ -126,7 +126,9 @@ The repo includes a small deterministic helper for the state mechanics agents sh
 ```bash
 npm run lifeos -- install --runtime <hermes|openclaw>
 npm run lifeos -- doctor
+npm run lifeos -- next-question
 npm run lifeos -- answer <decision-key> '<answer or runtime pointer>'
+npm run lifeos -- plan
 npm run lifeos -- config
 ```
 
@@ -138,7 +140,10 @@ What it does:
 - initializes `semantic_setup`, a private checklist of required source, routine, delivery, and scheduling decisions
 - creates per-subskill `$LIFEOS_DATA_DIR/<skill-name>/data.json`
 - validates repo shape, private state, and semantic setup completeness with `doctor`
+- shows the next required setup question with `next-question`
 - saves approved setup answers with `answer <decision-key> '<answer>'`
+- prints a no-side-effect install plan and cron templates with `plan`
+- documents human-readable cron templates in `skills/life-os/templates/cron-jobs.md`
 - keeps runtime-owned crons, delivery, credentials, memory, task systems, and semantic routine behavior out of the helper
 - preserves existing `config.json` choices on re-run
 
