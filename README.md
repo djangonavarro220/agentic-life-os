@@ -81,24 +81,49 @@ The important bit: runtime instructions live in separate Markdown adapter files.
 
 ## Request flow
 
+Life OS is the entrypoint. It decides which small playbook to run, where to read from, and what is safe to change.
+
 ```text
-request or scheduled job
-  -> life-os
-  -> intent router
-  -> selected subskill(s)
-  -> active runtime adapter, only if needed
-  -> read configured sources first
-  -> ask before side effects
-  -> write only approved pointers/state
-  -> compact output or silence
+1. Request arrives
+   user message, scheduled job, or resumed guided meeting
+
+2. Load entrypoint
+   life-os reads the skill index and private config pointers
+
+3. Classify intent
+   decide the mode: context, task, domain skill, heartbeat, review, setup, or plan-only
+
+4. Load only needed skills
+   life-os -> selected subskill(s)
+   examples: context-now, routines-heartbeat, routines-weekly-review, tasks-todo
+
+5. Load runtime adapter if needed
+   Hermes/OpenClaw instructions are loaded only when runtime tools, delivery, scheduling, or runtime-owned data are involved
+
+6. Read sources first
+   inspect configured runtime or external sources before proposing changes
+
+7. Decide safety boundary
+   safe read/state update -> continue
+   external write, cron, delivery, migration, contact, deletion -> ask first
+
+8. Act or ask
+   execute the selected playbook, or ask one focused question if a decision is needed
+
+9. Store only pointers/state
+   global config for horizontal choices
+   skill data for domain-specific state
+   never store secrets or raw private dumps
+
+10. Return output
+   compact answer, guided-meeting question, actionable alert, or silence for no-news routines
 ```
 
-Rules:
+Short version:
 
-- Load the smallest useful skill set.
-- Read before writing.
-- Scheduled routines may return silence.
-- Runtime cron creation, delivery routes, and external writes stay approval-gated.
+```text
+life-os -> classify -> load subskill -> load runtime adapter if needed -> read -> ask before side effects -> write safe state -> answer or stay silent
+```
 
 ## Execution modes
 
