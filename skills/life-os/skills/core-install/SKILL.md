@@ -75,7 +75,7 @@ Use `--data-dir <path>` only when the user explicitly wants a non-default privat
 
 `doctor` includes `semantic_health`. Treat `semantic_health.complete: false` as “installed, but setup is not semantically complete”. Ask the next pending question through `next-question`, save the answer, and check again. Do not claim a total install while required semantic decisions are missing.
 
-`plan` returns no-side-effect cron templates for daily pulse, quiet heartbeat, and weekly review. These are examples for the runtime adapter to turn into real jobs only after the user has approved cadence and delivery.
+`plan` returns no-side-effect cron templates for daily briefing, quiet heartbeat, weekly review, monthly reset, and quarterly reset. These are examples for the runtime adapter to turn into real jobs only after the user has approved cadence and delivery. Larger reviews should run as guided meetings over due review items, not as giant one-shot reports.
 
 ## Runtime-owned system discovery
 

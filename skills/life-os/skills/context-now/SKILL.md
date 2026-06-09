@@ -33,6 +33,7 @@ Inspect only relevant, runtime-owned sources and Life OS private tracking pointe
 - runtime TODO/task system, if configured
 - calendar/mail/session/memory pointers only when relevant and available
 - active blockers or recent decisions from loaded subskills
+- in-progress guided meetings recorded in Life OS private state or the runtime task system
 
 Do not dump raw history. Distill.
 

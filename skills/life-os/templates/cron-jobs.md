@@ -4,9 +4,9 @@ These are templates only. Do not create runtime cron jobs until the user has ans
 
 Use `python3 scripts/lifeos.py plan` for the machine-readable version.
 
-## Daily pulse
+## Daily briefing
 
-- name: `life-os-daily-pulse`
+- name: `life-os-daily-briefing`
 - schedule: `0 9 * * *`
 - skills: `life-os`, `routines-pulse`
 - delivery: runtime-owned destination selected during setup
@@ -15,7 +15,7 @@ Use `python3 scripts/lifeos.py plan` for the machine-readable version.
 Prompt:
 
 ```text
-Run the Life OS daily pulse. Read semantic_setup first. If setup is incomplete, report the next missing decision instead of pretending the routine is live. If there is no actionable change, stay silent according to the saved delivery policy.
+Run the Life OS daily briefing. Read semantic_setup first. If setup is incomplete, report the next missing decision instead of pretending the routine is live. Keep it short: today focus, waiting items, risks, and next action. If there is no actionable change, stay silent according to the saved delivery policy.
 ```
 
 ## Quiet heartbeat
@@ -29,7 +29,7 @@ Run the Life OS daily pulse. Read semantic_setup first. If setup is incomplete, 
 Prompt:
 
 ```text
-Run the Life OS quiet heartbeat. Read semantic_setup first, then check only the sources configured in the relevant skill data files. Return [SILENT] unless the saved policy says a change is actionable.
+Run the Life OS quiet heartbeat. Read semantic_setup first, then check only active watch targets configured in the relevant skill data files. Candidate watch targets must be approved before becoming active. Return [SILENT] unless the saved policy says a change is actionable.
 ```
 
 ## Weekly review
@@ -42,5 +42,31 @@ Run the Life OS quiet heartbeat. Read semantic_setup first, then check only the 
 Prompt:
 
 ```text
-Run the Life OS weekly review. Read semantic_setup and the relevant skill-owned source pointers. Summarize decisions, risks, waiting items, next actions, and a small system-improvement section with skill candidates or routine tuning only when useful.
+Run the Life OS weekly review as a guided meeting. Read semantic_setup and the relevant skill-owned source pointers, gather due review items, ask one focused question at a time, and record paused/in-progress meeting state so context-now can resurface it. Summarize decisions, risks, waiting items, next actions, and a small system-improvement section with skill candidates or routine tuning only when useful.
+```
+
+## Monthly reset
+
+- name: `life-os-monthly-reset`
+- schedule: `0 18 1 * *`
+- skills: `life-os`, `routines-monthly-review`, `system-improvement`
+- delivery: runtime-owned destination selected during setup
+
+Prompt:
+
+```text
+Run the Life OS monthly reset as a guided meeting. Gather due monthly review items, review slow-moving domains and stale routines, ask one focused question at a time, and record paused/in-progress meeting state instead of sending a dashboard dump.
+```
+
+## Quarterly reset
+
+- name: `life-os-quarterly-reset`
+- schedule: `0 18 1 */3 *`
+- skills: `life-os`, `routines-quarterly-review`, `system-improvement`
+- delivery: runtime-owned destination selected during setup
+
+Prompt:
+
+```text
+Run the Life OS quarterly reset as a guided meeting. Gather due quarterly review items, review strategic direction and stale system assumptions, ask one focused question at a time, and record paused/in-progress meeting state instead of sending a dashboard dump.
 ```

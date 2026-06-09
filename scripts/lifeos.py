@@ -43,10 +43,10 @@ SEMANTIC_QUESTIONS: list[dict[str, str]] = [
         "question": "Should Life OS stay manual, propose schedules only, or create/maintain runtime cron jobs after approval?",
     },
     {
-        "key": "daily_pulse",
+        "key": "daily_briefing",
         "category": "routine",
         "owner_skill": "routines-pulse",
-        "question": "Should a daily pulse exist, and if yes what cadence and delivery pointer should it use?",
+        "question": "Should a daily briefing exist, and if yes what cadence and delivery pointer should it use?",
     },
     {
         "key": "quiet_heartbeat",
@@ -58,7 +58,7 @@ SEMANTIC_QUESTIONS: list[dict[str, str]] = [
         "key": "review_cadence",
         "category": "core-policy",
         "owner_skill": "core-config",
-        "question": "Which weekly, monthly, or quarterly review routines should be enabled?",
+        "question": "Which review meetings and review-item cadences should be enabled or changed?",
     },
     {
         "key": "system_improvement_review",
@@ -104,12 +104,12 @@ CORE_POLICY_KEYS = {
 
 CRON_TEMPLATES: list[dict[str, Any]] = [
     {
-        "name": "daily_pulse",
+        "name": "daily_briefing",
         "schedule": "0 9 * * *",
         "skills": ["life-os", "routines-pulse"],
         "delivery": "runtime-owned destination selected during setup",
         "create_by_default": False,
-        "prompt": "Run the Life OS daily pulse. Read semantic_setup first. If setup is incomplete, report the next missing decision instead of pretending the routine is live. If there is no actionable change, stay silent according to the saved delivery policy.",
+        "prompt": "Run the Life OS daily briefing. Read semantic_setup first. If setup is incomplete, report the next missing decision instead of pretending the routine is live. Keep it short: today focus, waiting items, risks, and next action. If there is no actionable change, stay silent according to the saved delivery policy.",
     },
     {
         "name": "quiet_heartbeat",
@@ -117,7 +117,7 @@ CRON_TEMPLATES: list[dict[str, Any]] = [
         "skills": ["life-os", "routines-heartbeat"],
         "delivery": "runtime-owned destination selected during setup",
         "create_by_default": False,
-        "prompt": "Run the Life OS quiet heartbeat. Read semantic_setup first, then check only the sources configured in the relevant skill data files. Return [SILENT] unless the saved policy says a change is actionable.",
+        "prompt": "Run the Life OS quiet heartbeat. Read semantic_setup first, then check only active watch targets configured in the relevant skill data files. Candidate watch targets must be approved before becoming active. Return [SILENT] unless the saved policy says a change is actionable.",
     },
     {
         "name": "weekly_review",
@@ -125,7 +125,23 @@ CRON_TEMPLATES: list[dict[str, Any]] = [
         "skills": ["life-os", "routines-weekly-review", "system-improvement"],
         "delivery": "runtime-owned destination selected during setup",
         "create_by_default": False,
-        "prompt": "Run the Life OS weekly review. Read semantic_setup and the relevant skill-owned source pointers. Summarize decisions, risks, waiting items, next actions, and a small system-improvement section with skill candidates or routine tuning only when useful.",
+        "prompt": "Run the Life OS weekly review as a guided meeting. Read semantic_setup and the relevant skill-owned source pointers, gather due review items, ask one focused question at a time, and record paused/in-progress meeting state so context-now can resurface it. Summarize decisions, risks, waiting items, next actions, and a small system-improvement section with skill candidates or routine tuning only when useful.",
+    },
+    {
+        "name": "monthly_reset",
+        "schedule": "0 18 1 * *",
+        "skills": ["life-os", "routines-monthly-review", "system-improvement"],
+        "delivery": "runtime-owned destination selected during setup",
+        "create_by_default": False,
+        "prompt": "Run the Life OS monthly reset as a guided meeting. Gather due monthly review items, review slow-moving domains and stale routines, ask one focused question at a time, and record paused/in-progress meeting state instead of sending a dashboard dump.",
+    },
+    {
+        "name": "quarterly_reset",
+        "schedule": "0 18 1 */3 *",
+        "skills": ["life-os", "routines-quarterly-review", "system-improvement"],
+        "delivery": "runtime-owned destination selected during setup",
+        "create_by_default": False,
+        "prompt": "Run the Life OS quarterly reset as a guided meeting. Gather due quarterly review items, review strategic direction and stale system assumptions, ask one focused question at a time, and record paused/in-progress meeting state instead of sending a dashboard dump.",
     },
 ]
 

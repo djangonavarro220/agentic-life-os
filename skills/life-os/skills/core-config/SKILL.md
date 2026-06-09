@@ -37,7 +37,8 @@ Global config owns install-wide coordination plus horizontal core choices used b
 - `skills`: per-skill enablement/preferences
 - `semantic_setup`: setup status and pointers
 - `sources`: cross-skill source pointers such as tasks, memory/context, calendar, and routine run records
-- `policies`: cross-skill policies such as schedule, delivery, trigger defaults, and approval behavior
+- `policies`: cross-skill policies such as schedule, delivery, trigger defaults, approval behavior, and review-item cadence defaults
+- active or paused guided-meeting pointers when they are horizontal context rather than domain state
 
 These horizontal choices belong in global config because `context-now`, `routines-pulse`, `routines-weekly-review`, `people-followups`, and domain skills may all need the same task or memory source. Forcing every skill to read `tasks-todo/data.json` as a pseudo-database is fake modularity.
 

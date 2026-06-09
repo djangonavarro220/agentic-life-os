@@ -40,7 +40,7 @@ def main() -> int:
             "tasks_source",
             "memory_source",
             "routine_schedule_policy",
-            "daily_pulse",
+            "daily_briefing",
             "quiet_heartbeat",
             "review_cadence",
             "system_improvement_review",
@@ -74,8 +74,29 @@ def main() -> int:
         assert plan["ok"] is True
         assert plan["semantic_health"]["complete"] is False
         assert "answer all pending semantic setup questions" in plan["steps"][0]
-        assert {item["name"] for item in plan["cron_templates"]} == {"daily_pulse", "quiet_heartbeat", "weekly_review"}
+        template_names = {item["name"] for item in plan["cron_templates"]}
+        assert {"daily_briefing", "quiet_heartbeat", "weekly_review", "monthly_reset", "quarterly_reset"} <= template_names
         assert all(item["create_by_default"] is False for item in plan["cron_templates"])
+        weekly_prompt = next(item["prompt"] for item in plan["cron_templates"] if item["name"] == "weekly_review")
+        assert "guided meeting" in weekly_prompt
+        assert "due review items" in weekly_prompt
+
+        weekly_skill = (ROOT / "skills/life-os/skills/routines-weekly-review/SKILL.md").read_text(encoding="utf-8")
+        assert "guided meeting" in weekly_skill
+        assert "review item" in weekly_skill
+        assert "paused" in weekly_skill
+        assert "context-now" in weekly_skill
+
+        system_skill = (ROOT / "skills/life-os/skills/system-improvement/SKILL.md").read_text(encoding="utf-8")
+        assert "heartbeat candidates" in system_skill
+        assert "review-item cadence" in system_skill
+
+        context_now_skill = (ROOT / "skills/life-os/skills/context-now/SKILL.md").read_text(encoding="utf-8")
+        assert "in-progress guided meetings" in context_now_skill
+
+        heartbeat_skill = (ROOT / "skills/life-os/skills/routines-heartbeat/SKILL.md").read_text(encoding="utf-8")
+        assert "candidate watch targets" in heartbeat_skill
+        assert "active watch targets" in heartbeat_skill
 
         answered = run("answer", "tasks_source", "runtime todo system", data_dir=data_dir)
         assert answered["ok"] is True
@@ -119,7 +140,7 @@ def main() -> int:
             "tasks_source",
             "memory_source",
             "routine_schedule_policy",
-            "daily_pulse",
+            "daily_briefing",
             "quiet_heartbeat",
             "review_cadence",
             "system_improvement_review",

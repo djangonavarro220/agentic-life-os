@@ -101,9 +101,9 @@ Life OS should be understandable from its execution modes, not only from its fol
 
 - **Manual request**: the user asks for a specific thing now. Load the umbrella skill, classify the intent, load the smallest matching subskill, inspect sources, and answer or act within the normal approval rules.
 - **Now context**: a compact orientation pass for immediate focus. It answers what is active, waiting, risky, or worth doing next. It should not become a daily digest.
-- **Daily pulse / morning briefing**: a proactive daily decision surface. It checks configured sources, highlights hard constraints and 1-3 useful actions, then skips trivia. Morning is the default mental model, but the actual schedule is a runtime/user choice.
-- **Quiet heartbeat**: a frequent silent check for changed state. It reports only actionable deltas such as blockers, failures, deadlines, or watched changes. No “still alive” spam.
-- **Review routines**: daily, weekly, monthly, and quarterly reviews. These are slower reflection loops for pruning stale tasks, noticing patterns, reviewing commitments, tuning the system, and adjusting priorities.
+- **Daily briefing**: a proactive daily decision surface. It checks configured sources, highlights hard constraints and 1-3 useful actions, then skips trivia. Morning is the default mental model, but the actual schedule is a runtime/user choice.
+- **Quiet heartbeat**: a frequent silent check for changed state. It reports only actionable deltas from active watch targets such as blockers, failures, deadlines, or watched changes. Candidate watch targets must be approved before becoming active. No “still alive” spam.
+- **Review meetings**: guided daily, weekly, monthly, and quarterly routines. Larger meetings gather due review items and ask one focused question at a time instead of sending a dashboard dump. If paused, their in-progress state should remain available to now-context.
 - **Domain playbook run**: a focused run inside one domain such as tasks, health trends, finance checkup, travel, purchases, documents, learning, work portfolio, or digital hygiene.
 - **System improvement review**: a sprint-review-style feedback loop for Life OS itself. It reviews recent runs and user feedback, finds repeated manual steering, proposes new skills/templates/routine tuning, and keeps an improvement backlog without copying raw private history.
 - **Setup / doctor loop**: mechanical install plus semantic setup. It finds missing source decisions, asks only the next useful question, and stores horizontal answers in `config.json` or domain answers in the owning skill data file.
@@ -111,12 +111,14 @@ Life OS should be understandable from its execution modes, not only from its fol
 
 Recommended baseline, adapted from the original Life OS rhythm and tightened for agent runtimes:
 
-- heartbeat: every few hours, silent unless actionable
-- daily pulse: once per day, usually morning
+- quiet heartbeat: every few hours, silent unless an active watch target has an actionable change
+- daily briefing: once per day, usually morning
 - daily review: optional, useful when the user has many short-cycle commitments
-- weekly review: once per week for commitments, people, projects, stale tasks, and system-improvement candidates
-- monthly review: once per month for documents, subscriptions, finance, maintenance, learning, and digital hygiene
-- quarterly review: once per quarter for direction, portfolio, large decisions, systems cleanup, and whether Life OS itself is still useful
+- weekly review: once per week by default, as a guided meeting over due review items such as commitments, people, projects, stale tasks, and system-improvement candidates
+- monthly reset: once per month by default for documents, subscriptions, finance, maintenance, learning, digital hygiene, and other monthly review items
+- quarterly reset: once per quarter by default for direction, portfolio, large decisions, systems cleanup, and whether Life OS itself is still useful
+
+Each review item can use a different cadence: daily, weekly, every two weeks, monthly, quarterly, manual only, or only when a watched source changes. Review meetings are containers that gather due items; they are not fixed all-or-nothing checklists.
 
 These are **modes**, not mandatory cron jobs. Runtime cron creation, delivery routes, and external writes remain approval-gated. Life OS can recommend the rhythm; the runtime owns the actual schedule and delivery.
 

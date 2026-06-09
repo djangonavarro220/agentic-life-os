@@ -182,3 +182,17 @@ For scheduled or manual routines:
 3. Execute the playbook with runtime-native tools.
 4. Record useful tracking state only when the user/runtime policy allows it, using Life OS private state or runtime-native state as appropriate.
 5. Surface only actionable output to the user.
+
+## Review meetings and cadence
+
+Prefer human-sized routine names over raw timer names:
+
+- daily briefing: short same-day focus note
+- quiet heartbeat: frequent low-noise change detector
+- weekly review: guided meeting for due weekly review items
+- monthly reset: guided meeting for slow-moving cleanup and due monthly items
+- quarterly reset: guided meeting for strategic or structural review items
+
+A larger routine is a container for due review items, not a fixed checklist. Each review item may have its own cadence: daily, weekly, every two weeks, monthly, quarterly, manual only, or only when a watched source changes.
+
+When several review items are due at once, prefer a guided meeting: ask one focused question, wait for the answer, update private meeting state, then continue. If the user pauses or stops answering, record the in-progress meeting so `context-now` can resurface it later.

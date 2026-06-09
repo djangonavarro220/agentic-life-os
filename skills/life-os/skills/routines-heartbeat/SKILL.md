@@ -28,10 +28,22 @@ Load only sources configured in the relevant skill data files under `$LIFEOS_DAT
 - runtime TODO/task system
 - runtime cron/job state
 - recent Life OS private state
+- active watch targets approved by the user or runtime policy
 - user-provided watch targets
 - mail/calendar only if explicitly configured by the runtime/user
 
 Do not scrape every possible source. Cheap and relevant beats exhaustive and noisy.
+
+## Watch target lifecycle
+
+Heartbeat should distinguish candidate watch targets from active watch targets:
+
+- candidate watch targets are proposals produced by `system-improvement`, reviews, or user discussion;
+- active watch targets are approved checks with a source, cadence, alert condition, no-news policy, and last-observed pointer;
+- candidate watch targets do not run automatically unless the user or saved runtime policy approves them;
+- active watch targets should be removed, paused, or retuned when they stop producing useful alerts.
+
+Heartbeat executes active checks. It does not decide that a whole new domain should be monitored by itself.
 
 ## Decision rules
 

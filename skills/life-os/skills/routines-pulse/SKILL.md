@@ -1,6 +1,6 @@
 ---
 name: routines-pulse
-description: Daily proactive briefing routine. Use when the user asks for a daily pulse, daily briefing, proactive synthesis, or morning/evening catch-up.
+description: Daily briefing routine. Use when the user asks for a daily briefing, daily pulse, proactive synthesis, or morning/evening catch-up.
 version: 0.2.0
 author: Agentic Life OS contributors
 license: MIT
@@ -8,21 +8,21 @@ license: MIT
 
 # routines-pulse
 
-Produce the daily proactive briefing. Pulse is not a giant summary; it is a short decision surface for the day.
+Produce the daily briefing. It is not a giant summary; it is a short decision surface for the day.
 
 ## Trigger
 
 Use for:
 
 - daily scheduled briefing
-- daily pulse requests
 - daily briefing requests
+- daily pulse requests
 - proactive daily synthesis
 - morning/evening catch-up when the user wants proactive synthesis
 
 Keep triggers language-neutral in spirit: route by intent, not by examples tied to a specific user's phrasing.
 
-Do not use Pulse for tiny status checks. Use `routines-heartbeat` for silent monitoring and `context-now` for immediate focus.
+Do not use the daily briefing for tiny status checks. Use `routines-heartbeat` for silent monitoring and `context-now` for immediate focus.
 
 ## Inputs to inspect
 
@@ -51,7 +51,7 @@ Never copy raw private content into the public repo. Avoid large transcript dump
 Default shape:
 
 ```text
-Pulse:
+Daily briefing:
 - Today: ...
 - Actions: ...
 - Waiting/blockers: ...

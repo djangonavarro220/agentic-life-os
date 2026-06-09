@@ -1,12 +1,19 @@
 version: 1
 recommended_schedule:
-  heartbeat: every few hours
-  pulse: daily
-  daily_review: daily
-  weekly_review: weekly
-  system_review: weekly, usually inside weekly_review
-  monthly_review: monthly
-  quarterly_review: quarterly
+  quiet_heartbeat: every few hours
+  daily_briefing: daily
+  daily_review: optional daily
+  weekly_review: weekly by default, as a guided meeting over due review items
+  monthly_reset: monthly by default
+  quarterly_reset: quarterly by default
+review_item_cadence_options:
+  - daily
+  - weekly
+  - every two weeks
+  - monthly
+  - quarterly
+  - manual only
+  - change-triggered
 installer_prompt: |
   Do you want the recommended schedule?
   You can say "yes", "no", or give rough preferences like "less often", "mornings only", "weekends", etc.

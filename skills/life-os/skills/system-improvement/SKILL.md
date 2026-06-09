@@ -19,6 +19,8 @@ Use for:
 - sprint-review-style summaries of the last week or cycle
 - deciding whether repeated work should become a new skill, template, routine, or runtime adapter
 - reviewing stale, noisy, missing, or low-value routines
+- reviewing heartbeat candidates and deciding which proposed checks deserve to become active watch targets
+- reviewing review-item cadence so each recurring check runs daily, weekly, monthly, quarterly, manually, or only on change as appropriate
 - maintaining a Life OS improvement backlog
 
 Do not use this for normal user tasks, product hype, or broad rewrites. A good system review produces a small number of concrete improvements, not a manifesto.
@@ -48,6 +50,19 @@ A lightweight weekly review should ask:
 3. Which repeated tasks deserve a new skill, template, checklist, or runtime adapter?
 4. Which routines should be quieter, louder, paused, or deleted?
 5. What is the smallest next improvement that would reduce future steering?
+
+## Routine tuning
+
+System improvement may propose heartbeat candidates, but it should not silently turn them into active monitoring. For each candidate, decide:
+
+- what would be checked;
+- why the user would care;
+- how often it should run;
+- what counts as a real change;
+- when silence is preferred;
+- when to revisit or delete the check.
+
+Treat review-item cadence as a normal design object. A weekly review does not have to contain every weekly-ish activity forever. It can gather whichever review items are due, while each item keeps its own cadence and skip policy.
 
 ## Output contract
 

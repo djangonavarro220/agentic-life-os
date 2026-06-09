@@ -177,12 +177,14 @@ Future installer should propose schedules but not silently create runtime crons.
 
 Default recommendation:
 
-- heartbeat: every few hours, silent unless actionable
-- pulse: daily
+- quiet heartbeat: every few hours, silent unless an active watch target changes actionably
+- daily briefing: daily, usually morning
 - daily review: daily, optional
-- weekly review: weekly, including system-improvement candidates
-- monthly review: monthly
-- quarterly review: quarterly
+- weekly review: weekly by default, as a guided meeting over due review items
+- monthly reset: monthly by default
+- quarterly reset: quarterly by default
+
+Review items should be independently configurable: daily, weekly, every two weeks, monthly, quarterly, manual only, or change-triggered. A meeting gathers due items; it is not a fixed bundle.
 
 Installer should ask lightly:
 
