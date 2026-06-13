@@ -49,7 +49,17 @@ The helper checks:
 - per-subskill private data files exist, if installed
 - `semantic_health`: whether required source, schedule, delivery, and routine decisions have been asked and saved
 
-If `semantic_health.complete` is false, the install is mechanically present but semantically incomplete. The helper persists global setup status in private `config.json` and saves each answer in the owning skill data file. The agent should ask the next pending question with `python3 scripts/lifeos.py next-question`, save it with `python3 scripts/lifeos.py answer <key> '<answer>'`, and run doctor again.
+If `semantic_health.complete` is false, the install is mechanically present but semantically incomplete. Missing semantic answers are discovery tasks, not blind user-preference questions. Before asking the user to decide, inspect the active runtime with native tools and report what already exists.
+
+Correct flow for each missing decision:
+
+1. Run `python3 scripts/lifeos.py next-question` to identify the missing key.
+2. Inspect the matching runtime-owned state first, for example cron list/status/output history, delivery routes, task source, memory policy, or existing review routines.
+3. Tell the user what already exists and the safe default recommendation: reuse, ignore, or propose a change.
+4. Only then ask for approval if the answer would create, change, disable, migrate, or globally register anything.
+5. Save the decided pointer/policy with `python3 scripts/lifeos.py answer <key> '<answer>'` and run doctor again.
+
+Do not ask “should X exist?” when runtime evidence can answer “X already exists, here is what it does.” That is lazy setup theatre.
 
 ## Hermes doctor checklist
 
@@ -76,6 +86,7 @@ Interpretation:
 - Doctor warnings about missing private files usually mean install has not run for this data dir.
 - Hermes profile selection matters. A skill visible in one profile may be missing in another.
 - Cron, memory, tools, provider config, gateway status, and delivery are Hermes-owned. Report them as runtime systems, not Life OS files.
+- For missing routine decisions such as `quiet_heartbeat`, `review_cadence`, `system_improvement_review`, `delivery_policy`, or `cron_record_source`, inspect `hermes cron list --all` / scheduler output and existing delivery targets before asking for a decision.
 - If the user wants a fix, propose a specific action and ask before changing profile config, skill registration, cron jobs, delivery routes, or memory.
 
 ## OpenClaw doctor checklist

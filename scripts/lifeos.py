@@ -46,37 +46,37 @@ SEMANTIC_QUESTIONS: list[dict[str, str]] = [
         "key": "daily_briefing",
         "category": "routine",
         "owner_skill": "routines-pulse",
-        "question": "Should a daily briefing exist, and if yes what cadence and delivery pointer should it use?",
+        "question": "What existing daily briefing or pulse routines already exist in the active runtime, and should Life OS reuse, ignore, or propose changes to them?",
     },
     {
         "key": "quiet_heartbeat",
         "category": "routine",
         "owner_skill": "routines-heartbeat",
-        "question": "Should a quiet heartbeat exist, and what frequency/no-news policy should it use?",
+        "question": "What existing heartbeat/watch routines already exist in the active runtime, and should Life OS reuse, ignore, or propose changes to them? Include frequency, delivery, and no-news policy.",
     },
     {
         "key": "review_cadence",
         "category": "core-policy",
         "owner_skill": "core-config",
-        "question": "Which review meetings and review-item cadences should be enabled or changed?",
+        "question": "What existing review routines or cadence signals already exist in the active runtime, and which should Life OS reuse, ignore, or propose changing?",
     },
     {
         "key": "system_improvement_review",
         "category": "routine",
         "owner_skill": "system-improvement",
-        "question": "Should Life OS run a periodic system-improvement review, and where should improvement backlog items or skill candidates be tracked?",
+        "question": "What existing system-improvement, skill-maintenance, or improvement-backlog routines already exist, and should Life OS reuse, ignore, or propose changes to them?",
     },
     {
         "key": "delivery_policy",
         "category": "core-policy",
         "owner_skill": "core-config",
-        "question": "Where should user-facing Life OS routine output be delivered, using runtime-owned aliases or pointers?",
+        "question": "What runtime-owned delivery routes already exist for similar routine output, and which pointer or policy should Life OS reuse?",
     },
     {
         "key": "cron_record_source",
         "category": "core-source",
         "owner_skill": "core-config",
-        "question": "Where should Life OS read routine run records and cron output history?",
+        "question": "Where does the active runtime already store routine run records and cron output history, and how should Life OS read it without duplicating it?",
     },
 ]
 SEMANTIC_VERSION = 1

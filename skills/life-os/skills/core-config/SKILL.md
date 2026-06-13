@@ -116,6 +116,8 @@ Config should store source pointers plus short usage instructions: how to read t
 
 Config stores pointers and access notes only. Do not paste the whole knowledge store into config. Global sources used by many skills belong in `sources`; domain-specific sources belong in `$LIFEOS_DATA_DIR/<skill-name>/data.json`. Do not bulk-convert or move an existing notes/wiki/memory system just to match Life OS.
 
+For setup questions, discover before deciding. If a semantic setup key is missing, inspect the active runtime first and record what already exists. Example: before deciding `quiet_heartbeat`, list existing heartbeat/watch crons and their delivery/no-news behavior; before deciding `delivery_policy`, inspect existing routine delivery routes. Then recommend whether Life OS should reuse, ignore, or propose a change.
+
 ## Source usage instructions
 
 A source record should say more than where the source lives when the access pattern matters. Store short, flexible, agent-facing instructions such as:
