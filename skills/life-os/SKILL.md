@@ -26,12 +26,13 @@ Act as a portable helper and coordination layer that makes the active runtime mo
 5. Read `<data-dir>/config.json` if it exists.
 6. Classify the user request or scheduled trigger.
 7. Load only the subskills needed for that intent.
-8. For setup/integration tasks, investigate existing runtime-owned systems with runtime-native discovery before proposing bridges, imports, migrations, schedules, or delivery routes.
-9. Run the semantic doctor. If required setup decisions are missing, ask the next pending question and save the answer in the owning skill data file before claiming the install is complete.
-10. Decide and record where each source of truth lives. The LLM chooses per setup and stores that decision in config so future runs remember it.
-11. Execute the selected playbook with runtime-native tools.
-12. Record short coordination state in `$LIFEOS_DATA_DIR/<skill-name>/data.json` or config when useful.
-13. Surface only actionable output.
+8. If durable context is needed, use configured source pointers and access instructions. Prefer the user's existing runtime-native memory, notes, canonicals, wiki, or external systems.
+9. For setup/integration tasks, investigate existing runtime-owned systems with runtime-native discovery before proposing bridges, imports, migrations, schedules, or delivery routes.
+10. Run the semantic doctor. If required setup decisions are missing, ask the next pending question and save the answer in the owning skill data file before claiming the install is complete.
+11. Decide and record where each source of truth lives. The LLM chooses per setup and stores that decision in config so future runs remember it.
+12. Execute the selected playbook with runtime-native tools.
+13. Record short coordination state in `$LIFEOS_DATA_DIR/<skill-name>/data.json` or config when useful.
+14. Surface only actionable output.
 
 Hermes and OpenClaw are first-class supported runtimes. Runtime-specific install, visibility, scheduling, delivery, and global-registration instructions must be documented for both before a workflow is considered complete. Do not add a Hermes-only step without either adding the OpenClaw equivalent or explicitly marking it as not supported yet.
 
@@ -71,6 +72,7 @@ tasks -> runtime task system
 memory/context -> runtime memory or notes
 calendar -> runtime calendar tool
 cron_records -> runtime cron output history
+knowledge/context -> optional runtime-native or external source pointers
 ```
 
 Domain-specific source decisions live in the owning skill data file:
@@ -83,9 +85,12 @@ health signals -> configured health notes source, if owned by health-trends
 
 A reference can include how to access the source, which runtime/tool owns it, which adapter to load, and short instructions needed for future runs. It should not include the actual full birthdays, tasks, contacts, memories, chats, or credentials.
 
+Life OS should adapt to the user's existing knowledge setup. Do not impose a new structure or migrate memory/notes/wiki/canonicals just to match Life OS. Store pointers and instructions for how to access each source. Prefer runtime-native curated context over raw archives.
+
 Life OS private skill state may store:
 
 - source decisions and access instructions
+- knowledge/context source pointers and retrieval notes
 - pointer to the last pulse, review, or system-improvement summary
 - pointer to cron/job run records
 - last time a source was checked
@@ -120,6 +125,7 @@ Ask before:
 - changing external calendar/mail state
 - creating, deleting, disabling, or rescheduling runtime crons
 - changing runtime config
+- migrating, bulk-converting, moving, deleting, or publishing a user's existing knowledge store
 - globally registering subskills
 - deleting private state
 - publishing, pushing, or rewriting public history

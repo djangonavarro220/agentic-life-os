@@ -37,7 +37,6 @@ It provides:
 - 31 lazy-loaded subskills
 - runtime adapters for Hermes and OpenClaw
 - deterministic helper commands for install, doctor, setup questions, config, and plans
-- an OKF-compatible Markdown knowledge-bundle profile for curated context
 - JSON schemas for private per-skill state
 - public-safe playbooks for personal routines, domain workflows, and system self-improvement
 
@@ -103,7 +102,7 @@ Life OS is the entrypoint. It decides which small playbook to run, where to read
    Hermes/OpenClaw instructions are loaded only when runtime tools, delivery, scheduling, or runtime-owned data are involved
 
 6. Read sources first
-   inspect configured runtime, external sources, or OKF-compatible knowledge bundles before proposing changes
+   inspect configured runtime or external sources before proposing changes
 
 7. Decide safety boundary
    safe read/state update -> continue
@@ -219,7 +218,7 @@ $LIFEOS_DATA_DIR/<skill-name>/data.json
 - active runtime and enablement metadata
 - `semantic_setup` status
 - horizontal core source pointers used by many skills, such as tasks, memory/context, calendar, and routine run records
-- OKF-compatible knowledge-bundle pointers used by many skills
+- optional knowledge/context source pointers used by many skills
 - horizontal policies, such as trigger defaults, schedule policy, delivery policy, and approval behavior
 
 Example global pointers:
@@ -232,14 +231,7 @@ Example global pointers:
       "answer": "runtime memory/context",
       "usage": "follow the active runtime's memory instructions; read compact memory first; follow curated pointers only when relevant; do not duplicate raw memory into Life OS"
     },
-    "cron_records": { "answer": "runtime cron history" },
-    "knowledge_bundles": {
-      "personal_context": {
-        "format": "okf-markdown",
-        "path": "$HOME/.life-os/knowledge/personal-context",
-        "access": "read curated Markdown first; do not treat raw archives as active instructions"
-      }
-    }
+    "cron_records": { "answer": "runtime cron history" }
   },
   "policies": {
     "delivery_policy": { "answer": "runtime-owned delivery alias" },
@@ -267,35 +259,18 @@ Neither global config nor skill data should store:
 
 Use pointers by default. Store real domain data only when it is explicitly a Life OS note, preference, cache, or technical state item.
 
-## Knowledge bundles
+## Knowledge and context sources
 
-Life OS supports durable curated context as **OKF-compatible knowledge bundles**: directories of Markdown files with YAML frontmatter, normal Markdown links, optional `index.md`, and optional `log.md`.
+Life OS should adapt to the user's existing runtime, notes, memory, wiki, calendar, task, and automation setup. It should not impose a new knowledge structure.
 
-This is not a new storage backend. It is the preferred shape for portable curated notes, decisions, runbooks, and context that agents and humans both need to read. Real operational data still belongs in runtime tools or external systems.
-
-Minimal concept document:
-
-```yaml
----
-type: concept
-title: Example concept
-description: One-line summary
-resource: optional-runtime-or-external-pointer
-tags: [life-os]
-timestamp: 2026-01-01T09:00:00Z
----
-```
+Private config stores pointers and instructions for how to access each source. Real operational data still belongs in runtime tools or external systems. Life OS-owned data should stay limited to plugin state such as source mappings, usage policy, cron/review state, meeting progress, small caches, and Life-OS-created notes.
 
 Rules:
 
-- Store bundle pointers in private config under `sources.knowledge_bundles`, not in public skills.
-- Domain-only bundles belong in the owning skill data file.
-- Read `index.md` first when present, then search concept documents by title, description, tags, and body.
-- Treat `log.md` as provenance, not latest truth.
-- Prefer curated concept pages over raw archives.
-- Ask before bulk-converting, moving, deleting, or publishing knowledge bundles.
-
-See [`docs/open-knowledge-format.md`](docs/open-knowledge-format.md) for the Life OS OKF profile.
+- Store source pointers and access instructions in private config, not public skills.
+- Domain-only source pointers belong in the owning skill data file.
+- Prefer runtime-native curated context over raw archives or exports.
+- Ask before bulk-converting, moving, deleting, or publishing a user's existing knowledge store.
 
 ## Skill structure
 

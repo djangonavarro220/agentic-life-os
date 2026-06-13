@@ -158,11 +158,14 @@ Add examples for each subskill with fake data only:
 
 Examples should be short and public-safe.
 
-## 7. Private data schema improvements
+## 7. Source pointers and private data schema improvements
+
+The baseline source-pointer model supports runtime-native and external sources. Future work should improve adaptation to each user's existing setup without bulk-migrating user data by default.
 
 Current schemas are intentionally permissive. Future schemas should become useful without overfitting:
 
 - source-decision records: owner/runtime/tool/access instructions
+- optional knowledge/context source records: owner, runtime/tool, pointer, and short access notes
 - operational state: last check time, suppression windows, last-summary pointer, priority score
 - dated caches/result snapshots
 - runtime-owned tool/source pointers

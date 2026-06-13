@@ -37,7 +37,6 @@ Global config owns install-wide coordination plus horizontal core choices used b
 - `skills`: per-skill enablement/preferences
 - `semantic_setup`: setup status and pointers
 - `sources`: cross-skill source pointers such as tasks, memory/context, calendar, and routine run records
-- `sources.knowledge_bundles`: OKF-compatible Markdown bundle pointers used by multiple skills
 - `policies`: cross-skill policies such as schedule, delivery, trigger defaults, approval behavior, and review-item cadence defaults
 - active or paused guided-meeting pointers when they are horizontal context rather than domain state
 
@@ -57,13 +56,6 @@ Example global source ownership:
       "answer": "runtime memory/context",
       "semantic_key": "memory_source",
       "usage": "follow the active runtime's memory instructions; read compact memory first, then curated pointers as needed; do not duplicate raw memory into Life OS"
-    },
-    "knowledge_bundles": {
-      "personal_context": {
-        "format": "okf-markdown",
-        "path": "$HOME/.life-os/knowledge/personal-context",
-        "access": "read index.md first; use curated concept pages before raw archives"
-      }
     }
   },
   "policies": {
@@ -82,7 +74,7 @@ $LIFEOS_DATA_DIR/<skill-name>/data.json
 Skill data may store:
 
 - `source_decisions`: source choices only that domain owns
-- `knowledge_bundles`: domain-specific OKF-compatible Markdown bundle pointers
+- domain-specific knowledge/context source pointers
 - `setup_decisions`: setup answers owned by that skill
 - `internal_state`: last checks, suppression windows, priority scores, and pointers
 - `caches`: dated or named result snapshots used by that skill
@@ -112,35 +104,17 @@ Do not put these in global config or skill data as the main source of truth:
 - full chats, transcripts, logs, screenshots, or audio
 - runtime secrets, tokens, vault entries, credentials, or real delivery targets
 - runtime cron definitions or job IDs beyond pointers/access notes
-- raw knowledge-base dumps; keep OKF-compatible bundles curated and outside the public repo unless explicitly public-safe
+- raw knowledge-base dumps or exports
 
 If the user explicitly creates a Life OS note, preference, or technical state item, the owning skill data file may store it. Otherwise real domain data should live in the runtime or external source selected by the LLM.
 
-## OKF-compatible knowledge bundles
+## Knowledge and context sources
 
-Life OS can point at curated Markdown knowledge bundles that follow the Life OS OKF profile:
+Life OS should adapt to the user's existing setup. Do not impose a Life OS knowledge structure on top of an agent/runtime that already owns memory, notes, tasks, calendars, or canonicals.
 
-```text
-bundle/
-├── index.md
-├── log.md
-└── concepts/example.md
-```
+Config should store source pointers plus short usage instructions: how to read the source, whether writes are allowed, what not to duplicate, and which runtime/tool owns it. Real user data stays in the existing source.
 
-Concept frontmatter should prefer:
-
-```yaml
----
-type: concept
-title: Example
-description: One-line summary
-resource: optional-runtime-or-external-pointer
-tags: [life-os]
-timestamp: 2026-01-01T09:00:00Z
----
-```
-
-Config stores pointers and access notes only. Do not paste the whole bundle into config. Global bundles used by many skills belong in `sources.knowledge_bundles`; domain-specific bundles belong in `$LIFEOS_DATA_DIR/<skill-name>/data.json`.
+Config stores pointers and access notes only. Do not paste the whole knowledge store into config. Global sources used by many skills belong in `sources`; domain-specific sources belong in `$LIFEOS_DATA_DIR/<skill-name>/data.json`. Do not bulk-convert or move an existing notes/wiki/memory system just to match Life OS.
 
 ## Source usage instructions
 
@@ -151,7 +125,7 @@ A source record should say more than where the source lives when the access patt
 - `write_policy`: whether writes are allowed, approval-gated, or forbidden;
 - `do_not`: duplication, raw export, or privacy boundaries.
 
-For memory/context, this is usually essential. Different runtimes have different memory rules, injected profiles, canonical files, knowledge bundles, or topic context. Life OS should preserve those instructions as pointers/policy, not flatten them into a fake universal memory database.
+For memory/context, this is usually essential. Different runtimes have different memory rules, injected profiles, canonical files, notes, or topic context. Life OS should preserve those instructions as pointers/policy, not flatten them into a fake universal memory database.
 
 Example:
 

@@ -21,7 +21,7 @@
     },
     "sources": {
       "type": "object",
-      "description": "Horizontal core source pointers used across many skills, such as tasks, memory/context, calendar, routine run records, and OKF-compatible knowledge bundles. Store pointers/access notes, not raw exported data.",
+      "description": "Horizontal core source pointers used across many skills, such as tasks, memory/context, calendar, routine run records, and optional knowledge/context sources. Store pointers/access notes, not raw exported data.",
       "additionalProperties": true,
       "properties": {
         "memory": {
@@ -48,32 +48,6 @@
             "do_not": {
               "type": "string",
               "description": "Duplication, privacy, or raw-export boundaries."
-            }
-          }
-        },
-        "knowledge_bundles": {
-          "type": "object",
-          "description": "Named OKF-compatible Markdown knowledge-bundle pointers. Values should store paths/URIs and access notes only, not raw knowledge dumps.",
-          "additionalProperties": {
-            "type": "object",
-            "additionalProperties": true,
-            "properties": {
-              "format": {
-                "type": "string",
-                "description": "Use okf-markdown for Life OS OKF-compatible bundles."
-              },
-              "path": {
-                "type": "string",
-                "description": "Local path or runtime pointer to the bundle."
-              },
-              "uri": {
-                "type": "string",
-                "description": "Optional external URI for the bundle."
-              },
-              "access": {
-                "type": "string",
-                "description": "Short retrieval instructions for agents."
-              }
             }
           }
         }
