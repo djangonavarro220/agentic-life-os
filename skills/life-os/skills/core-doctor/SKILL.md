@@ -61,6 +61,8 @@ Correct flow for each missing decision:
 
 Do not ask “should X exist?” when runtime evidence can answer “X already exists, here is what it does.” That is lazy setup theatre.
 
+When the helper returns `setup_completion.status: incomplete`, surface it to the user as the next action. Do not bury the pending checklist in diagnostic JSON, and do not continue explaining Life OS features without offering to complete setup.
+
 ## Hermes doctor checklist
 
 Load `../../runtimes/hermes.md`, then use native Hermes commands as available:

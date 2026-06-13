@@ -28,7 +28,7 @@ Act as a portable helper and coordination layer that makes the active runtime mo
 7. Load only the subskills needed for that intent.
 8. If durable context is needed, use configured source pointers and access instructions. Prefer the user's existing runtime-native memory, notes, canonicals, wiki, or external systems.
 9. For setup/integration tasks, investigate existing runtime-owned systems with runtime-native discovery before proposing bridges, imports, migrations, schedules, or delivery routes.
-10. Run the semantic doctor. If required setup decisions are missing, ask the next pending question and save the answer in the owning skill data file before claiming the install is complete.
+10. Run the semantic doctor. If required setup decisions are missing, tell the user the installation is not complete, show the setup checklist, inspect the active runtime for the next pending item, then propose completing the install. Save approved answers in the owning skill data file before claiming the install is complete.
 11. Decide and record where each source of truth lives. The LLM chooses per setup and stores that decision in config so future runs remember it.
 12. Execute the selected playbook with runtime-native tools.
 13. Record short coordination state in `$LIFEOS_DATA_DIR/<skill-name>/data.json` or config when useful.
@@ -184,6 +184,7 @@ Default: subskills are reached through the umbrella skill, not globally register
 For scheduled or manual routines:
 
 1. Run `doctor` if install state is uncertain.
+   - If `setup_completion.status` is `incomplete`, do not keep discussing Life OS as if it were fully installed. Present the checklist and ask whether to complete setup after runtime discovery.
 2. Load the matching routine subskill from `skill-index.yaml`.
 3. Execute the playbook with runtime-native tools.
 4. Record useful tracking state only when the user/runtime policy allows it, using Life OS private state or runtime-native state as appropriate.

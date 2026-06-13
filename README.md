@@ -384,7 +384,7 @@ safe_to_claim_fully_installed = true
 install_claim = fully_configured
 ```
 
-If `doctor` says `mechanical_only`, continue the setup loop.
+If `doctor` says `mechanical_only`, continue the setup loop. If it returns `setup_completion.status: incomplete`, surface the checklist to the user and propose completing the installation. Do not keep explaining Life OS features as if setup were finished.
 
 ## Quick start
 

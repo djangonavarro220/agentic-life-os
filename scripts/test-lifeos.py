@@ -69,6 +69,13 @@ def main() -> int:
         assert next_question["command_hint"] == "lifeos.py answer tasks_source '<answer or runtime pointer>'"
         assert doctor["install_claim"] == "mechanical_only"
         assert doctor["safe_to_claim_fully_installed"] is False
+        assert doctor["setup_completion"]["status"] == "incomplete"
+        assert doctor["setup_completion"]["headline"] == "Life OS installation is not complete yet."
+        assert doctor["setup_completion"]["ask_user_to_complete"] is True
+        assert "complete the installation" in doctor["setup_completion"]["next_user_prompt"]
+        assert any(item["key"] == "quiet_heartbeat" and item["state"] == "pending_decision" for item in doctor["setup_completion"]["checklist"])
+        assert next_question["setup_completion"]["ask_user_to_complete"] is True
+        assert "complete the installation" in next_question["setup_completion"]["next_user_prompt"]
 
         plan = run("plan", data_dir=data_dir)
         assert plan["ok"] is True

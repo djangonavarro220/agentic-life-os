@@ -300,6 +300,50 @@ def semantic_health(config: dict[str, Any] | None, data_dir: Path | None = None)
     }
 
 
+def setup_completion_summary(health: dict[str, Any]) -> dict[str, Any]:
+    """Return a user-facing semantic setup checklist."""
+    answered = set(health.get("answered", []))
+    pending_questions = health.get("pending_questions", [])
+    pending_by_key = {
+        item.get("key"): item
+        for item in pending_questions
+        if isinstance(item, dict) and isinstance(item.get("key"), str)
+    }
+    checklist: list[dict[str, Any]] = []
+    for item in SEMANTIC_QUESTIONS:
+        key = item["key"]
+        pending = pending_by_key.get(key)
+        checklist.append(
+            {
+                "key": key,
+                "owner_skill": item["owner_skill"],
+                "category": item["category"],
+                "state": "answered" if key in answered else "pending_decision",
+                "question": (pending or item)["question"],
+            }
+        )
+    complete = bool(health.get("complete"))
+    if complete:
+        headline = "Life OS installation is complete."
+        next_user_prompt = "No semantic setup decisions are pending. Do not create or change runtime crons unless the user explicitly approves a runtime change."
+    else:
+        missing = health.get("missing", [])
+        missing_text = ", ".join(str(key) for key in missing)
+        headline = "Life OS installation is not complete yet."
+        next_user_prompt = (
+            "To complete the installation, inspect the active runtime for the pending items, "
+            "summarize what already exists, then ask the user whether to reuse it, ignore it, "
+            "or approve adding the missing pieces. Pending: " + missing_text
+        )
+    return {
+        "status": "complete" if complete else "incomplete",
+        "headline": headline,
+        "ask_user_to_complete": not complete,
+        "checklist": checklist,
+        "next_user_prompt": next_user_prompt,
+    }
+
+
 def refresh_semantic_status(config: dict[str, Any], now: str, data_dir: Path | None = None) -> dict[str, Any]:
     setup = config.setdefault("semantic_setup", {})
     health = semantic_health(config, data_dir)
@@ -452,6 +496,7 @@ def install(args: argparse.Namespace) -> dict[str, Any]:
         "runtime": args.runtime,
         "subskills": len(subskills),
         "semantic_health": health,
+        "setup_completion": setup_completion_summary(health),
         "install_claim": "fully_configured" if health["complete"] else "mechanical_only",
         "safe_to_claim_fully_installed": bool(health["complete"]),
         "warnings": legacy_warnings,
@@ -503,6 +548,7 @@ def doctor(args: argparse.Namespace) -> dict[str, Any]:
         "errors": errors,
         "warnings": warnings,
         "semantic_health": health,
+        "setup_completion": setup_completion_summary(health),
         "install_claim": "fully_configured" if health["complete"] else "mechanical_only",
         "safe_to_claim_fully_installed": bool(health["complete"]),
     }
@@ -526,6 +572,7 @@ def next_question(args: argparse.Namespace) -> dict[str, Any]:
             "question": None,
             "command_hint": None,
             "semantic_health": health,
+            "setup_completion": setup_completion_summary(health),
         }
     question = health["pending_questions"][0]
     return {
@@ -536,6 +583,7 @@ def next_question(args: argparse.Namespace) -> dict[str, Any]:
         "question": question,
         "command_hint": f"lifeos.py answer {question['key']} '<answer or runtime pointer>'",
         "semantic_health": health,
+        "setup_completion": setup_completion_summary(health),
     }
 
 
@@ -559,6 +607,7 @@ def plan(args: argparse.Namespace) -> dict[str, Any]:
         "action": "plan",
         "data_dir": str(data_dir),
         "semantic_health": health,
+        "setup_completion": setup_completion_summary(health),
         "steps": steps,
         "cron_templates": CRON_TEMPLATES,
         "side_effects": "none; this command does not create runtime crons or delivery routes",
