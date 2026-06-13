@@ -113,7 +113,14 @@ def main() -> int:
         assert "tasks_source" not in {q["key"] for q in doctor_after_one_answer["semantic_health"]["pending_questions"]}
         assert run("next-question", data_dir=data_dir)["question"]["key"] == "memory_source"
 
-        for key in pending_keys - {"tasks_source"}:
+        answered_memory = run("answer", "memory_source", "runtime memory pointer", "--usage", "read current runtime memory instructions first; use pointers only", data_dir=data_dir)
+        assert answered_memory["ok"] is True
+        config_after_memory = run("config", data_dir=data_dir)["config"]
+        assert config_after_memory["sources"]["memory"]["answer"] == "runtime memory pointer"
+        assert config_after_memory["sources"]["memory"]["usage"] == "read current runtime memory instructions first; use pointers only"
+        assert config_after_memory["semantic_setup"]["decisions"]["memory_source"]["usage"] == "read current runtime memory instructions first; use pointers only"
+
+        for key in pending_keys - {"tasks_source", "memory_source"}:
             run("answer", key, f"test answer for {key}", data_dir=data_dir)
         complete_doctor = run("doctor", data_dir=data_dir)
         assert complete_doctor["semantic_health"]["complete"] is True, complete_doctor
@@ -125,7 +132,7 @@ def main() -> int:
         assert complete_config["semantic_setup"]["status"] == "complete"
         assert complete_config["semantic_setup"]["decisions"]["tasks_source"]["stored_in"] == "config.json"
         assert complete_config["semantic_setup"]["decisions"]["tasks_source"]["answer"] == "runtime todo system"
-        assert complete_config["sources"]["memory"]["answer"] == "test answer for memory_source"
+        assert complete_config["sources"]["memory"]["answer"] == "runtime memory pointer"
         assert complete_config["policies"]["delivery_policy"]["answer"] == "test answer for delivery_policy"
 
     with tempfile.TemporaryDirectory() as tmp:

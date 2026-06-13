@@ -21,8 +21,63 @@
     },
     "sources": {
       "type": "object",
-      "description": "Horizontal core source pointers used across many skills, such as tasks, memory/context, calendar, and routine run records. Store pointers/access notes, not raw exported data.",
-      "additionalProperties": true
+      "description": "Horizontal core source pointers used across many skills, such as tasks, memory/context, calendar, routine run records, and OKF-compatible knowledge bundles. Store pointers/access notes, not raw exported data.",
+      "additionalProperties": true,
+      "properties": {
+        "memory": {
+          "type": "object",
+          "description": "Pointer to the runtime's durable memory/context source plus agent-facing usage instructions. Store how to use memory, not raw memory dumps.",
+          "additionalProperties": true,
+          "properties": {
+            "answer": {
+              "type": "string",
+              "description": "Runtime pointer or short source description."
+            },
+            "usage": {
+              "type": "string",
+              "description": "Agent-facing instructions for reading/updating the memory source."
+            },
+            "read_policy": {
+              "type": "string",
+              "description": "Preferred retrieval order or read rules."
+            },
+            "write_policy": {
+              "type": "string",
+              "description": "Whether writes are allowed, approval-gated, or forbidden."
+            },
+            "do_not": {
+              "type": "string",
+              "description": "Duplication, privacy, or raw-export boundaries."
+            }
+          }
+        },
+        "knowledge_bundles": {
+          "type": "object",
+          "description": "Named OKF-compatible Markdown knowledge-bundle pointers. Values should store paths/URIs and access notes only, not raw knowledge dumps.",
+          "additionalProperties": {
+            "type": "object",
+            "additionalProperties": true,
+            "properties": {
+              "format": {
+                "type": "string",
+                "description": "Use okf-markdown for Life OS OKF-compatible bundles."
+              },
+              "path": {
+                "type": "string",
+                "description": "Local path or runtime pointer to the bundle."
+              },
+              "uri": {
+                "type": "string",
+                "description": "Optional external URI for the bundle."
+              },
+              "access": {
+                "type": "string",
+                "description": "Short retrieval instructions for agents."
+              }
+            }
+          }
+        }
+      }
     },
     "policies": {
       "type": "object",

@@ -37,6 +37,7 @@ Global config owns install-wide coordination plus horizontal core choices used b
 - `skills`: per-skill enablement/preferences
 - `semantic_setup`: setup status and pointers
 - `sources`: cross-skill source pointers such as tasks, memory/context, calendar, and routine run records
+- `sources.knowledge_bundles`: OKF-compatible Markdown bundle pointers used by multiple skills
 - `policies`: cross-skill policies such as schedule, delivery, trigger defaults, approval behavior, and review-item cadence defaults
 - active or paused guided-meeting pointers when they are horizontal context rather than domain state
 
@@ -54,7 +55,15 @@ Example global source ownership:
     },
     "memory": {
       "answer": "runtime memory/context",
-      "semantic_key": "memory_source"
+      "semantic_key": "memory_source",
+      "usage": "follow the active runtime's memory instructions; read compact memory first, then curated pointers as needed; do not duplicate raw memory into Life OS"
+    },
+    "knowledge_bundles": {
+      "personal_context": {
+        "format": "okf-markdown",
+        "path": "$HOME/.life-os/knowledge/personal-context",
+        "access": "read index.md first; use curated concept pages before raw archives"
+      }
     }
   },
   "policies": {
@@ -73,6 +82,7 @@ $LIFEOS_DATA_DIR/<skill-name>/data.json
 Skill data may store:
 
 - `source_decisions`: source choices only that domain owns
+- `knowledge_bundles`: domain-specific OKF-compatible Markdown bundle pointers
 - `setup_decisions`: setup answers owned by that skill
 - `internal_state`: last checks, suppression windows, priority scores, and pointers
 - `caches`: dated or named result snapshots used by that skill
@@ -102,8 +112,71 @@ Do not put these in global config or skill data as the main source of truth:
 - full chats, transcripts, logs, screenshots, or audio
 - runtime secrets, tokens, vault entries, credentials, or real delivery targets
 - runtime cron definitions or job IDs beyond pointers/access notes
+- raw knowledge-base dumps; keep OKF-compatible bundles curated and outside the public repo unless explicitly public-safe
 
 If the user explicitly creates a Life OS note, preference, or technical state item, the owning skill data file may store it. Otherwise real domain data should live in the runtime or external source selected by the LLM.
+
+## OKF-compatible knowledge bundles
+
+Life OS can point at curated Markdown knowledge bundles that follow the Life OS OKF profile:
+
+```text
+bundle/
+├── index.md
+├── log.md
+└── concepts/example.md
+```
+
+Concept frontmatter should prefer:
+
+```yaml
+---
+type: concept
+title: Example
+description: One-line summary
+resource: optional-runtime-or-external-pointer
+tags: [life-os]
+timestamp: 2026-01-01T09:00:00Z
+---
+```
+
+Config stores pointers and access notes only. Do not paste the whole bundle into config. Global bundles used by many skills belong in `sources.knowledge_bundles`; domain-specific bundles belong in `$LIFEOS_DATA_DIR/<skill-name>/data.json`.
+
+## Source usage instructions
+
+A source record should say more than where the source lives when the access pattern matters. Store short, flexible, agent-facing instructions such as:
+
+- `usage`: how agents should read or update the source;
+- `read_policy`: preferred order of sources or retrieval rules;
+- `write_policy`: whether writes are allowed, approval-gated, or forbidden;
+- `do_not`: duplication, raw export, or privacy boundaries.
+
+For memory/context, this is usually essential. Different runtimes have different memory rules, injected profiles, canonical files, knowledge bundles, or topic context. Life OS should preserve those instructions as pointers/policy, not flatten them into a fake universal memory database.
+
+Example:
+
+```json
+{
+  "sources": {
+    "memory": {
+      "answer": "current runtime memory/context system",
+      "semantic_key": "memory_source",
+      "usage": "follow the active runtime's memory instructions; use compact injected memory first; follow canonical/topic pointers only when relevant",
+      "write_policy": "do not duplicate raw memories into Life OS; store only pointers and setup decisions"
+    }
+  }
+}
+```
+
+Reading policy:
+
+1. Open `index.md` if present.
+2. Search concept frontmatter and body.
+3. Follow links selectively.
+4. Treat `log.md` as provenance, not latest truth.
+5. Prefer curated concepts over raw archives.
+
+Ask before bulk conversion, deletion, moving documents, or publishing a private bundle.
 
 ## Retention and layout
 

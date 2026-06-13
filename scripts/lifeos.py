@@ -34,7 +34,7 @@ SEMANTIC_QUESTIONS: list[dict[str, str]] = [
         "key": "memory_source",
         "category": "core-source",
         "owner_skill": "core-config",
-        "question": "Where should Life OS read durable user context and preferences?",
+        "question": "Where should Life OS read durable user context and preferences, and what runtime-specific memory instructions should agents follow when using it?",
     },
     {
         "key": "routine_schedule_policy",
@@ -587,6 +587,7 @@ def answer(args: argparse.Namespace) -> dict[str, Any]:
     owner_skill = question["owner_skill"]
     answer_text = args.answer.strip()
     note_text = args.note.strip() if args.note else None
+    usage_text = args.usage.strip() if args.usage else None
 
     decisions = setup.setdefault("decisions", {})
     if args.key in HORIZONTAL_CORE_DECISION_KEYS:
@@ -599,6 +600,8 @@ def answer(args: argparse.Namespace) -> dict[str, Any]:
         }
         if note_text:
             decision_record["note"] = note_text
+        if usage_text:
+            decision_record["usage"] = usage_text
         decisions[args.key] = decision_record
 
         if args.key in CORE_SOURCE_KEY_MAP:
@@ -611,6 +614,8 @@ def answer(args: argparse.Namespace) -> dict[str, Any]:
             }
             if note_text:
                 sources[CORE_SOURCE_KEY_MAP[args.key]]["note"] = note_text
+            if usage_text:
+                sources[CORE_SOURCE_KEY_MAP[args.key]]["usage"] = usage_text
         elif args.key in CORE_POLICY_KEYS:
             policies = config.setdefault("policies", {})
             policies[args.key] = {
@@ -620,6 +625,8 @@ def answer(args: argparse.Namespace) -> dict[str, Any]:
             }
             if note_text:
                 policies[args.key]["note"] = note_text
+            if usage_text:
+                policies[args.key]["usage"] = usage_text
     else:
         skill_data = ensure_skill_data(data_dir, owner_skill, now)
         setup_decisions = skill_data.setdefault("setup_decisions", {})
@@ -638,6 +645,8 @@ def answer(args: argparse.Namespace) -> dict[str, Any]:
             }
         if note_text:
             setup_decisions[args.key]["note"] = note_text
+        if usage_text:
+            setup_decisions[args.key]["usage"] = usage_text
         write_json(data_dir / owner_skill / "data.json", skill_data)
 
         decisions[args.key] = {
@@ -701,6 +710,7 @@ def build_parser() -> argparse.ArgumentParser:
     p_answer.add_argument("key", help="Semantic decision key to save")
     p_answer.add_argument("answer", help="User-approved answer or runtime pointer")
     p_answer.add_argument("--note", help="Optional safe note about this decision")
+    p_answer.add_argument("--usage", help="Optional agent-facing instructions for how to use the saved source or policy")
     p_answer.set_defaults(func=answer)
 
     p_config = sub.add_parser("config", help="Show Life OS private config/state")
