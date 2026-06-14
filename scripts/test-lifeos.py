@@ -218,6 +218,9 @@ def main() -> int:
         assert "During the self-improvement meeting" in system_skill
         assert "inspect the tools" in system_skill
         assert "Do not wait for random runtime discovery" in system_skill
+        assert "every two weeks" in system_skill
+        assert "Stay silent" in system_skill
+        assert "only newly discovered or changed setup items" in system_skill
 
         context_now_skill = (ROOT / "skills/life-os/skills/context-now/SKILL.md").read_text(encoding="utf-8")
         assert "in-progress guided meetings" in context_now_skill

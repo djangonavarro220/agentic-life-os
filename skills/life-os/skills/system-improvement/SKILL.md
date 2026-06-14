@@ -41,15 +41,18 @@ Do not copy raw chats, logs, transcripts, or private runtime exports into Life O
 
 ## Review cadence
 
-Default cadence: weekly, often as a section inside the weekly review. Monthly or quarterly reviews can include a deeper system-health pass.
+Default cadence: every two weeks. It can also run manually when the user asks how Life OS is working or after repeated friction.
 
-A lightweight weekly review should ask:
+The self-improvement meeting should review the whole setup map each time, but it should not report every source that still looks fine. Stay silent when nothing needs user input.
+
+A lightweight review should ask internally:
 
 1. What did Life OS help with this period?
 2. Where did it create noise, miss context, or require repeated manual steering?
 3. Which repeated tasks deserve a new skill, template, checklist, or runtime adapter?
 4. Which routines should be quieter, louder, paused, or deleted?
-5. What is the smallest next improvement that would reduce future steering?
+5. Does the full setup map still match available tools, skills, memory/context, routine records, delivery options, and source pointers?
+6. What is the smallest next improvement that would reduce future steering?
 
 ## Setup review
 
@@ -75,6 +78,8 @@ For findings that would affect future behavior:
 4. Save approved changes only after approval, using structured setup decisions such as `reuse_existing`, `propose_change`, `manual_only`, or `disabled`.
 5. If the user rejects the change, record a short suppression note so the same proposal does not keep resurfacing.
 
+Only surface items that are newly discovered, changed, broken, obsolete, or need user input. In other words, report only newly discovered or changed setup items that require a decision. Do not output a checklist of unchanged setup sources just to prove the review ran.
+
 Plain-language output should say what changed and why it matters, for example: “I found a better place to read current tasks. Do you want Life OS to use it instead of the old pointer?” Do not expose raw config unless asked.
 
 ## Routine tuning
@@ -92,15 +97,15 @@ Treat review-item cadence as a normal design object. A weekly review does not ha
 
 ## Output contract
 
-Default shape:
+If nothing changed and nothing needs input, output nothing. Silence is the success path for a scheduled self-improvement review.
+
+When there are changes needing input, report only those items:
 
 ```text
-System review:
-- Worked: ...
-- Friction: ...
-- Skill candidates: ...
-- Routine changes: ...
-- Proposed next improvement: ...
+System improvement needs input:
+- Changed: ...
+- Why it matters: ...
+- Suggested choice: keep current / update setup / ignore for now
 ```
 
 Keep it brutally small. Prefer one improvement that will actually ship over ten clever ideas that rot.
