@@ -921,6 +921,82 @@ def discover_runtime(args: argparse.Namespace) -> dict[str, Any]:
     }
 
 
+def select_heartbeat_candidate(candidates: dict[str, Any]) -> tuple[str, dict[str, Any]] | None:
+    scored: list[tuple[int, str, dict[str, Any]]] = []
+    for key, candidate in candidates.items():
+        if not isinstance(candidate, dict):
+            continue
+        name = str(candidate.get("runtime_job_name") or key).lower()
+        score = 0
+        if "heartbeat" in name or "latido" in name:
+            score += 100
+        if "health" in name or "general" in name:
+            score += 20
+        if candidate.get("enabled", False):
+            score += 10
+        if "life" in name or "os" in name:
+            score += 5
+        if score:
+            scored.append((score, key, candidate))
+    if not scored:
+        return None
+    scored.sort(key=lambda item: (-item[0], item[1]))
+    _, key, candidate = scored[0]
+    return key, candidate
+
+
+def quiet_heartbeat_template() -> dict[str, Any]:
+    return next(item for item in CRON_TEMPLATES if item["name"] == "quiet_heartbeat")
+
+
+def define_heartbeat(args: argparse.Namespace) -> dict[str, Any]:
+    data_dir = Path(args.data_dir).expanduser() if args.data_dir else default_data_dir()
+    now = utc_now()
+    config = read_json(data_dir / "config.json", {})
+    if not isinstance(config, dict):
+        config = {}
+    inventory = ensure_runtime_inventory(config, now)
+    watch_targets = inventory.get("watch_targets", {}) if isinstance(inventory.get("watch_targets"), dict) else {}
+    candidates = watch_targets.get("candidates", {}) if isinstance(watch_targets.get("candidates"), dict) else {}
+    selected = select_heartbeat_candidate(candidates)
+    if selected:
+        key, candidate = selected
+        heartbeat = {
+            "status": "defined",
+            "source": "existing_runtime_job",
+            "key": key,
+            "runtime_job_id": candidate.get("runtime_job_id", ""),
+            "runtime_job_name": candidate.get("runtime_job_name", key),
+            "schedule": candidate.get("schedule", ""),
+            "adapter_skills": candidate.get("adapter_skills", []),
+            "toolsets": candidate.get("toolsets", []),
+            "relationship_to_runtime_job": "reuse_as_orchestrator",
+            "approval_required_before_runtime_change": True,
+            "updated_at": now,
+        }
+    else:
+        heartbeat = {
+            "status": "needs_creation",
+            "source": "life_os_template",
+            "key": "quiet_heartbeat",
+            "relationship_to_runtime_job": "create_runtime_job_after_approval",
+            "approval_required_before_runtime_change": True,
+            "template": quiet_heartbeat_template(),
+            "updated_at": now,
+        }
+    inventory["heartbeat"] = heartbeat
+    config["updated_at"] = now
+    write_json(data_dir / "config.json", config)
+    return {
+        "ok": True,
+        "action": "define-heartbeat",
+        "data_dir": str(data_dir),
+        "heartbeat": heartbeat,
+        "side_effects": "life-os-config-only",
+        "next_step": "Ask the user before creating or changing any runtime cron.",
+    }
+
+
 def classify_watch_target(candidate: dict[str, Any]) -> str:
     name = str(candidate.get("runtime_job_name") or "").lower()
     schedule = candidate.get("schedule")
@@ -1031,6 +1107,9 @@ def build_parser() -> argparse.ArgumentParser:
 
     p_propose = sub.add_parser("propose-watch-targets", help="Propose active watch targets from discovered runtime candidates without side effects")
     p_propose.set_defaults(func=propose_watch_targets)
+
+    p_define_hb = sub.add_parser("define-heartbeat", help="Define the single Life OS heartbeat from an existing runtime job or a creation template")
+    p_define_hb.set_defaults(func=define_heartbeat)
     return parser
 
 

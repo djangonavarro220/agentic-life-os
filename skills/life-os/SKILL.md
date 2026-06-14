@@ -28,7 +28,8 @@ The heartbeat vision is a dynamic heartbeat, not a fixed watchdog. Life OS shoul
 5. Read `<data-dir>/config.json` if it exists.
    - Read `runtime_inventory` as the capability inventory: skill sources, tool sources, capabilities, and watch targets.
    - If the inventory is missing or stale during setup, run `npm run lifeos -- discover-runtime --runtime <runtime>` before proposing runtime changes.
-   - Use `npm run lifeos -- propose-watch-targets` to turn discovered candidates into an approval queue; never activate a target automatically.
+   - Use `npm run lifeos -- define-heartbeat` to identify the single main heartbeat. If none exists, record the quiet-heartbeat creation template and ask before creating a runtime cron.
+   - Use `npm run lifeos -- propose-watch-targets` only for extra watches the user wants to review; do not turn Life OS into a cron-inventory manager.
 6. Classify the user request or scheduled trigger.
 7. Load only the subskills needed for that intent.
 8. If durable context is needed, use configured source pointers and access instructions. Prefer the user's existing runtime-native memory, notes, canonicals, wiki, or external systems.

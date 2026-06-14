@@ -147,6 +147,31 @@ def main() -> int:
         assert general["approval_required_to_activate"] is True
         task = next(item for item in proposals["proposals"] if item["key"] == "task-reminder-watcher")
         assert task["recommended_action"] == "candidate_watch_target"
+        heartbeat = run("define-heartbeat", data_dir=data_dir)
+        assert heartbeat["ok"] is True
+        assert heartbeat["action"] == "define-heartbeat"
+        assert heartbeat["side_effects"] == "life-os-config-only"
+        assert heartbeat["heartbeat"]["status"] == "defined"
+        assert heartbeat["heartbeat"]["source"] == "existing_runtime_job"
+        assert heartbeat["heartbeat"]["key"] == "general-health-heartbeat"
+        assert heartbeat["heartbeat"]["relationship_to_runtime_job"] == "reuse_as_orchestrator"
+        saved_hb = run("config", data_dir=data_dir)["config"]["runtime_inventory"]["heartbeat"]
+        assert saved_hb["key"] == "general-health-heartbeat"
+        assert saved_hb["approval_required_before_runtime_change"] is True
+
+        no_hb_home = Path(tmp) / "no-hb-home"
+        write_skill(no_hb_home / "skills", "productivity/google-workspace", "google-workspace", "Gmail and Calendar")
+        (no_hb_home / "config.yaml").write_text("tools:\n  enabled:\n    - skills\n", encoding="utf-8")
+        (no_hb_home / "cron").mkdir(parents=True)
+        (no_hb_home / "cron" / "jobs.json").write_text(json.dumps({"jobs": []}), encoding="utf-8")
+        no_hb_data_dir = Path(tmp) / "no-hb-lifeos"
+        run("install", "--runtime", "hermes", data_dir=no_hb_data_dir)
+        run("discover-runtime", "--runtime", "hermes", "--runtime-home", str(no_hb_home), data_dir=no_hb_data_dir)
+        missing_hb = run("define-heartbeat", data_dir=no_hb_data_dir)
+        assert missing_hb["heartbeat"]["status"] == "needs_creation"
+        assert missing_hb["heartbeat"]["source"] == "life_os_template"
+        assert missing_hb["heartbeat"]["approval_required_before_runtime_change"] is True
+        assert missing_hb["heartbeat"]["template"]["name"] == "quiet_heartbeat"
 
         next_question = run("next-question", data_dir=data_dir)
         assert next_question["ok"] is True
