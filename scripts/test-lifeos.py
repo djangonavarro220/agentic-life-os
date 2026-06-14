@@ -135,6 +135,18 @@ def main() -> int:
         saved_inventory = run("config", data_dir=data_dir)["config"]["runtime_inventory"]
         assert saved_inventory["capabilities"]["mail"]["status"] == "available"
         assert saved_inventory["watch_targets"]["candidates"]["task-reminder-watcher"]["status"] == "candidate"
+        proposals = run("propose-watch-targets", data_dir=data_dir)
+        assert proposals["ok"] is True
+        assert proposals["action"] == "propose-watch-targets"
+        assert proposals["side_effects"] == "none"
+        assert proposals["activation_requires_user_approval"] is True
+        assert proposals["summary"]["active"] == 0
+        assert proposals["summary"]["proposed"] >= 2
+        general = next(item for item in proposals["proposals"] if item["key"] == "general-health-heartbeat")
+        assert general["recommended_action"] == "review_for_life_os_heartbeat"
+        assert general["approval_required_to_activate"] is True
+        task = next(item for item in proposals["proposals"] if item["key"] == "task-reminder-watcher")
+        assert task["recommended_action"] == "candidate_watch_target"
 
         next_question = run("next-question", data_dir=data_dir)
         assert next_question["ok"] is True

@@ -88,9 +88,10 @@ Shows private runtime/config state. Treat output as private and do not copy secr
 1. Run `npm run lifeos -- install --runtime <runtime>` if state may be missing.
 2. Run `npm run lifeos -- doctor`.
 3. Run `npm run lifeos -- discover-runtime --runtime <runtime>` to populate the read-only capability inventory before proposing watch targets or runtime changes.
-4. If `semantic_health.complete` is false, run `npm run lifeos -- next-question`.
-5. Ask the user that question in the active setup conversation.
-6. Save the approved answer with `npm run lifeos -- answer <key> '<answer>'`.
-7. Repeat doctor -> discover-runtime -> next-question -> answer until complete, or until the user stops setup.
-8. Only after semantic setup is complete and the user approves, turn `plan` cron templates into runtime-owned jobs.
-9. Re-run runtime visibility/status checks after any runtime-owned change.
+4. Run `npm run lifeos -- propose-watch-targets` when heartbeat/watch behavior is in scope; present the proposal queue and ask before activating anything.
+5. If `semantic_health.complete` is false, run `npm run lifeos -- next-question`.
+6. Ask the user that question in the active setup conversation.
+7. Save the approved answer with `npm run lifeos -- answer <key> '<answer>'`.
+8. Repeat doctor -> discover-runtime -> propose-watch-targets -> next-question -> answer until complete, or until the user stops setup.
+9. Only after semantic setup is complete and the user approves, turn `plan` cron templates into runtime-owned jobs.
+10. Re-run runtime visibility/status checks after any runtime-owned change.

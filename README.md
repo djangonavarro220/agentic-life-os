@@ -436,6 +436,7 @@ The helper is deliberately boring. Good. Boring deterministic state tools beat c
 npm run lifeos -- install --runtime <hermes|openclaw>
 npm run lifeos -- doctor
 npm run lifeos -- discover-runtime --runtime <hermes|openclaw>
+npm run lifeos -- propose-watch-targets
 npm run lifeos -- next-question
 npm run lifeos -- answer <decision-key> '<answer or runtime pointer>'
 npm run lifeos -- plan
@@ -447,6 +448,7 @@ Commands:
 - `install --runtime <runtime>`: creates or refreshes private state files in `$HOME/.life-os` by default.
 - `doctor`: checks repo shape, private state, and semantic setup health.
 - `discover-runtime --runtime <runtime>`: read-only runtime discovery that writes only Life OS private `runtime_inventory`; it records skill sources, tool sources, capabilities, and candidate watch targets without creating/changing runtime jobs or integrations.
+- `propose-watch-targets`: normalizes discovered candidates into an approval queue; it has no side effects and does not activate targets.
 - `next-question`: returns the next required setup decision.
 - `answer <decision-key> '<answer>'`: saves one approved setup decision.
 - `plan`: prints remaining setup steps and cron templates without side effects.

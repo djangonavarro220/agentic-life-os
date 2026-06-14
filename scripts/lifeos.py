@@ -921,6 +921,61 @@ def discover_runtime(args: argparse.Namespace) -> dict[str, Any]:
     }
 
 
+def classify_watch_target(candidate: dict[str, Any]) -> str:
+    name = str(candidate.get("runtime_job_name") or "").lower()
+    schedule = candidate.get("schedule")
+    schedule_text = json.dumps(schedule, sort_keys=True) if isinstance(schedule, (dict, list)) else str(schedule or "")
+    if "heartbeat" in name or "latido" in name:
+        return "review_for_life_os_heartbeat"
+    if not candidate.get("enabled", False):
+        return "ignore_or_archive_disabled_candidate"
+    if "once" in schedule_text or "run_at" in schedule_text:
+        return "one_shot_reminder_candidate"
+    return "candidate_watch_target"
+
+
+def propose_watch_targets(args: argparse.Namespace) -> dict[str, Any]:
+    data_dir = Path(args.data_dir).expanduser() if args.data_dir else default_data_dir()
+    config = read_json(data_dir / "config.json", {})
+    if not isinstance(config, dict):
+        config = {}
+    inventory = config.get("runtime_inventory", {}) if isinstance(config.get("runtime_inventory"), dict) else {}
+    watch_targets = inventory.get("watch_targets", {}) if isinstance(inventory.get("watch_targets"), dict) else {}
+    active = watch_targets.get("active", {}) if isinstance(watch_targets.get("active"), dict) else {}
+    candidates = watch_targets.get("candidates", {}) if isinstance(watch_targets.get("candidates"), dict) else {}
+    proposals: list[dict[str, Any]] = []
+    for key, candidate in sorted(candidates.items()):
+        if not isinstance(candidate, dict) or key in active:
+            continue
+        proposals.append(
+            {
+                "key": key,
+                "runtime_job_id": candidate.get("runtime_job_id", ""),
+                "runtime_job_name": candidate.get("runtime_job_name", key),
+                "enabled": candidate.get("enabled", False),
+                "schedule": candidate.get("schedule", ""),
+                "adapter_skills": candidate.get("adapter_skills", []),
+                "toolsets": candidate.get("toolsets", []),
+                "recommended_action": classify_watch_target(candidate),
+                "approval_required_to_activate": True,
+            }
+        )
+    return {
+        "ok": True,
+        "action": "propose-watch-targets",
+        "data_dir": str(data_dir),
+        "summary": {
+            "active": len(active),
+            "candidates": len(candidates),
+            "proposed": len(proposals),
+        },
+        "proposals": proposals,
+        "activation_requires_user_approval": True,
+        "side_effects": "none",
+        "next_step": "Ask the user which proposals should become active watch targets; do not activate or edit runtime crons without approval.",
+    }
+
+
 def show_config(args: argparse.Namespace) -> dict[str, Any]:
     data_dir = Path(args.data_dir).expanduser() if args.data_dir else default_data_dir()
     return {
@@ -973,6 +1028,9 @@ def build_parser() -> argparse.ArgumentParser:
     p_discover.add_argument("--runtime", default="hermes", choices=["hermes", "openclaw", "unknown"])
     p_discover.add_argument("--runtime-home", help="Override runtime home for discovery/tests")
     p_discover.set_defaults(func=discover_runtime)
+
+    p_propose = sub.add_parser("propose-watch-targets", help="Propose active watch targets from discovered runtime candidates without side effects")
+    p_propose.set_defaults(func=propose_watch_targets)
     return parser
 
 
