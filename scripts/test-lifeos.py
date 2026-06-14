@@ -213,8 +213,11 @@ def main() -> int:
         assert "heartbeat candidates" in system_skill
         assert "review-item cadence" in system_skill
         assert "semantic setup" in system_skill
-        assert "new source" in system_skill
-        assert "new memory" in system_skill
+        assert "new_source" in system_skill
+        assert "new_memory" in system_skill
+        assert "During the self-improvement meeting" in system_skill
+        assert "inspect the tools" in system_skill
+        assert "Do not wait for random runtime discovery" in system_skill
 
         context_now_skill = (ROOT / "skills/life-os/skills/context-now/SKILL.md").read_text(encoding="utf-8")
         assert "in-progress guided meetings" in context_now_skill

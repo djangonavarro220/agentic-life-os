@@ -43,7 +43,7 @@ The heartbeat vision is a dynamic heartbeat, not a fixed watchdog. Life OS shoul
 14. Record short coordination state in `$LIFEOS_DATA_DIR/<skill-name>/data.json` or config when useful.
 15. Surface only actionable output.
 
-Semantic setup is revisable: self-improvement reviews should compare newly discovered sources and capabilities against saved setup, then ask before changing the map.
+Semantic setup is revisable: self-improvement reviews should actively inspect available sources and capabilities, compare them against saved setup, then ask before changing the map.
 
 Hermes and OpenClaw are first-class supported runtimes. Runtime-specific install, visibility, scheduling, delivery, and global-registration instructions must be documented for both before a workflow is considered complete. Do not add a Hermes-only step without either adding the OpenClaw equivalent or explicitly marking it as not supported yet.
 

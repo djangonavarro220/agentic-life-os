@@ -53,19 +53,26 @@ A lightweight weekly review should ask:
 
 ## Setup review
 
-Self-improvement must treat semantic setup as revisable. Setup is not a one-time ceremony: if a later run discovers a better task source, a new memory system, a new routine history source, a changed delivery route, or a missing/obsolete pointer, record it as a proposed setup update.
+Self-improvement must treat semantic setup as revisable. Setup is not a one-time ceremony: the self-improvement meeting is where the agent deliberately reviews whether the saved setup map still matches the runtime.
 
-When a new source or capability is discovered:
+During the self-improvement meeting, inspect the tools, skills, memory/context capabilities, routine records, delivery options, and configured source pointers that the active runtime exposes. Compare what is available now with the saved `semantic_setup`, `sources`, `policies`, and owning skill data.
 
-1. Compare it with the saved `semantic_setup`, `sources`, `policies`, and owning skill data.
-2. Classify the finding:
-   - `same_source`: already covered, no action.
-   - `better_source`: likely replacement for an existing pointer.
-   - `new_source`: useful source not yet mapped.
-   - `obsolete_source`: saved pointer no longer works or is no longer preferred.
-   - `new_memory`: new runtime memory/context capability that may change where durable context lives.
-3. Propose one clear change to the user if the mapping would affect future behavior.
-4. Do not silently rewrite source-of-truth decisions. Save changes only after approval, using structured setup decisions such as `reuse_existing`, `propose_change`, `manual_only`, or `disabled`.
+Do not wait for random runtime discovery to notice this. The review itself should actively look for better sources or stale mappings.
+
+Classify each setup finding:
+
+- `same_source`: already covered, no action.
+- `better_source`: likely replacement for an existing pointer.
+- `new_source`: useful source not yet mapped.
+- `obsolete_source`: saved pointer no longer works or is no longer preferred.
+- `new_memory`: new runtime memory/context capability that may change where durable context lives.
+
+For findings that would affect future behavior:
+
+1. Explain the change in plain language.
+2. Ask whether to update the setup map.
+3. Do not silently rewrite source-of-truth decisions.
+4. Save approved changes only after approval, using structured setup decisions such as `reuse_existing`, `propose_change`, `manual_only`, or `disabled`.
 5. If the user rejects the change, record a short suppression note so the same proposal does not keep resurfacing.
 
 Plain-language output should say what changed and why it matters, for example: “I found a better place to read current tasks. Do you want Life OS to use it instead of the old pointer?” Do not expose raw config unless asked.

@@ -12,7 +12,7 @@ Hermes and OpenClaw are symmetric first-class targets. If a workflow only suppor
 
 Core heartbeat direction: dynamic runtime discovery plus capability inventory. Life OS should not become a fixed list of scheduled checks. It should discover runtime skills/tools/adapters, keep active and candidate watch targets, dynamically load only the needed skills for a run, and propose setup changes when a capability is missing.
 
-Semantic setup must be revisable. If later reviews discover a new memory source, better task source, changed routine history, missing pointer, or obsolete source, self-improvement should propose updating the setup map instead of treating the original setup as permanent.
+Semantic setup must be revisable. Self-improvement reviews should actively inspect available tools, skills, memory/context capabilities, routine records, delivery options, and source pointers, then compare them against saved setup. If the review finds a new memory source, better task source, changed routine history, missing pointer, or obsolete source, it should propose updating the setup map instead of treating the original setup as permanent.
 
 ## 1. Configurable autonomy modes
 
