@@ -212,6 +212,9 @@ def main() -> int:
         system_skill = (ROOT / "skills/life-os/skills/system-improvement/SKILL.md").read_text(encoding="utf-8")
         assert "heartbeat candidates" in system_skill
         assert "review-item cadence" in system_skill
+        assert "semantic setup" in system_skill
+        assert "new source" in system_skill
+        assert "new memory" in system_skill
 
         context_now_skill = (ROOT / "skills/life-os/skills/context-now/SKILL.md").read_text(encoding="utf-8")
         assert "in-progress guided meetings" in context_now_skill
@@ -234,6 +237,7 @@ def main() -> int:
         assert "dynamic heartbeat" in life_os_skill
         assert "runtime adapters execute access" in life_os_skill
         assert "The agent operates the system" in life_os_skill
+        assert "Semantic setup is revisable" in life_os_skill
         readme = (ROOT / "README.md").read_text(encoding="utf-8")
         assert "agent behavior layer" in readme.splitlines()[2].lower()
         assert "user runs" not in readme.lower()

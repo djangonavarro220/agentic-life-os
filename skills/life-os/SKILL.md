@@ -37,10 +37,13 @@ The heartbeat vision is a dynamic heartbeat, not a fixed watchdog. Life OS shoul
 8. If durable context is needed, use configured source pointers and access instructions. Prefer the user's existing runtime-native memory, notes, canonicals, wiki, or external systems.
 9. For setup/integration tasks, investigate existing runtime-owned systems with runtime-native discovery before proposing bridges, imports, migrations, schedules, or delivery routes.
 10. Run the semantic doctor. If required setup decisions are missing, tell the user the installation is not complete, show the setup checklist, inspect the active runtime for the next pending item, then propose completing the install. Save approved answers in the owning skill data file before claiming the install is complete.
-11. Decide and record where each source of truth lives. The LLM chooses per setup and stores that decision in config so future runs remember it.
-12. Execute the selected playbook with runtime-native tools.
-13. Record short coordination state in `$LIFEOS_DATA_DIR/<skill-name>/data.json` or config when useful.
-14. Surface only actionable output.
+11. Treat setup as revisable. If a later run discovers a better source, new memory/context system, changed delivery route, missing pointer, or obsolete runtime capability, load `system-improvement` and propose a setup update instead of silently continuing with stale pointers.
+12. Decide and record where each source of truth lives. The LLM chooses per setup and stores that decision in config so future runs remember it.
+13. Execute the selected playbook with runtime-native tools.
+14. Record short coordination state in `$LIFEOS_DATA_DIR/<skill-name>/data.json` or config when useful.
+15. Surface only actionable output.
+
+Semantic setup is revisable: self-improvement reviews should compare newly discovered sources and capabilities against saved setup, then ask before changing the map.
 
 Hermes and OpenClaw are first-class supported runtimes. Runtime-specific install, visibility, scheduling, delivery, and global-registration instructions must be documented for both before a workflow is considered complete. Do not add a Hermes-only step without either adding the OpenClaw equivalent or explicitly marking it as not supported yet.
 

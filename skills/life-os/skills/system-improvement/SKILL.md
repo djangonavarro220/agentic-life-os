@@ -51,6 +51,25 @@ A lightweight weekly review should ask:
 4. Which routines should be quieter, louder, paused, or deleted?
 5. What is the smallest next improvement that would reduce future steering?
 
+## Setup review
+
+Self-improvement must treat semantic setup as revisable. Setup is not a one-time ceremony: if a later run discovers a better task source, a new memory system, a new routine history source, a changed delivery route, or a missing/obsolete pointer, record it as a proposed setup update.
+
+When a new source or capability is discovered:
+
+1. Compare it with the saved `semantic_setup`, `sources`, `policies`, and owning skill data.
+2. Classify the finding:
+   - `same_source`: already covered, no action.
+   - `better_source`: likely replacement for an existing pointer.
+   - `new_source`: useful source not yet mapped.
+   - `obsolete_source`: saved pointer no longer works or is no longer preferred.
+   - `new_memory`: new runtime memory/context capability that may change where durable context lives.
+3. Propose one clear change to the user if the mapping would affect future behavior.
+4. Do not silently rewrite source-of-truth decisions. Save changes only after approval, using structured setup decisions such as `reuse_existing`, `propose_change`, `manual_only`, or `disabled`.
+5. If the user rejects the change, record a short suppression note so the same proposal does not keep resurfacing.
+
+Plain-language output should say what changed and why it matters, for example: “I found a better place to read current tasks. Do you want Life OS to use it instead of the old pointer?” Do not expose raw config unless asked.
+
 ## Routine tuning
 
 System improvement may propose heartbeat candidates, but it should not silently turn them into active monitoring. For each candidate, decide:
