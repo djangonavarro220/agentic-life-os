@@ -386,6 +386,20 @@ install_claim = fully_configured
 
 If `doctor` says `mechanical_only`, continue the setup loop. If it returns `setup_completion.status: incomplete`, surface the checklist to the user and propose completing the installation. Do not keep explaining Life OS features as if setup were finished.
 
+## Dynamic heartbeat vision
+
+The Life OS heartbeat is not a fixed checklist. A fixed checklist is just a normal watchdog with better branding. The heartbeat should be alive over the active runtime:
+
+- discover the runtime capability inventory: skills, tools, adapters, sources, schedules, memory, and delivery surfaces;
+- keep active watch targets and candidate watch targets in private state/config;
+- decide at run time which targets are due, changed, or worth inspecting;
+- dynamically load only the runtime/domain skills needed for those targets;
+- use runtime adapters for access, for example mail/calendar/task/cron adapters, instead of copying integration logic into Life OS;
+- stay silent unless something actionable changed;
+- record missing capabilities and propose setup changes instead of improvising.
+
+The goal is discovery + inventory + dynamic skill loading, not “eight hard-coded things to check forever.”
+
 ## Quick start
 
 From the repo checkout:

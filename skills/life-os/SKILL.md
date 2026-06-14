@@ -13,6 +13,8 @@ Use this skill as the stable entrypoint for Agentic Life OS.
 
 Act as a portable helper and coordination layer that makes the active runtime more useful. Life OS is not the new owner of the user's life data. The product is the agent behavior: knowing what to inspect, where each source of truth lives, what to ignore, when to ask, when to write private coordination state, and how to surface useful output without turning the user's life into one giant prompt blob or duplicated database.
 
+The heartbeat vision is a dynamic heartbeat, not a fixed watchdog. Life OS should keep a capability inventory of runtime skills, tools, adapters, sources, and active watch targets. Life OS decides what deserves attention; runtime adapters execute access. Do not hard-code a universal list of checks into the heartbeat when the runtime can discover capabilities and load the relevant skill on demand.
+
 ## Operating model
 
 1. Detect the current runtime and conversation mode.
@@ -24,6 +26,7 @@ Act as a portable helper and coordination layer that makes the active runtime mo
    - `LIFEOS_DATA_DIR` if set
 4. Read `skill-index.yaml`.
 5. Read `<data-dir>/config.json` if it exists.
+   - Read `runtime_inventory` as the capability inventory: skill sources, tool sources, capabilities, and watch targets.
 6. Classify the user request or scheduled trigger.
 7. Load only the subskills needed for that intent.
 8. If durable context is needed, use configured source pointers and access instructions. Prefer the user's existing runtime-native memory, notes, canonicals, wiki, or external systems.
@@ -186,9 +189,10 @@ For scheduled or manual routines:
 1. Run `doctor` if install state is uncertain.
    - If `setup_completion.status` is `incomplete`, do not keep discussing Life OS as if it were fully installed. Present the checklist and ask whether to complete setup after runtime discovery.
 2. Load the matching routine subskill from `skill-index.yaml`.
-3. Execute the playbook with runtime-native tools.
-4. Record useful tracking state only when the user/runtime policy allows it, using Life OS private state or runtime-native state as appropriate.
-5. Surface only actionable output to the user.
+3. For heartbeat-style routines, read the capability inventory and active watch targets, then dynamically load only the runtime/domain skills needed for this run.
+4. Execute the playbook with runtime-native tools.
+5. Record useful tracking state only when the user/runtime policy allows it, using Life OS private state or runtime-native state as appropriate.
+6. Surface only actionable output to the user.
 
 ## Review meetings and cadence
 

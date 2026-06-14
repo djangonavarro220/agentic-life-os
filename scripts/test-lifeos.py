@@ -52,6 +52,10 @@ def main() -> int:
         assert config["ok"] is True
         assert config["config"]["runtime"] == "hermes"
         assert isinstance(config["config"].get("sources", {}), dict)
+        assert isinstance(config["config"].get("runtime_inventory", {}).get("skill_sources", []), list)
+        assert isinstance(config["config"].get("runtime_inventory", {}).get("capabilities", {}), dict)
+        assert isinstance(config["config"].get("runtime_inventory", {}).get("watch_targets", {}), dict)
+        assert "dynamic" in config["config"]["runtime_inventory"]["policy"]
         assert "internal_state" not in config["config"]
         assert "caches" not in config["config"]
         assert config["config"]["semantic_setup"]["status"] == "pending"
@@ -104,6 +108,19 @@ def main() -> int:
         heartbeat_skill = (ROOT / "skills/life-os/skills/routines-heartbeat/SKILL.md").read_text(encoding="utf-8")
         assert "candidate watch targets" in heartbeat_skill
         assert "active watch targets" in heartbeat_skill
+        assert "capability inventory" in heartbeat_skill
+        assert "dynamic skill loading" in heartbeat_skill
+        assert "not a fixed checklist" in heartbeat_skill
+        assert "do not hard-code a universal list of checks" in heartbeat_skill
+        life_os_skill = (ROOT / "skills/life-os/SKILL.md").read_text(encoding="utf-8")
+        assert "capability inventory" in life_os_skill
+        assert "dynamic heartbeat" in life_os_skill
+        assert "runtime adapters execute access" in life_os_skill
+        heartbeat_template = next(item for item in plan["cron_templates"] if item["name"] == "quiet_heartbeat")
+        assert "skills" in heartbeat_template["toolsets"]
+        assert "capability inventory" in heartbeat_template["prompt"]
+        assert "dynamically load" in heartbeat_template["prompt"]
+        assert "not a fixed checklist" in heartbeat_template["prompt"]
 
         answered = run("answer", "tasks_source", "runtime todo system", data_dir=data_dir)
         assert answered["ok"] is True

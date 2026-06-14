@@ -53,6 +53,38 @@
         }
       }
     },
+    "runtime_inventory": {
+      "type": "object",
+      "description": "Dynamic runtime capability inventory. Stores where to discover skills/tools/adapters, which capabilities exist, and which watch targets are active. This is a map for dynamic heartbeat decisions, not a fixed checklist or raw data store.",
+      "additionalProperties": true,
+      "properties": {
+        "policy": {
+          "type": "string"
+        },
+        "skill_sources": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": true
+          }
+        },
+        "tool_sources": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": true
+          }
+        },
+        "capabilities": {
+          "type": "object",
+          "additionalProperties": true
+        },
+        "watch_targets": {
+          "type": "object",
+          "additionalProperties": true
+        }
+      }
+    },
     "policies": {
       "type": "object",
       "description": "Horizontal Life OS policies such as schedule, delivery, trigger default, and approval behavior. Domain-specific preferences belong in the owning skill data file.",

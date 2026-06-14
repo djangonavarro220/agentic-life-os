@@ -115,9 +115,10 @@ CRON_TEMPLATES: list[dict[str, Any]] = [
         "name": "quiet_heartbeat",
         "schedule": "every 3h",
         "skills": ["life-os", "routines-heartbeat"],
+        "toolsets": ["skills"],
         "delivery": "runtime-owned destination selected during setup",
         "create_by_default": False,
-        "prompt": "Run the Life OS quiet heartbeat. Read semantic_setup first, then check only active watch targets configured in the relevant skill data files. Candidate watch targets must be approved before becoming active. Return [SILENT] unless the saved policy says a change is actionable.",
+        "prompt": "Run the Life OS dynamic heartbeat. Read semantic_setup and the capability inventory first. This is not a fixed checklist: discover active watch targets, select only the relevant runtime adapters, dynamically load the needed skills, and return [SILENT] unless the saved policy says a change is actionable. Candidate watch targets must be approved before becoming active. If a needed capability or skill is missing, report the gap and propose a config/cron update instead of improvising.",
     },
     {
         "name": "weekly_review",
@@ -244,6 +245,21 @@ def semantic_decision_answer(data_dir: Path | None, setup: dict[str, Any], key: 
         return None
     answer = stored.get("answer")
     return answer if isinstance(answer, str) and answer.strip() else None
+
+
+def ensure_runtime_inventory(config: dict[str, Any], now: str) -> dict[str, Any]:
+    """Ensure config has the containers for runtime capability discovery."""
+    inventory = config.setdefault("runtime_inventory", {})
+    inventory.setdefault(
+        "policy",
+        "Use dynamic runtime discovery: keep an inventory of skills, tools, adapters, sources, and watch targets; load only the needed capability at runtime instead of hard-coding a universal checklist.",
+    )
+    inventory.setdefault("skill_sources", [])
+    inventory.setdefault("tool_sources", [])
+    inventory.setdefault("capabilities", {})
+    inventory.setdefault("watch_targets", {})
+    inventory.setdefault("updated_at", now)
+    return inventory
 
 
 def ensure_semantic_setup(config: dict[str, Any], now: str) -> dict[str, Any]:
@@ -480,6 +496,7 @@ def install(args: argparse.Namespace) -> dict[str, Any]:
     config.setdefault("skills", {name: {"enabled": True} for name in sorted(subskills)})
     config.setdefault("created_at", now)
     legacy_warnings = prune_empty_legacy_root_domain_keys(config)
+    ensure_runtime_inventory(config, now)
     ensure_semantic_setup(config, now)
     refresh_semantic_status(config, now, data_dir)
     config["updated_at"] = now
@@ -527,6 +544,7 @@ def doctor(args: argparse.Namespace) -> dict[str, Any]:
     if isinstance(config, dict):
         now = utc_now()
         warnings.extend(prune_empty_legacy_root_domain_keys(config))
+        ensure_runtime_inventory(config, now)
         ensure_semantic_setup(config, now)
         refresh_semantic_status(config, now, data_dir)
         write_json(data_dir / "config.json", config)
@@ -559,6 +577,7 @@ def next_question(args: argparse.Namespace) -> dict[str, Any]:
     config = read_json(data_dir / "config.json", None)
     if isinstance(config, dict):
         now = utc_now()
+        ensure_runtime_inventory(config, now)
         ensure_semantic_setup(config, now)
         refresh_semantic_status(config, now, data_dir)
         write_json(data_dir / "config.json", config)
@@ -592,6 +611,7 @@ def plan(args: argparse.Namespace) -> dict[str, Any]:
     config = read_json(data_dir / "config.json", None)
     if isinstance(config, dict):
         now = utc_now()
+        ensure_runtime_inventory(config, now)
         ensure_semantic_setup(config, now)
         refresh_semantic_status(config, now, data_dir)
         write_json(data_dir / "config.json", config)
@@ -624,6 +644,7 @@ def answer(args: argparse.Namespace) -> dict[str, Any]:
     config.setdefault("runtime", args.runtime)
     config.setdefault("created_at", now)
     prune_empty_legacy_root_domain_keys(config)
+    ensure_runtime_inventory(config, now)
     setup = ensure_semantic_setup(config, now)
 
     valid_keys = {item["key"] for item in SEMANTIC_QUESTIONS}

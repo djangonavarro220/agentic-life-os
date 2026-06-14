@@ -35,6 +35,7 @@ This repo contains a portable Agent Skills based personal advisor OS.
 - Cron jobs are runtime-owned. Life OS may provide templates and plans, but must not create, delete, enable, disable, or reschedule crons without explicit user approval.
 - Delivery routing is runtime-owned. Store a delivery pointer/alias only after the user chooses it; never commit private chat IDs or runtime config.
 - The helper script may track required questions, saved answers, install claims, and no-side-effect plans. It must not decide priorities, infer private preferences, or silently connect runtime systems.
+- The heartbeat product direction is dynamic runtime discovery, capability inventory, active/candidate watch targets, and dynamic skill loading. Do not collapse it into a static checklist of hard-coded checks.
 - Public repo content must stay generic and language-neutral. Do not hard-code one user's phrasing, language, chats, tasks, or workflow into skills, tests, docs, or examples.
 
 ## Helper command guide
