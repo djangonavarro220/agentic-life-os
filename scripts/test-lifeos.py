@@ -52,6 +52,7 @@ def main() -> int:
             "daily_briefing",
             "quiet_heartbeat",
             "review_cadence",
+            "review_cron_install_policy",
             "system_improvement_review",
             "delivery_policy",
             "cron_record_source",
@@ -293,6 +294,7 @@ def main() -> int:
         assert complete_config["semantic_setup"]["decisions"]["tasks_source"]["answer"] == "runtime todo system"
         assert complete_config["sources"]["memory"]["answer"] == "runtime memory pointer"
         assert complete_config["policies"]["delivery_policy"]["answer"] == "test answer for delivery_policy"
+        assert complete_config["policies"]["review_cron_install_policy"]["answer"] == "test answer for review_cron_install_policy"
 
     with tempfile.TemporaryDirectory() as tmp:
         data_dir = Path(tmp) / "legacy-lifeos-data"
@@ -309,6 +311,7 @@ def main() -> int:
             "daily_briefing",
             "quiet_heartbeat",
             "review_cadence",
+            "review_cron_install_policy",
             "system_improvement_review",
             "delivery_policy",
             "cron_record_source",

@@ -237,7 +237,8 @@ Example global pointers:
   },
   "policies": {
     "delivery_policy": { "answer": "runtime-owned delivery alias" },
-    "review_cadence": { "answer": "review meetings have their own cadences; system-improvement is monthly by default as a due review item, silent when nothing needs input" }
+    "review_cadence": { "answer": "review meetings have their own cadences; system-improvement is monthly by default as a due review item, silent when nothing needs input" },
+    "review_cron_install_policy": { "answer": "runtime review crons installed/reused, or explicit manual-only opt-out" }
   }
 }
 ```
@@ -384,6 +385,7 @@ Do not claim a full install just because files exist. A complete install require
 doctor.semantic_health.complete = true
 safe_to_claim_fully_installed = true
 install_claim = fully_configured
+review meeting crons are installed/reused, or the user explicitly opted out/manual-only
 ```
 
 If `doctor` says `mechanical_only`, continue the setup loop. If it returns `setup_completion.status: incomplete`, surface the checklist to the user and propose completing the installation. Do not keep explaining Life OS features as if setup were finished.

@@ -47,7 +47,7 @@ The helper checks:
 - private data dir exists, if installed
 - `installed.json`, `runtime.json`, and `config.json` exist, if installed
 - per-subskill private data files exist, if installed
-- `semantic_health`: whether required source, schedule, delivery, and routine decisions have been asked and saved
+- `semantic_health`: whether required source, schedule, delivery, routine, review-cron, and record-keeping decisions have been asked and saved
 
 If `semantic_health.complete` is false, the install is mechanically present but semantically incomplete. Missing semantic answers are discovery tasks, not blind user-preference questions. Before asking the user to decide, inspect the active runtime with native tools and report what already exists.
 
@@ -90,7 +90,8 @@ Interpretation:
 - Doctor warnings about missing private files usually mean install has not run for this data dir.
 - Hermes profile selection matters. A skill visible in one profile may be missing in another.
 - Cron, memory, tools, provider config, gateway status, and delivery are Hermes-owned. Report them as runtime systems, not Life OS files.
-- For missing routine decisions such as `quiet_heartbeat`, `review_cadence`, `system_improvement_review`, `delivery_policy`, or `cron_record_source`, inspect `hermes cron list --all` / scheduler output and existing delivery targets before asking for a decision.
+- For missing routine decisions such as `quiet_heartbeat`, `review_cadence`, `review_cron_install_policy`, `system_improvement_review`, `delivery_policy`, or `cron_record_source`, inspect `hermes cron list --all` / scheduler output and existing delivery targets before asking for a decision.
+- If `review_cron_install_policy` is pending, the install is not complete until the user approves creating/reusing review meeting crons or explicitly chooses manual-only/disabled reviews.
 - If the user wants a fix, propose a specific action and ask before changing profile config, skill registration, cron jobs, delivery routes, or memory.
 
 ## OpenClaw doctor checklist

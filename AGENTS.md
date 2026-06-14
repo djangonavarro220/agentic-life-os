@@ -27,8 +27,8 @@ This repo contains a portable Agent Skills based personal advisor OS.
 
 - A Life OS install has two layers:
   - **mechanical install:** repo/private files exist and skills are visible;
-  - **semantic install:** source, schedule, delivery, routine, and record-keeping decisions have been asked and answered. Horizontal core choices live in global `config.json`; domain-specific choices live in the owning skill data files.
-- Do not say Life OS is fully installed unless `lifeos.py doctor` reports `semantic_health.complete: true` and `safe_to_claim_fully_installed: true`.
+  - **semantic install:** source, schedule, delivery, routine, review-cron, and record-keeping decisions have been asked and answered. Horizontal core choices live in global `config.json`; domain-specific choices live in the owning skill data files.
+- Do not say Life OS is fully installed unless `lifeos.py doctor` reports `semantic_health.complete: true` and `safe_to_claim_fully_installed: true`. Review meeting crons must be either installed/reused or explicitly declined by the user before setup is complete.
 - If `doctor` reports `install_claim: mechanical_only` or `setup_completion.status: incomplete`, say that plainly, show/propose the completion checklist, inspect the active runtime for the next pending item, and continue the setup loop instead of hand-waving. “Looks installed” is not enough.
 - Horizontal core choices belong in `$LIFEOS_DATA_DIR/config.json`: task source, memory/context source, routine run records, schedule/delivery policy, and trigger defaults/overrides. Domain-specific answers belong in the owning skill data file. Store pointers and access notes, not full personal data. Avoid mixed prompt context by loading only the active runtime's Markdown adapter, not by splitting config into one file per runtime.
 - Review meetings are containers for due review items, not fixed monoliths. Larger reviews should run as guided conversations that ask one focused question at a time, record paused/in-progress state, and let current context resurface unfinished meetings. Each review item may have its own cadence: daily, weekly, every two weeks, monthly, quarterly, manual only, or change-triggered. System-improvement is a monthly-by-default review item inside that meeting flow, not necessarily a standalone meeting; development-heavy setups may choose weekly. When due, it reviews the whole setup map, stays silent when nothing needs input, and surfaces only newly discovered or changed items that need a decision.
@@ -94,5 +94,6 @@ Shows private runtime/config state. Treat output as private and do not copy secr
 7. Ask the user that question in the active setup conversation.
 8. Save the approved answer with `npm run lifeos -- answer <key> '<answer>'`.
 9. Repeat doctor -> discover-runtime -> define-heartbeat -> next-question -> answer until complete, or until the user stops setup.
-10. Only after semantic setup is complete and the user approves, turn `plan` cron templates into runtime-owned jobs.
-11. Re-run runtime visibility/status checks after any runtime-owned change.
+10. Review meeting crons are part of setup completion: either create/reuse the approved runtime cron jobs for the review meetings, or save the user's explicit opt-out/manual-only decision. Do not claim setup complete while this is undecided.
+11. Only after semantic setup is complete and the user approves, turn any remaining `plan` cron templates into runtime-owned jobs.
+12. Re-run runtime visibility/status checks after any runtime-owned change.

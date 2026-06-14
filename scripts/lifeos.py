@@ -62,6 +62,12 @@ SEMANTIC_QUESTIONS: list[dict[str, str]] = [
         "question": "What existing review routines or cadence signals already exist in the active runtime, and which should Life OS reuse, ignore, or propose changing?",
     },
     {
+        "key": "review_cron_install_policy",
+        "category": "core-policy",
+        "owner_skill": "core-config",
+        "question": "Should Life OS install runtime cron jobs for the review meetings, reuse existing review crons, or explicitly keep the review meetings manual/disabled? Setup is not complete until review crons are installed/reused or the user opts out.",
+    },
+    {
         "key": "system_improvement_review",
         "category": "routine",
         "owner_skill": "system-improvement",
@@ -88,6 +94,7 @@ HORIZONTAL_CORE_DECISION_KEYS = {
     "cron_record_source",
     "routine_schedule_policy",
     "review_cadence",
+    "review_cron_install_policy",
     "delivery_policy",
 }
 
@@ -100,6 +107,7 @@ CORE_SOURCE_KEY_MAP = {
 CORE_POLICY_KEYS = {
     "routine_schedule_policy",
     "review_cadence",
+    "review_cron_install_policy",
     "delivery_policy",
 }
 
@@ -464,8 +472,8 @@ def setup_completion_summary(health: dict[str, Any]) -> dict[str, Any]:
     complete = bool(health.get("complete"))
     if complete:
         headline = "Life OS installation is complete."
-        next_user_prompt = "No semantic setup decisions are pending. Do not create or change runtime crons unless the user explicitly approves a runtime change."
-        agent_next_message = "Life OS is configured. I will treat runtime changes as approval-gated and use the saved source, schedule, delivery, and record pointers."
+        next_user_prompt = "No semantic setup decisions are pending. Review meeting crons are installed/reused or explicitly opted out; do not create or change any other runtime crons unless the user approves."
+        agent_next_message = "Life OS is configured. I will treat runtime changes as approval-gated and use the saved source, schedule, delivery, review-cron, and record pointers."
     else:
         missing = health.get("missing", [])
         missing_text = ", ".join(str(key) for key in missing)

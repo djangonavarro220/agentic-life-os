@@ -60,7 +60,8 @@ Example global source ownership:
   },
   "policies": {
     "delivery_policy": { "answer": "runtime-owned delivery alias" },
-    "review_cadence": { "answer": "weekly plus monthly" }
+    "review_cadence": { "answer": "review meetings have their own cadences" },
+    "review_cron_install_policy": { "answer": "review crons installed/reused, or explicit manual-only/disabled opt-out" }
   }
 }
 ```
@@ -116,7 +117,7 @@ Config should store source pointers plus short usage instructions: how to read t
 
 Config stores pointers and access notes only. Do not paste the whole knowledge store into config. Global sources used by many skills belong in `sources`; domain-specific sources belong in `$LIFEOS_DATA_DIR/<skill-name>/data.json`. Do not bulk-convert or move an existing notes/wiki/memory system just to match Life OS.
 
-For setup questions, discover before deciding. If a semantic setup key is missing, inspect the active runtime first and record what already exists. Example: before deciding `quiet_heartbeat`, list existing heartbeat/watch crons and their delivery/no-news behavior; before deciding `delivery_policy`, inspect existing routine delivery routes. Then recommend whether Life OS should reuse, ignore, or propose a change.
+For setup questions, discover before deciding. If a semantic setup key is missing, inspect the active runtime first and record what already exists. Example: before deciding `quiet_heartbeat`, list existing heartbeat/watch crons and their delivery/no-news behavior; before deciding `review_cron_install_policy`, inspect whether review meeting crons already exist and either install/reuse them or save the user's explicit manual-only/disabled opt-out; before deciding `delivery_policy`, inspect existing routine delivery routes. Then recommend whether Life OS should reuse, ignore, or propose a change.
 
 ## Source usage instructions
 

@@ -83,6 +83,7 @@ tasks -> runtime task system
 memory/context -> runtime memory or notes
 calendar -> runtime calendar tool
 cron_records -> runtime cron output history
+review_cron_install_policy -> review meeting crons installed/reused, or explicit manual-only/disabled opt-out
 knowledge/context -> optional runtime-native or external source pointers
 ```
 
