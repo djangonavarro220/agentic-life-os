@@ -17,6 +17,15 @@ def run(*args: str, data_dir: Path) -> dict:
     return json.loads(proc.stdout)
 
 
+def write_skill(root: Path, relative: str, name: str, description: str = "") -> None:
+    skill_dir = root / relative
+    skill_dir.mkdir(parents=True, exist_ok=True)
+    skill_dir.joinpath("SKILL.md").write_text(
+        f"---\nname: {name}\ndescription: {description or name}\n---\n\n# {name}\n",
+        encoding="utf-8",
+    )
+
+
 def main() -> int:
     with tempfile.TemporaryDirectory() as tmp:
         data_dir = Path(tmp) / "lifeos-data"
@@ -65,6 +74,67 @@ def main() -> int:
         assert isinstance(tasks_data["caches"], dict)
         assert "optional_global_skills" not in config["config"]
         assert "schedules" not in config["config"]
+
+        hermes_home = Path(tmp) / "hermes-home"
+        write_skill(hermes_home / "skills", "productivity/google-workspace", "google-workspace", "Gmail and Calendar")
+        write_skill(hermes_home / "skills", "productivity/global-todo-management", "global-todo-management", "Tasks")
+        write_skill(hermes_home / "skills", "productivity/cron-governance", "cron-governance", "Cron jobs")
+        write_skill(hermes_home / "skills", "autonomous-ai-agents/hermes-agent", "hermes-agent", "Hermes runtime")
+        (hermes_home / "config.yaml").write_text(
+            "tools:\n  enabled:\n    - skills\n    - terminal\n    - file\n    - cronjob\n    - session_search\n",
+            encoding="utf-8",
+        )
+        (hermes_home / "cron").mkdir(parents=True)
+        (hermes_home / "cron" / "jobs.json").write_text(
+            json.dumps(
+                {
+                    "jobs": [
+                        {
+                            "id": "heartbeat1",
+                            "name": "general health heartbeat",
+                            "enabled": True,
+                            "schedule": "*/30 * * * *",
+                            "skills": ["cron-governance", "google-workspace"],
+                            "enabled_toolsets": ["terminal", "file", "skills"],
+                            "deliver": "origin",
+                        },
+                        {
+                            "id": "tasks1",
+                            "name": "task reminder watcher",
+                            "enabled": True,
+                            "schedule": "0 9 * * *",
+                            "skills": ["global-todo-management"],
+                            "enabled_toolsets": ["file", "skills"],
+                            "deliver": "origin",
+                        },
+                    ]
+                }
+            ),
+            encoding="utf-8",
+        )
+        discovery = run("discover-runtime", "--runtime", "hermes", "--runtime-home", str(hermes_home), data_dir=data_dir)
+        assert discovery["ok"] is True, discovery
+        assert discovery["runtime"] == "hermes"
+        assert discovery["side_effects"] == "life-os-config-only"
+        assert discovery["summary"]["skills_discovered"] >= 4
+        assert discovery["summary"]["cron_jobs_seen"] == 2
+        assert discovery["summary"]["candidate_watch_targets"] >= 2
+        inventory = discovery["runtime_inventory"]
+        assert inventory["runtime"] == "hermes"
+        assert inventory["skill_sources"][0]["count"] >= 4
+        assert inventory["capabilities"]["mail"]["status"] == "available"
+        assert "google-workspace" in inventory["capabilities"]["mail"]["adapter_skills"]
+        assert inventory["capabilities"]["calendar"]["status"] == "available"
+        assert inventory["capabilities"]["tasks"]["status"] == "available"
+        assert inventory["capabilities"]["crons"]["status"] == "available"
+        assert "skills" in inventory["tool_sources"][0]["toolsets"]
+        assert "active" in inventory["watch_targets"]
+        assert inventory["watch_targets"]["active"] == {}
+        assert "general-health-heartbeat" in inventory["watch_targets"]["candidates"]
+        assert inventory["watch_targets"]["candidates"]["general-health-heartbeat"]["status"] == "candidate"
+        saved_inventory = run("config", data_dir=data_dir)["config"]["runtime_inventory"]
+        assert saved_inventory["capabilities"]["mail"]["status"] == "available"
+        assert saved_inventory["watch_targets"]["candidates"]["task-reminder-watcher"]["status"] == "candidate"
 
         next_question = run("next-question", data_dir=data_dir)
         assert next_question["ok"] is True

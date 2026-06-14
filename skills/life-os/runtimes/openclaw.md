@@ -19,6 +19,12 @@ Do not assume one global install is correct. Ask which agent/workspace/scope sho
 
 ## Read-only discovery
 
+Use the helper first when the repo checkout is available. It reads OpenClaw-like runtime state and writes only Life OS private `runtime_inventory`:
+
+```bash
+npm run lifeos -- discover-runtime --runtime openclaw
+```
+
 Use these commands to understand the current OpenClaw runtime before proposing changes:
 
 ```bash

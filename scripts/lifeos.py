@@ -11,6 +11,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import re
 import sys
 from dataclasses import dataclass
 from datetime import datetime, timezone
@@ -260,6 +261,120 @@ def ensure_runtime_inventory(config: dict[str, Any], now: str) -> dict[str, Any]
     inventory.setdefault("watch_targets", {})
     inventory.setdefault("updated_at", now)
     return inventory
+
+
+def slugify(value: str) -> str:
+    slug = re.sub(r"[^a-z0-9]+", "-", value.lower()).strip("-")
+    return slug or "unnamed"
+
+
+def parse_skill_name(skill_file: Path) -> str:
+    text = skill_file.read_text(encoding="utf-8", errors="ignore")
+    for line in text.splitlines()[:30]:
+        if line.startswith("name:"):
+            return line.split(":", 1)[1].strip().strip('"\'')
+    return skill_file.parent.name
+
+
+def discover_skill_names(skills_dir: Path) -> list[str]:
+    if not skills_dir.exists():
+        return []
+    names: list[str] = []
+    for skill_file in sorted(skills_dir.rglob("SKILL.md")):
+        try:
+            names.append(parse_skill_name(skill_file))
+        except OSError:
+            continue
+    return sorted(set(name for name in names if name))
+
+
+def parse_enabled_toolsets(config_file: Path) -> list[str]:
+    if not config_file.exists():
+        return []
+    toolsets: list[str] = []
+    in_enabled = False
+    for raw in config_file.read_text(encoding="utf-8", errors="ignore").splitlines():
+        stripped = raw.strip()
+        if stripped.startswith("enabled:"):
+            in_enabled = True
+            continue
+        if in_enabled:
+            if stripped.startswith("-"):
+                value = stripped[1:].strip().strip('"\'')
+                if value:
+                    toolsets.append(value)
+                continue
+            if stripped and not raw.startswith(" "):
+                in_enabled = False
+    return sorted(set(toolsets))
+
+
+def load_runtime_jobs(runtime_home: Path) -> list[dict[str, Any]]:
+    data = read_json(runtime_home / "cron" / "jobs.json", {})
+    jobs = data.get("jobs", []) if isinstance(data, dict) else data if isinstance(data, list) else []
+    return [job for job in jobs if isinstance(job, dict)]
+
+
+def capability(status: str, adapter_skills: list[str], toolsets: list[str], evidence: list[str] | None = None) -> dict[str, Any]:
+    return {
+        "status": status,
+        "adapter_skills": sorted(set(adapter_skills)),
+        "toolsets": sorted(set(toolsets)),
+        "evidence": sorted(set(evidence or [])),
+    }
+
+
+def build_capabilities(skill_names: list[str], toolsets: list[str], jobs: list[dict[str, Any]]) -> dict[str, Any]:
+    job_skills = {skill for job in jobs for skill in (job.get("skills") or []) if isinstance(skill, str)}
+    all_skills = set(skill_names) | job_skills
+
+    def matching(*needles: str) -> list[str]:
+        return [name for name in all_skills if any(needle in name for needle in needles)]
+
+    mail = matching("google-workspace", "gmail", "mail", "integrations-mail")
+    calendar = matching("google-workspace", "calendar", "integrations-calendar")
+    tasks = matching("global-todo", "tasks-todo", "todo", "task")
+    crons = matching("cron", "hermes-agent", "human-cron-reports")
+    memory = matching("memory", "canonical", "life-os", "hermes-agent")
+    browser = matching("browser", "web")
+
+    return {
+        "mail": capability("available" if mail else "missing", mail, ["skills"] if mail else []),
+        "calendar": capability("available" if calendar else "missing", calendar, ["skills"] if calendar else []),
+        "tasks": capability("available" if tasks else "missing", tasks, ["skills", "file"] if tasks else []),
+        "crons": capability("available" if crons or jobs else "missing", crons, ["cronjob", "terminal", "skills"] if crons or jobs else [], ["cron/jobs.json"] if jobs else []),
+        "memory": capability("available" if memory else "unknown", memory, ["skills", "file"] if memory else []),
+        "browser_web": capability("available" if browser or "browser" in toolsets or "web" in toolsets else "missing", browser, [t for t in ("browser", "web", "skills") if t in toolsets or t == "skills"]),
+    }
+
+
+def build_candidate_watch_targets(jobs: list[dict[str, Any]]) -> dict[str, Any]:
+    candidates: dict[str, Any] = {}
+    watch_words = ("watch", "heartbeat", "latido", "reminder", "recordatorio", "check", "seguimiento", "briefing", "pulse")
+    for job in jobs:
+        name = str(job.get("name") or job.get("id") or "job")
+        prompt = str(job.get("prompt_preview") or job.get("prompt") or "")
+        if not any(word in f"{name} {prompt}".lower() for word in watch_words):
+            continue
+        candidates[slugify(name)] = {
+            "status": "candidate",
+            "runtime_job_id": str(job.get("id") or job.get("job_id") or ""),
+            "runtime_job_name": name,
+            "schedule": str(job.get("schedule") or ""),
+            "enabled": bool(job.get("enabled", False)),
+            "adapter_skills": [skill for skill in (job.get("skills") or []) if isinstance(skill, str)],
+            "toolsets": [tool for tool in (job.get("enabled_toolsets") or []) if isinstance(tool, str)],
+            "approval_required_to_activate": True,
+        }
+    return candidates
+
+
+def default_runtime_home(runtime: str, override: str | None) -> Path:
+    if override:
+        return Path(override).expanduser()
+    if runtime == "openclaw":
+        return Path.home() / ".openclaw"
+    return Path.home() / ".hermes"
 
 
 def ensure_semantic_setup(config: dict[str, Any], now: str) -> dict[str, Any]:
@@ -738,6 +853,74 @@ def answer(args: argparse.Namespace) -> dict[str, Any]:
     }
 
 
+def discover_runtime(args: argparse.Namespace) -> dict[str, Any]:
+    data_dir = Path(args.data_dir).expanduser() if args.data_dir else default_data_dir()
+    now = utc_now()
+    runtime_home = default_runtime_home(args.runtime, args.runtime_home)
+    config = read_json(data_dir / "config.json", {})
+    if not isinstance(config, dict):
+        config = {}
+    config.setdefault("enabled", True)
+    config.setdefault("runtime", args.runtime)
+    config.setdefault("created_at", now)
+    ensure_semantic_setup(config, now)
+
+    skills_dir = runtime_home / "skills"
+    skill_names = discover_skill_names(skills_dir)
+    toolsets = parse_enabled_toolsets(runtime_home / "config.yaml")
+    jobs = load_runtime_jobs(runtime_home)
+    candidates = build_candidate_watch_targets(jobs)
+
+    inventory = ensure_runtime_inventory(config, now)
+    inventory.update(
+        {
+            "runtime": args.runtime,
+            "discovered_at": now,
+            "discovery_mode": "read-only-runtime; writes-life-os-config-only",
+            "skill_sources": [
+                {
+                    "runtime": args.runtime,
+                    "kind": "runtime_skills_dir",
+                    "path": str(skills_dir),
+                    "available": skills_dir.exists(),
+                    "count": len(skill_names),
+                    "skills": skill_names,
+                }
+            ],
+            "tool_sources": [
+                {
+                    "runtime": args.runtime,
+                    "kind": "runtime_config_toolsets",
+                    "path": str(runtime_home / "config.yaml"),
+                    "available": (runtime_home / "config.yaml").exists(),
+                    "toolsets": toolsets,
+                }
+            ],
+            "capabilities": build_capabilities(skill_names, toolsets, jobs),
+            "watch_targets": {
+                "active": inventory.get("watch_targets", {}).get("active", {}) if isinstance(inventory.get("watch_targets"), dict) else {},
+                "candidates": candidates,
+            },
+        }
+    )
+    config["updated_at"] = now
+    write_json(data_dir / "config.json", config)
+    return {
+        "ok": True,
+        "action": "discover-runtime",
+        "runtime": args.runtime,
+        "data_dir": str(data_dir),
+        "runtime_inventory": inventory,
+        "summary": {
+            "skills_discovered": len(skill_names),
+            "toolsets_discovered": len(toolsets),
+            "cron_jobs_seen": len(jobs),
+            "candidate_watch_targets": len(candidates),
+        },
+        "side_effects": "life-os-config-only",
+    }
+
+
 def show_config(args: argparse.Namespace) -> dict[str, Any]:
     data_dir = Path(args.data_dir).expanduser() if args.data_dir else default_data_dir()
     return {
@@ -785,6 +968,11 @@ def build_parser() -> argparse.ArgumentParser:
 
     p_config = sub.add_parser("config", help="Show Life OS private config/state")
     p_config.set_defaults(func=show_config)
+
+    p_discover = sub.add_parser("discover-runtime", help="Read runtime capabilities into Life OS inventory without external side effects")
+    p_discover.add_argument("--runtime", default="hermes", choices=["hermes", "openclaw", "unknown"])
+    p_discover.add_argument("--runtime-home", help="Override runtime home for discovery/tests")
+    p_discover.set_defaults(func=discover_runtime)
     return parser
 
 
