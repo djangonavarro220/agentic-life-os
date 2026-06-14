@@ -237,7 +237,7 @@ Example global pointers:
   },
   "policies": {
     "delivery_policy": { "answer": "runtime-owned delivery alias" },
-    "review_cadence": { "answer": "review meetings have their own cadences; system-improvement is every two weeks and silent when nothing needs input" }
+    "review_cadence": { "answer": "review meetings have their own cadences; system-improvement is monthly by default as a due review item, silent when nothing needs input" }
   }
 }
 ```

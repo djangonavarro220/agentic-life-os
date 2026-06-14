@@ -41,11 +41,13 @@ Do not copy raw chats, logs, transcripts, or private runtime exports into Life O
 
 ## Review cadence
 
-Default cadence: every two weeks. It can also run manually when the user asks how Life OS is working or after repeated friction.
+Self-improvement is a review item, not necessarily a standalone meeting. It should be included in the normal review-meeting flow when due.
 
-The self-improvement meeting should review the whole setup map each time, but it should not report every source that still looks fine. Stay silent when nothing needs user input.
+Default cadence: monthly by default. A development-heavy setup may choose weekly; quiet/stable setups may choose quarterly or manual-only.
 
-A lightweight review should ask internally:
+The self-improvement item should review the whole setup map when it runs, but it should not report every source that still looks fine. Stay silent when nothing needs user input.
+
+A lightweight self-improvement item should ask internally:
 
 1. What did Life OS help with this period?
 2. Where did it create noise, miss context, or require repeated manual steering?
