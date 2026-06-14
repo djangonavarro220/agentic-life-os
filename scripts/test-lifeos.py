@@ -184,9 +184,13 @@ def main() -> int:
         assert doctor["setup_completion"]["headline"] == "Life OS installation is not complete yet."
         assert doctor["setup_completion"]["ask_user_to_complete"] is True
         assert "complete the installation" in doctor["setup_completion"]["next_user_prompt"]
+        assert "agent_next_message" in doctor["setup_completion"]
+        assert "I found a mechanical Life OS install" in doctor["setup_completion"]["agent_next_message"]
+        assert "run lifeos.py" not in doctor["setup_completion"]["agent_next_message"]
         assert any(item["key"] == "quiet_heartbeat" and item["state"] == "pending_decision" for item in doctor["setup_completion"]["checklist"])
         assert next_question["setup_completion"]["ask_user_to_complete"] is True
         assert "complete the installation" in next_question["setup_completion"]["next_user_prompt"]
+        assert "agent_next_message" in next_question["setup_completion"]
 
         plan = run("plan", data_dir=data_dir)
         assert plan["ok"] is True
@@ -211,6 +215,9 @@ def main() -> int:
 
         context_now_skill = (ROOT / "skills/life-os/skills/context-now/SKILL.md").read_text(encoding="utf-8")
         assert "in-progress guided meetings" in context_now_skill
+        core_doctor_skill = (ROOT / "skills/life-os/skills/core-doctor/SKILL.md").read_text(encoding="utf-8")
+        assert "agent_next_message" in core_doctor_skill
+        assert "Do not ask the user to run helper commands" in core_doctor_skill
 
         heartbeat_skill = (ROOT / "skills/life-os/skills/routines-heartbeat/SKILL.md").read_text(encoding="utf-8")
         assert "candidate watch targets" in heartbeat_skill
@@ -223,6 +230,10 @@ def main() -> int:
         assert "capability inventory" in life_os_skill
         assert "dynamic heartbeat" in life_os_skill
         assert "runtime adapters execute access" in life_os_skill
+        assert "The agent operates the system" in life_os_skill
+        readme = (ROOT / "README.md").read_text(encoding="utf-8")
+        assert "agent behavior layer" in readme.splitlines()[2].lower()
+        assert "user runs" not in readme.lower()
         heartbeat_template = next(item for item in plan["cron_templates"] if item["name"] == "quiet_heartbeat")
         assert "skills" in heartbeat_template["toolsets"]
         assert "capability inventory" in heartbeat_template["prompt"]

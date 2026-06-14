@@ -6,6 +6,10 @@ This roadmap tracks the remaining work for turning Agentic Life OS from an opera
 
 The main product is the skill/playbook layer: Markdown instructions that teach an LLM what to inspect, how to reason, where each source of truth lives, when to ask, when to write private coordination state, and how to report. Scripts are only boring state helpers and should not become the product. Life OS is a helper over Hermes/OpenClaw/external sources, not a second database for the user's life.
 
+Agentic Life OS is an agent-operated behavior layer, not a human CLI workflow. Agents run helper commands, inspect runtimes, save decisions, and verify results. Users should receive plain choices, questions, and outcomes. Beta usability requires all three: CI green, docs/skills clear enough for agents, and a fresh runtime session able to use Life OS without hand-holding.
+
+Hermes and OpenClaw are symmetric first-class targets. If a workflow only supports one runtime, mark the missing runtime fact explicitly instead of pretending the generic path is done.
+
 Core heartbeat direction: dynamic runtime discovery plus capability inventory. Life OS should not become a fixed list of scheduled checks. It should discover runtime skills/tools/adapters, keep active and candidate watch targets, dynamically load only the needed skills for a run, and propose setup changes when a capability is missing.
 
 ## 1. Configurable autonomy modes

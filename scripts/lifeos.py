@@ -457,6 +457,7 @@ def setup_completion_summary(health: dict[str, Any]) -> dict[str, Any]:
     if complete:
         headline = "Life OS installation is complete."
         next_user_prompt = "No semantic setup decisions are pending. Do not create or change runtime crons unless the user explicitly approves a runtime change."
+        agent_next_message = "Life OS is configured. I will treat runtime changes as approval-gated and use the saved source, schedule, delivery, and record pointers."
     else:
         missing = health.get("missing", [])
         missing_text = ", ".join(str(key) for key in missing)
@@ -466,12 +467,18 @@ def setup_completion_summary(health: dict[str, Any]) -> dict[str, Any]:
             "summarize what already exists, then ask the user whether to reuse it, ignore it, "
             "or approve adding the missing pieces. Pending: " + missing_text
         )
+        agent_next_message = (
+            "I found a mechanical Life OS install, but setup decisions are still missing. "
+            "I will inspect the active runtime first, summarize what already exists, and ask for one clear decision before saving the next pointer or policy. "
+            "Pending: " + missing_text
+        )
     return {
         "status": "complete" if complete else "incomplete",
         "headline": headline,
         "ask_user_to_complete": not complete,
         "checklist": checklist,
         "next_user_prompt": next_user_prompt,
+        "agent_next_message": agent_next_message,
     }
 
 

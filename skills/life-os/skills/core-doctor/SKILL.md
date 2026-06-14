@@ -63,6 +63,8 @@ Do not ask “should X exist?” when runtime evidence can answer “X already e
 
 When the helper returns `setup_completion.status: incomplete`, surface it to the user as the next action. Do not bury the pending checklist in diagnostic JSON, and do not continue explaining Life OS features without offering to complete setup.
 
+Use `setup_completion.agent_next_message` as the default wording seed for the visible reply when it is present. Adapt it to the active conversation, but preserve the contract: the agent operates the helper and runtime checks, then asks for one clear decision. Do not ask the user to run helper commands or paste JSON back into the chat. The user-facing output is the decision, not the plumbing.
+
 ## Hermes doctor checklist
 
 Load `../../runtimes/hermes.md`, then use native Hermes commands as available:

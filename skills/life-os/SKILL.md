@@ -13,6 +13,8 @@ Use this skill as the stable entrypoint for Agentic Life OS.
 
 Act as a portable helper and coordination layer that makes the active runtime more useful. Life OS is not the new owner of the user's life data. The product is the agent behavior: knowing what to inspect, where each source of truth lives, what to ignore, when to ask, when to write private coordination state, and how to surface useful output without turning the user's life into one giant prompt blob or duplicated database.
 
+The agent operates the system. The user should see clear decisions, questions, and outcomes, not a pile of commands to run manually. Helper scripts are for deterministic state mechanics and validation; the agent uses them, interprets the result, and continues the workflow.
+
 The heartbeat vision is a dynamic heartbeat, not a fixed watchdog. Life OS should keep a capability inventory of runtime skills, tools, adapters, sources, and active watch targets. Life OS decides what deserves attention; runtime adapters execute access. Do not hard-code a universal list of checks into the heartbeat when the runtime can discover capabilities and load the relevant skill on demand.
 
 ## Operating model

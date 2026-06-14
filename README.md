@@ -1,8 +1,10 @@
 # Agentic Life OS
 
-A portable personal advisor OS built from Agent Skills.
+An agent behavior layer for portable personal-advisor agents.
 
 Agentic Life OS is a skill pack for agents that need to help with day-to-day context, routines, tasks, reminders, relationships, documents, health trends, finance checks, purchases, travel, learning, work evidence, and digital hygiene without becoming a giant private database.
+
+The UX contract is agent-operated: the agent runs helper commands, inspects the active runtime, saves approved pointers/policies, and verifies state. The user gets clear decisions and questions, not instructions to babysit a CLI.
 
 The design is simple: keep real user data in the runtime or external system that already owns it, keep public skills generic, and store only private pointers, decisions, and operational state in a local Life OS data directory.
 
