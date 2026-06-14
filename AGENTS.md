@@ -66,10 +66,10 @@ npm run lifeos -- next-question
 Returns exactly the next required semantic setup question plus a command hint for saving the answer. Use this for conversational setup loops.
 
 ```bash
-npm run lifeos -- answer <decision-key> '<answer or runtime pointer>'
+npm run lifeos -- answer <decision-key> '<answer>' --kind <reuse_existing|manual_only|propose_change|disabled|custom>
 ```
 
-Saves one user-approved setup decision. Horizontal core decisions are stored in global config; domain-specific decisions are stored in the owning skill data file. Keep answers as pointers/access notes when possible, not raw data dumps.
+Saves one user-approved setup decision. Horizontal core decisions are stored in global config; domain-specific decisions are stored in the owning skill data file. Keep answers as pointers/access notes when possible, not raw data dumps. Prefer structured `--kind` values so future agents can distinguish reused runtime systems, manual-only choices, proposed changes, disabled routines, and custom policies without parsing prose.
 
 ```bash
 npm run lifeos -- plan

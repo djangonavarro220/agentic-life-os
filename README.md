@@ -441,7 +441,7 @@ npm run lifeos -- discover-runtime --runtime <hermes|openclaw>
 npm run lifeos -- define-heartbeat
 npm run lifeos -- propose-watch-targets
 npm run lifeos -- next-question
-npm run lifeos -- answer <decision-key> '<answer or runtime pointer>'
+npm run lifeos -- answer <decision-key> '<answer or runtime pointer>' --kind <reuse_existing|manual_only|propose_change|disabled|custom>
 npm run lifeos -- plan
 npm run lifeos -- config
 ```
@@ -454,7 +454,7 @@ Commands:
 - `define-heartbeat`: defines the single Life OS heartbeat in private config by selecting an existing runtime heartbeat when present, or recording the quiet-heartbeat creation template when absent. It still does not create or edit runtime crons.
 - `propose-watch-targets`: normalizes discovered candidates into an approval queue; it has no side effects and does not activate targets.
 - `next-question`: returns the next required setup decision.
-- `answer <decision-key> '<answer>'`: saves one approved setup decision.
+- `answer <decision-key> '<answer>' --kind <kind>`: saves one approved setup decision. Use `reuse_existing`, `manual_only`, `propose_change`, `disabled`, or `custom` so future agents can act on structure instead of parsing prose.
 - `plan`: prints remaining setup steps and cron templates without side effects.
 - `config`: prints private Life OS global config plus install/runtime state.
 

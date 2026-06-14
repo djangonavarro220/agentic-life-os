@@ -33,6 +33,11 @@
               "type": "string",
               "description": "Runtime pointer or short source description."
             },
+            "decision_kind": {
+              "type": "string",
+              "enum": ["reuse_existing", "manual_only", "propose_change", "disabled", "custom"],
+              "description": "Structured setup decision kind so agents do not have to infer policy from prose."
+            },
             "usage": {
               "type": "string",
               "description": "Agent-facing instructions for reading/updating the memory source."

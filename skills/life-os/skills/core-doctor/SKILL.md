@@ -57,7 +57,7 @@ Correct flow for each missing decision:
 2. Inspect the matching runtime-owned state first, for example cron list/status/output history, delivery routes, task source, memory policy, or existing review routines.
 3. Tell the user what already exists and the safe default recommendation: reuse, ignore, or propose a change.
 4. Only then ask for approval if the answer would create, change, disable, migrate, or globally register anything.
-5. Save the decided pointer/policy with `python3 scripts/lifeos.py answer <key> '<answer>'` and run doctor again.
+5. Save the decided pointer/policy with `python3 scripts/lifeos.py answer <key> '<answer>' --kind <reuse_existing|manual_only|propose_change|disabled|custom>` and run doctor again.
 
 Do not ask “should X exist?” when runtime evidence can answer “X already exists, here is what it does.” That is lazy setup theatre.
 

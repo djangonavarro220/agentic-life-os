@@ -215,6 +215,9 @@ def main() -> int:
 
         context_now_skill = (ROOT / "skills/life-os/skills/context-now/SKILL.md").read_text(encoding="utf-8")
         assert "in-progress guided meetings" in context_now_skill
+        assert "Source ladder" in context_now_skill
+        assert "Freshness rules" in context_now_skill
+        assert "Evidence" in context_now_skill
         core_doctor_skill = (ROOT / "skills/life-os/skills/core-doctor/SKILL.md").read_text(encoding="utf-8")
         assert "agent_next_message" in core_doctor_skill
         assert "Do not ask the user to run helper commands" in core_doctor_skill
@@ -240,16 +243,19 @@ def main() -> int:
         assert "dynamically load" in heartbeat_template["prompt"]
         assert "not a fixed checklist" in heartbeat_template["prompt"]
 
-        answered = run("answer", "tasks_source", "runtime todo system", data_dir=data_dir)
+        answered = run("answer", "tasks_source", "runtime todo system", "--kind", "reuse_existing", data_dir=data_dir)
         assert answered["ok"] is True
         assert answered["stored_in"] == "config.json"
+        assert answered["decision_kind"] == "reuse_existing"
         assert answered["semantic_health"]["answered"] == ["tasks_source"]
         tasks_data = json.loads((data_dir / "tasks-todo" / "data.json").read_text(encoding="utf-8"))
         assert "tasks_source" not in tasks_data["source_decisions"]
         config_after_answer = run("config", data_dir=data_dir)["config"]
         assert config_after_answer["sources"]["tasks"]["answer"] == "runtime todo system"
+        assert config_after_answer["sources"]["tasks"]["decision_kind"] == "reuse_existing"
         assert config_after_answer["semantic_setup"]["decisions"]["tasks_source"]["stored_in"] == "config.json"
         assert config_after_answer["semantic_setup"]["decisions"]["tasks_source"]["answer"] == "runtime todo system"
+        assert config_after_answer["semantic_setup"]["decisions"]["tasks_source"]["decision_kind"] == "reuse_existing"
         doctor_after_one_answer = run("doctor", data_dir=data_dir)
         assert doctor_after_one_answer["semantic_health"]["complete"] is False
         assert "tasks_source" not in {q["key"] for q in doctor_after_one_answer["semantic_health"]["pending_questions"]}

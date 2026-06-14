@@ -54,7 +54,7 @@ Do not add helper-script heuristics for runtime discovery. Runtime installations
 9. Ask approval before creating any bridge, import, migration, cron, delivery route, global skill registration, config edit, or destructive change.
 10. Run private state install and doctor.
 11. If `doctor.semantic_health.complete` is false, ask the next pending setup question from `python3 scripts/lifeos.py next-question`.
-12. Save each approved answer with `python3 scripts/lifeos.py answer <key> '<answer or runtime pointer>'`.
+12. Save each approved answer with `python3 scripts/lifeos.py answer <key> '<answer or runtime pointer>' --kind <reuse_existing|manual_only|propose_change|disabled|custom>`.
 13. Repeat doctor -> next-question -> ask -> answer until semantic health is complete, or until the user explicitly stops setup.
 14. Use `python3 scripts/lifeos.py plan` to show runtime cron templates and remaining steps without creating jobs.
 15. Verify with runtime-native skill visibility commands and `lifeos.py doctor`.
@@ -67,7 +67,7 @@ From the repo checkout:
 python3 scripts/lifeos.py install --runtime <hermes|openclaw|unknown>
 python3 scripts/lifeos.py doctor
 python3 scripts/lifeos.py next-question
-python3 scripts/lifeos.py answer <decision-key> '<answer or runtime pointer>'
+python3 scripts/lifeos.py answer <decision-key> '<answer or runtime pointer>' --kind <reuse_existing|manual_only|propose_change|disabled|custom>
 python3 scripts/lifeos.py plan
 ```
 

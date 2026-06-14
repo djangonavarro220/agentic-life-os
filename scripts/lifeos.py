@@ -103,6 +103,14 @@ CORE_POLICY_KEYS = {
     "delivery_policy",
 }
 
+DECISION_KINDS = {
+    "custom",
+    "reuse_existing",
+    "manual_only",
+    "propose_change",
+    "disabled",
+}
+
 CRON_TEMPLATES: list[dict[str, Any]] = [
     {
         "name": "daily_briefing",
@@ -774,6 +782,10 @@ def answer(args: argparse.Namespace) -> dict[str, Any]:
         raise ValueError(f"unknown semantic decision key: {args.key}")
     if not args.answer.strip():
         raise ValueError("answer must not be empty")
+    decision_kind = args.kind.strip() if args.kind else "custom"
+    if decision_kind not in DECISION_KINDS:
+        allowed = ", ".join(sorted(DECISION_KINDS))
+        raise ValueError(f"unknown decision kind: {decision_kind}; expected one of: {allowed}")
 
     question = next(item for item in SEMANTIC_QUESTIONS if item["key"] == args.key)
     owner_skill = question["owner_skill"]
@@ -785,6 +797,7 @@ def answer(args: argparse.Namespace) -> dict[str, Any]:
     if args.key in HORIZONTAL_CORE_DECISION_KEYS:
         decision_record = {
             "answer": answer_text,
+            "decision_kind": decision_kind,
             "updated_at": now,
             "source": "user",
             "category": question["category"],
@@ -800,6 +813,7 @@ def answer(args: argparse.Namespace) -> dict[str, Any]:
             sources = config.setdefault("sources", {})
             sources[CORE_SOURCE_KEY_MAP[args.key]] = {
                 "answer": answer_text,
+                "decision_kind": decision_kind,
                 "updated_at": now,
                 "source": "user",
                 "semantic_key": args.key,
@@ -812,6 +826,7 @@ def answer(args: argparse.Namespace) -> dict[str, Any]:
             policies = config.setdefault("policies", {})
             policies[args.key] = {
                 "answer": answer_text,
+                "decision_kind": decision_kind,
                 "updated_at": now,
                 "source": "user",
             }
@@ -824,6 +839,7 @@ def answer(args: argparse.Namespace) -> dict[str, Any]:
         setup_decisions = skill_data.setdefault("setup_decisions", {})
         setup_decisions[args.key] = {
             "answer": answer_text,
+            "decision_kind": decision_kind,
             "updated_at": now,
             "source": "user",
             "category": question["category"],
@@ -832,6 +848,7 @@ def answer(args: argparse.Namespace) -> dict[str, Any]:
             source_decisions = skill_data.setdefault("source_decisions", {})
             source_decisions[args.key] = {
                 "answer": answer_text,
+                "decision_kind": decision_kind,
                 "updated_at": now,
                 "source": "user",
             }
@@ -844,6 +861,7 @@ def answer(args: argparse.Namespace) -> dict[str, Any]:
         decisions[args.key] = {
             "owner_skill": owner_skill,
             "stored_in": "config.json" if args.key in HORIZONTAL_CORE_DECISION_KEYS else f"{owner_skill}/data.json",
+            "decision_kind": decision_kind,
             "updated_at": now,
             "source": "user",
         }
@@ -856,6 +874,7 @@ def answer(args: argparse.Namespace) -> dict[str, Any]:
         "data_dir": str(data_dir),
         "key": args.key,
         "stored_in": "config.json" if args.key in HORIZONTAL_CORE_DECISION_KEYS else f"{owner_skill}/data.json",
+        "decision_kind": decision_kind,
         "semantic_health": health,
     }
 
@@ -1102,6 +1121,12 @@ def build_parser() -> argparse.ArgumentParser:
     p_answer.add_argument("answer", help="User-approved answer or runtime pointer")
     p_answer.add_argument("--note", help="Optional safe note about this decision")
     p_answer.add_argument("--usage", help="Optional agent-facing instructions for how to use the saved source or policy")
+    p_answer.add_argument(
+        "--kind",
+        default="custom",
+        choices=sorted(DECISION_KINDS),
+        help="Structured decision kind: reuse_existing, manual_only, propose_change, disabled, or custom",
+    )
     p_answer.set_defaults(func=answer)
 
     p_config = sub.add_parser("config", help="Show Life OS private config/state")

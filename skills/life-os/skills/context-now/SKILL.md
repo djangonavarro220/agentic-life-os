@@ -37,6 +37,38 @@ Inspect only relevant, runtime-owned sources and Life OS private tracking pointe
 
 Do not dump raw history. Distill.
 
+## Source ladder
+
+Use this order unless the user's request clearly narrows the scope:
+
+1. Current conversation and explicit user ask.
+2. Life OS config/source pointers and paused meeting state.
+3. Runtime-owned task/follow-up source.
+4. Runtime-owned routine records or cron output pointers.
+5. Calendar/mail/session/memory sources only when the configured pointers say they are relevant.
+6. Domain subskill state only for domains that are active, due, blocked, or explicitly named.
+
+Stop when the answer is good enough. Loading every source is prompt sludge with a nicer hat.
+
+## Freshness rules
+
+- Prefer live runtime state over stale summaries when the next action depends on timing or status.
+- Treat cached routine output as a clue, not truth, if it is older than the horizon the user asked for.
+- If a source is unavailable, say which category is missing and continue with the best grounded context.
+- Do not resurrect old completed work just because it appears in history.
+
+## Evidence
+
+For every surfaced item, know why it is present:
+
+- `explicit`: named by the user or current conversation
+- `due`: date/cadence says it needs attention
+- `blocked`: waiting on a person/system/decision
+- `risk`: deadline, failure, or high cost of ignoring
+- `recent`: changed since the last relevant check
+
+Do not show evidence labels by default, but use them internally to avoid vibes.
+
 ## Reasoning steps
 
 1. Identify the user horizon: next 30 minutes, today, this week, or strategic.
