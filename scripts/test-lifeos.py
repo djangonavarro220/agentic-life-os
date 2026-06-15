@@ -265,6 +265,8 @@ def main() -> int:
         assert "at most two or three actionable signals" in context_now_skill
         assert "deferred_signal_queue" in context_now_skill
         assert "next assistant message" in context_now_skill
+        assert "Do not follow a fixed priority formula" in context_now_skill
+        assert "the agent decides" in context_now_skill
         assert "do not merely suggest what to inspect" in context_now_skill
         core_doctor_skill = (ROOT / "skills/life-os/skills/core-doctor/SKILL.md").read_text(encoding="utf-8")
         assert "agent_next_message" in core_doctor_skill

@@ -96,9 +96,10 @@ Do not show evidence labels by default, but use them internally to avoid vibes.
    - waiting on user decision
    - risks/deadlines
    - can ignore for now
-4. Pick a default recommendation when one clearly wins.
-5. Include a next action only when it is genuinely actionable.
-6. If ambiguity changes the next tool/action, ask one lightweight question.
+4. Use the full inspected context to choose which two or three signals matter now. Do not follow a fixed priority formula; the agent decides from the user's horizon, stated goals, blockers, timing, and recent changes.
+5. Pick a default recommendation when one clearly wins.
+6. Include a next action only when it is genuinely actionable.
+7. If ambiguity changes the next tool/action, ask one lightweight question.
 
 ## Output contract
 
