@@ -256,6 +256,8 @@ def main() -> int:
         assert "This week or planning horizon" in context_now_skill
         assert "Explicit domain" in context_now_skill
         assert "If a source is relevant and available, inspect it" in context_now_skill
+        assert "do not list inspected sources by default" in context_now_skill
+        assert "mention inspected/missing sources only when" in context_now_skill
         assert "do not merely suggest what to inspect" in context_now_skill
         core_doctor_skill = (ROOT / "skills/life-os/skills/core-doctor/SKILL.md").read_text(encoding="utf-8")
         assert "agent_next_message" in core_doctor_skill

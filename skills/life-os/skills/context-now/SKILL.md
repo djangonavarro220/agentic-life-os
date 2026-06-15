@@ -109,6 +109,8 @@ Default bias:
 - one clear recommendation beats a full status report
 - mention blockers/risks only when they affect what to do now
 - include a next action when it is useful and grounded
+- do not list inspected sources by default
+- mention inspected/missing sources only when a source failed, uncertainty affects the answer, or the user asks
 - ask one question only when the next action truly depends on it
 
 Avoid turning `context-now` into a corporate dashboard with fresher paint.
