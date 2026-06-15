@@ -52,11 +52,12 @@ Use this order unless the user's request clearly narrows the scope:
 5. Calendar/mail/session/memory sources only when the configured pointers say they are relevant.
 6. Domain subskill state only for domains that are active, due, blocked, or explicitly named.
 
-Stop when the answer is good enough. Loading every source is prompt sludge with a nicer hat.
+Stop when the answer is good enough. If the current conversation plus configured pointers already give a clear, grounded recommendation, answer instead of opening more systems “just in case”. Loading every source is prompt sludge with a nicer hat.
 
 ## Freshness rules
 
 - Prefer live runtime state over stale summaries when the next action depends on timing or status.
+- Do not force fresh inspection when the extra source would not change the recommendation.
 - Treat cached routine output as a clue, not truth, if it is older than the horizon the user asked for.
 - If a source is unavailable, say which category is missing and continue with the best grounded context.
 - Do not resurrect old completed work just because it appears in history.
