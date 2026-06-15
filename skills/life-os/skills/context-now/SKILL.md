@@ -83,22 +83,22 @@ Do not show evidence labels by default, but use them internally to avoid vibes.
    - waiting on user decision
    - risks/deadlines
    - can ignore for now
-4. Pick a default next action if one clearly wins.
-5. If ambiguity changes the next tool/action, ask one lightweight question.
+4. Pick a default recommendation when one clearly wins.
+5. Include a next action only when it is genuinely actionable.
+6. If ambiguity changes the next tool/action, ask one lightweight question.
 
 ## Output contract
 
-Default shape:
+Produce the shortest useful current-context answer. Do not force a dashboard, table, or fixed headings. Let the agent choose the shape that fits the question.
 
-```text
-Now:
-- Focus: ...
-- Waiting on: ...
-- Risk: ...
-- Next action: ...
-```
+Default bias:
 
-Keep it short. If the user wants detail, expand from the private/source pointers.
+- one clear recommendation beats a full status report
+- mention blockers/risks only when they affect what to do now
+- include a next action when it is useful and grounded
+- ask one question only when the next action truly depends on it
+
+Avoid turning `context-now` into a corporate dashboard with fresher paint.
 
 ## State update
 
