@@ -101,6 +101,16 @@ Do not show evidence labels by default, but use them internally to avoid vibes.
 6. Include a next action only when it is genuinely actionable.
 7. If ambiguity changes the next tool/action, ask one lightweight question.
 
+## Deferred signals
+
+At the start of a `context-now` turn, check `config.json` `context_now.deferred_signal_queue` before adding newly discovered signals:
+
+- if the user is still in the same topic and a deferred signal is still actionable, surface at most one or two deferred signals first
+- if the user clearly changed topic, do not interrupt; keep the queue unless the item is expired or resolved
+- discard deferred signals that are no longer actionable, expired, or already resolved in the runtime source
+- after surfacing a deferred signal, move its ID/pointer to `context_now.shown_signal_ids`
+- keep the tone normal; do not turn the queue into an infinite nag list
+
 ## Output contract
 
 Produce the shortest useful current-context answer. Do not force a dashboard, table, or fixed headings. Let the agent choose the shape that fits the question.

@@ -265,6 +265,10 @@ def main() -> int:
         assert "at most two or three actionable signals" in context_now_skill
         assert "deferred_signal_queue" in context_now_skill
         assert "next assistant message" in context_now_skill
+        assert "Deferred signals" in context_now_skill
+        assert "At the start of a `context-now` turn" in context_now_skill
+        assert "surface at most one or two deferred signals first" in context_now_skill
+        assert "do not turn the queue into an infinite nag list" in context_now_skill
         assert "Do not follow a fixed priority formula" in context_now_skill
         assert "the agent decides" in context_now_skill
         assert "do not merely suggest what to inspect" in context_now_skill
