@@ -102,7 +102,17 @@ Avoid turning `context-now` into a corporate dashboard with fresher paint.
 
 ## State update
 
-If this was a meaningful context rebuild, record a short summary in Life OS private state or runtime-native state only when the current runtime policy allows it. Do not use helper scripts for semantic routine decisions.
+Do not write state by default. A normal `context-now` answer is an ephemeral view, not a record worth keeping.
+
+Write only when the run discovers durable coordination state, for example:
+
+- a guided meeting is paused or resumed
+- a new stable user decision or preference was made
+- a configured source pointer is missing, stale, or broken
+- a reusable setup/routine improvement should be proposed
+- a runtime-owned task/follow-up must be created or updated under the configured task policy
+
+Do not save every “what should I do now?” output. That creates archival sludge and trains future agents on stale noise. Do not use helper scripts for semantic routine decisions.
 
 ## Data
 

@@ -247,6 +247,9 @@ def main() -> int:
         assert "Do not force a dashboard" in context_now_skill
         assert "Now:\n- Focus:" not in context_now_skill
         assert "corporate dashboard" in context_now_skill
+        assert "Do not write state by default" in context_now_skill
+        assert "ephemeral view" in context_now_skill
+        assert "archival sludge" in context_now_skill
         core_doctor_skill = (ROOT / "skills/life-os/skills/core-doctor/SKILL.md").read_text(encoding="utf-8")
         assert "agent_next_message" in core_doctor_skill
         assert "Do not ask the user to run helper commands" in core_doctor_skill
