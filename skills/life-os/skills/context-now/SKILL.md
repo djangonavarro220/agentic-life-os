@@ -26,9 +26,9 @@ Keep triggers language-neutral in spirit: examples may be English, but the inten
 
 ## Context sources
 
-Use `python3 scripts/lifeos.py context-sources` when the agent needs a cheap mechanical source map. The helper only reports configured pointers, runtime inventory freshness, available capability records, and paused-meeting placeholders. It must not inspect a live runtime, infer Hermes/OpenClaw from filesystem heuristics, rank priorities, or decide what matters.
+Use `python3 scripts/lifeos.py context-sources` only when the agent needs a cheap wiring diagnostic. The helper reports configured pointer presence and runtime inventory freshness. It must not inspect a live runtime, infer Hermes/OpenClaw from filesystem heuristics, expose cached capabilities as current truth, rank priorities, choose sources for the request, or decide what matters.
 
-If `runtime_inventory.agent_should_refresh` is true, the agent should use the active harness/runtime-native discovery commands or runtime adapter to inspect available skills, tools, crons, and sources, then save pointers/capabilities. The helper should not pretend to know every possible runtime.
+If inventory is absent or stale, the agent should use the active harness/runtime-native tools or runtime adapter to inspect the live sources needed for the current question. The helper should not pretend to know every possible runtime.
 
 Inspect only relevant, runtime-owned sources and Life OS private tracking pointers:
 

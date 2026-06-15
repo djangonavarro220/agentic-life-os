@@ -140,15 +140,16 @@ def main() -> int:
         assert context_sources["ok"] is True
         assert context_sources["action"] == "context-sources"
         assert context_sources["side_effects"] == "none"
-        assert context_sources["available_sources"]["current_conversation"]["available"] is True
-        assert context_sources["runtime_inventory"]["available"] is True
-        assert context_sources["runtime_inventory"]["agent_should_refresh"] is False
-        assert "harness/runtime-native discovery" in context_sources["runtime_inventory"]["refresh_instruction"]
-        assert context_sources["watch_targets"]["candidate_count"] >= 2
+        assert context_sources["agent_must_inspect_runtime"] is True
+        assert context_sources["wiring_diagnostics"]["inventory"]["available"] is True
+        assert context_sources["wiring_diagnostics"]["inventory"]["agent_should_refresh"] is False
+        assert "harness/runtime-native discovery" in context_sources["wiring_diagnostics"]["inventory"]["refresh_instruction"]
+        assert "runtime_capabilities" not in context_sources
+        assert "available_sources" not in context_sources
         no_inventory_sources = run("context-sources", data_dir=Path(tmp) / "missing-inventory")
-        assert no_inventory_sources["runtime_inventory"]["available"] is False
-        assert no_inventory_sources["runtime_inventory"]["agent_should_refresh"] is True
-        assert no_inventory_sources["agent_contract"].startswith("This helper only reports configured pointers")
+        assert no_inventory_sources["wiring_diagnostics"]["inventory"]["available"] is False
+        assert no_inventory_sources["wiring_diagnostics"]["inventory"]["agent_should_refresh"] is True
+        assert no_inventory_sources["agent_contract"].startswith("This helper is only a wiring diagnostic")
         proposals = run("propose-watch-targets", data_dir=data_dir)
         assert proposals["ok"] is True
         assert proposals["action"] == "propose-watch-targets"

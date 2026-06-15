@@ -454,7 +454,7 @@ Commands:
 - `install --runtime <runtime>`: creates or refreshes private state files in `$HOME/.life-os` by default.
 - `doctor`: checks repo shape, private state, and semantic setup health.
 - `discover-runtime --runtime <runtime>`: adapter/harness-specific read-only runtime discovery that writes only Life OS private `runtime_inventory`; it records skill sources, tool sources, capabilities, and candidate watch targets without creating/changing runtime jobs or integrations. Do not expand this into universal filesystem/command heuristics for arbitrary runtimes.
-- `context-sources`: cheap mechanical context map for `context-now`; reports configured pointers, runtime inventory freshness, capability records, and watch-target counts. It does not inspect live runtime state. If inventory is missing or stale, it tells the agent to use the active harness/runtime-native discovery path.
+- `context-sources`: cheap wiring diagnostic for `context-now`; reports configured pointer presence and runtime inventory freshness only. It does not inspect live runtime state, expose cached capabilities as truth, or decide what the agent should inspect. The agent must use its active harness/tools for current context.
 - `define-heartbeat`: defines the single Life OS heartbeat in private config by selecting an existing runtime heartbeat when present, or recording the quiet-heartbeat creation template when absent. It still does not create or edit runtime crons.
 - `propose-watch-targets`: normalizes discovered candidates into an approval queue; it has no side effects and does not activate targets.
 - `next-question`: returns the next required setup decision.

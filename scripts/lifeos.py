@@ -925,29 +925,25 @@ def context_sources(args: argparse.Namespace) -> dict[str, Any]:
         config = {}
     sources = config.get("sources", {}) if isinstance(config.get("sources"), dict) else {}
     policies = config.get("policies", {}) if isinstance(config.get("policies"), dict) else {}
-    inventory = config.get("runtime_inventory", {}) if isinstance(config.get("runtime_inventory"), dict) else {}
-    watch_targets = inventory.get("watch_targets", {}) if isinstance(inventory.get("watch_targets"), dict) else {}
-    available_sources = {
-        "current_conversation": {"available": True, "source": "active agent conversation"},
-        "tasks": {"configured": "tasks" in sources, "source": sources.get("tasks", {})},
-        "memory": {"configured": "memory" in sources, "source": sources.get("memory", {})},
-        "routine_records": {"configured": "cron_records" in sources, "source": sources.get("cron_records", {})},
-        "delivery": {"configured": "delivery_policy" in policies, "policy": policies.get("delivery_policy", {})},
+    diagnostics = {
+        "configured_pointers": {
+            "tasks": "tasks" in sources,
+            "memory": "memory" in sources,
+            "routine_records": "cron_records" in sources,
+            "delivery": "delivery_policy" in policies,
+        },
+        "inventory": inventory_status(config, now, args.max_inventory_age_hours),
     }
+    suggested_harness_checks = [key for key, configured in diagnostics["configured_pointers"].items() if configured]
     return {
         "ok": True,
         "action": "context-sources",
         "data_dir": str(data_dir),
-        "available_sources": available_sources,
-        "runtime_inventory": inventory_status(config, now, args.max_inventory_age_hours),
-        "runtime_capabilities": inventory.get("capabilities", {}) if isinstance(inventory.get("capabilities"), dict) else {},
-        "watch_targets": {
-            "active_count": len(watch_targets.get("active", {})) if isinstance(watch_targets.get("active"), dict) else 0,
-            "candidate_count": len(watch_targets.get("candidates", {})) if isinstance(watch_targets.get("candidates"), dict) else 0,
-        },
-        "paused_meetings": [],
+        "wiring_diagnostics": diagnostics,
+        "agent_must_inspect_runtime": True,
+        "suggested_harness_checks": suggested_harness_checks,
         "side_effects": "none",
-        "agent_contract": "This helper only reports configured pointers and inventory freshness. The agent chooses which sources matter and uses its active harness/runtime adapters for live discovery when runtime_inventory.agent_should_refresh is true.",
+        "agent_contract": "This helper is only a wiring diagnostic. It does not gather current context, inspect live runtime state, choose sources for the user request, rank priorities, or expose cached capabilities as truth. The agent must use its active harness/tools to inspect the live runtime state needed for the current question.",
     }
 
 
