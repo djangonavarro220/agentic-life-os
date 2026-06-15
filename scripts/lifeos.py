@@ -29,7 +29,7 @@ SEMANTIC_QUESTIONS: list[dict[str, str]] = [
         "key": "autonomy_mode",
         "category": "core-policy",
         "owner_skill": "core-config",
-        "question": "Which autonomy mode should Life OS use for this install: approval-first, safe-internal, trusted-local, or allow-all? Setup is not complete until the user chooses one. Default recommendation: safe-internal.",
+        "question": "How much freedom should Life OS have? Choose one: Ask me before almost anything (approval-first); Recommended: Safe internal, inspect and save Life OS private state but ask before external/runtime/destructive/public changes (safe-internal); More autonomous for reversible local maintenance (trusted-local); Act within the saved policy unless dangerous or blocked by the runtime (allow-all). Setup is not complete until the user chooses one.",
     },
     {
         "key": "tasks_source",

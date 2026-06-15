@@ -53,7 +53,7 @@ Do not add helper-script heuristics for runtime discovery. Runtime installations
    - migrate/reconnect references when moving between runtimes, using runtime-native stores for real data where possible
 9. Ask approval before creating any bridge, import, migration, cron, delivery route, global skill registration, config edit, or destructive change.
 10. Run private state install and doctor.
-11. If `doctor.semantic_health.complete` is false, ask the next pending setup question from `python3 scripts/lifeos.py next-question`. The install must ask for the autonomy mode; recommend `safe-internal` if the user is unsure.
+11. If `doctor.semantic_health.complete` is false, ask the next pending setup question from `python3 scripts/lifeos.py next-question`. The install must ask for the autonomy mode in plain human language, not just technical names; recommend `safe-internal` if the user is unsure.
 12. Save each approved answer with `python3 scripts/lifeos.py answer <key> '<answer or runtime pointer>' --kind <reuse_existing|manual_only|propose_change|disabled|custom>`.
 13. Autonomy modes are install-wide policy:
    - `approval-first`: ask before every write or external/runtime change.

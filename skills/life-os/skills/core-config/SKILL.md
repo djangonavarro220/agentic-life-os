@@ -48,16 +48,16 @@ Setup is not complete until the user chooses an autonomy mode. The mode is saved
 
 Recommended default: `safe-internal`.
 
-Available modes:
+Ask in human language first, then show the technical value in parentheses:
 
-- `approval-first`: ask before every write, runtime change, external action, or state mutation.
-- `safe-internal`: allow read-only inspection and Life OS private tracking writes; ask before contacting people, changing external systems, runtime config, cron changes, deletion, publishing, or broad migrations.
-- `trusted-local`: allow reversible local/runtime maintenance that is clearly scoped; ask before external communication, destructive changes, public publishing, credential/account changes, or broad migrations.
-- `allow-all`: do not ask for routine actions explicitly allowed by the saved policy and runtime safety layer; still escalate dangerous, legal, credential, destructive, or external communication actions when the runtime requires it.
+- Ask me before almost anything (`approval-first`): ask before every write, runtime change, external action, or state mutation.
+- Recommended: Safe internal (`safe-internal`): allow read-only inspection and Life OS private tracking writes; ask before contacting people, changing external systems, runtime config, cron changes, deletion, publishing, or broad migrations.
+- More autonomous for reversible local maintenance (`trusted-local`): allow reversible local/runtime maintenance that is clearly scoped; ask before external communication, destructive changes, public publishing, credential/account changes, or broad migrations.
+- Act within the saved policy unless dangerous or blocked by the runtime (`allow-all`): do not ask for routine actions explicitly allowed by the saved policy and runtime safety layer; still escalate dangerous, legal, credential, destructive, or external communication actions when the runtime requires it.
 
 Installer behavior:
 
-1. Ask the user which mode they want during semantic setup.
+1. Ask the user which mode they want during semantic setup using the plain-language labels above.
 2. Recommend `safe-internal` if they are unsure.
 3. Save the approved answer in `policies.autonomy_mode` and `semantic_setup.decisions.autonomy_mode`.
 4. Keep `semantic_health.complete` false until this is answered.

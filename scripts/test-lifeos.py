@@ -198,6 +198,9 @@ def main() -> int:
         assert next_question["ok"] is True
         assert next_question["complete"] is False
         assert next_question["question"]["key"] == "autonomy_mode"
+        assert "Ask me before almost anything" in next_question["question"]["question"]
+        assert "Recommended" in next_question["question"]["question"]
+        assert "Safe internal" in next_question["question"]["question"]
         assert "approval-first" in next_question["question"]["question"]
         assert "safe-internal" in next_question["question"]["question"]
         assert next_question["command_hint"] == "lifeos.py answer autonomy_mode '<answer or runtime pointer>'"
