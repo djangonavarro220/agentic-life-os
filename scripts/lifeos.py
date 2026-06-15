@@ -887,6 +887,70 @@ def answer(args: argparse.Namespace) -> dict[str, Any]:
     }
 
 
+def parse_timestamp(value: Any) -> datetime | None:
+    if not isinstance(value, str) or not value:
+        return None
+    try:
+        return datetime.fromisoformat(value.replace("Z", "+00:00"))
+    except ValueError:
+        return None
+
+
+def inventory_status(config: dict[str, Any], now: str, max_age_hours: int) -> dict[str, Any]:
+    inventory = config.get("runtime_inventory", {}) if isinstance(config.get("runtime_inventory"), dict) else {}
+    discovered_at = inventory.get("discovered_at") or inventory.get("updated_at")
+    discovered_dt = parse_timestamp(discovered_at)
+    now_dt = parse_timestamp(now) or datetime.now(timezone.utc)
+    age_hours = None
+    if discovered_dt:
+        age_hours = max(0.0, (now_dt - discovered_dt).total_seconds() / 3600)
+    available = bool(inventory and (inventory.get("skill_sources") or inventory.get("tool_sources") or inventory.get("capabilities")))
+    stale = not available or discovered_dt is None or (age_hours is not None and age_hours > max_age_hours)
+    return {
+        "available": available,
+        "discovered_at": discovered_at or "",
+        "age_hours": age_hours,
+        "max_age_hours": max_age_hours,
+        "stale": stale,
+        "agent_should_refresh": stale,
+        "refresh_instruction": "Use the active harness/runtime-native discovery commands or adapter to inspect available skills, tools, crons, and sources, then save pointers/capabilities to runtime_inventory. Do not infer a runtime from filesystem heuristics.",
+    }
+
+
+def context_sources(args: argparse.Namespace) -> dict[str, Any]:
+    data_dir = Path(args.data_dir).expanduser() if args.data_dir else default_data_dir()
+    now = utc_now()
+    config = read_json(data_dir / "config.json", {})
+    if not isinstance(config, dict):
+        config = {}
+    sources = config.get("sources", {}) if isinstance(config.get("sources"), dict) else {}
+    policies = config.get("policies", {}) if isinstance(config.get("policies"), dict) else {}
+    inventory = config.get("runtime_inventory", {}) if isinstance(config.get("runtime_inventory"), dict) else {}
+    watch_targets = inventory.get("watch_targets", {}) if isinstance(inventory.get("watch_targets"), dict) else {}
+    available_sources = {
+        "current_conversation": {"available": True, "source": "active agent conversation"},
+        "tasks": {"configured": "tasks" in sources, "source": sources.get("tasks", {})},
+        "memory": {"configured": "memory" in sources, "source": sources.get("memory", {})},
+        "routine_records": {"configured": "cron_records" in sources, "source": sources.get("cron_records", {})},
+        "delivery": {"configured": "delivery_policy" in policies, "policy": policies.get("delivery_policy", {})},
+    }
+    return {
+        "ok": True,
+        "action": "context-sources",
+        "data_dir": str(data_dir),
+        "available_sources": available_sources,
+        "runtime_inventory": inventory_status(config, now, args.max_inventory_age_hours),
+        "runtime_capabilities": inventory.get("capabilities", {}) if isinstance(inventory.get("capabilities"), dict) else {},
+        "watch_targets": {
+            "active_count": len(watch_targets.get("active", {})) if isinstance(watch_targets.get("active"), dict) else 0,
+            "candidate_count": len(watch_targets.get("candidates", {})) if isinstance(watch_targets.get("candidates"), dict) else 0,
+        },
+        "paused_meetings": [],
+        "side_effects": "none",
+        "agent_contract": "This helper only reports configured pointers and inventory freshness. The agent chooses which sources matter and uses its active harness/runtime adapters for live discovery when runtime_inventory.agent_should_refresh is true.",
+    }
+
+
 def discover_runtime(args: argparse.Namespace) -> dict[str, Any]:
     data_dir = Path(args.data_dir).expanduser() if args.data_dir else default_data_dir()
     now = utc_now()
@@ -1139,6 +1203,10 @@ def build_parser() -> argparse.ArgumentParser:
 
     p_config = sub.add_parser("config", help="Show Life OS private config/state")
     p_config.set_defaults(func=show_config)
+
+    p_context_sources = sub.add_parser("context-sources", help="Report configured context sources and inventory freshness without live runtime discovery")
+    p_context_sources.add_argument("--max-inventory-age-hours", type=int, default=24)
+    p_context_sources.set_defaults(func=context_sources)
 
     p_discover = sub.add_parser("discover-runtime", help="Read runtime capabilities into Life OS inventory without external side effects")
     p_discover.add_argument("--runtime", default="hermes", choices=["hermes", "openclaw", "unknown"])

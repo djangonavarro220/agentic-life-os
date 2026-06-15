@@ -136,6 +136,19 @@ def main() -> int:
         saved_inventory = run("config", data_dir=data_dir)["config"]["runtime_inventory"]
         assert saved_inventory["capabilities"]["mail"]["status"] == "available"
         assert saved_inventory["watch_targets"]["candidates"]["task-reminder-watcher"]["status"] == "candidate"
+        context_sources = run("context-sources", data_dir=data_dir)
+        assert context_sources["ok"] is True
+        assert context_sources["action"] == "context-sources"
+        assert context_sources["side_effects"] == "none"
+        assert context_sources["available_sources"]["current_conversation"]["available"] is True
+        assert context_sources["runtime_inventory"]["available"] is True
+        assert context_sources["runtime_inventory"]["agent_should_refresh"] is False
+        assert "harness/runtime-native discovery" in context_sources["runtime_inventory"]["refresh_instruction"]
+        assert context_sources["watch_targets"]["candidate_count"] >= 2
+        no_inventory_sources = run("context-sources", data_dir=Path(tmp) / "missing-inventory")
+        assert no_inventory_sources["runtime_inventory"]["available"] is False
+        assert no_inventory_sources["runtime_inventory"]["agent_should_refresh"] is True
+        assert no_inventory_sources["agent_contract"].startswith("This helper only reports configured pointers")
         proposals = run("propose-watch-targets", data_dir=data_dir)
         assert proposals["ok"] is True
         assert proposals["action"] == "propose-watch-targets"
