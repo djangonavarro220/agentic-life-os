@@ -286,7 +286,7 @@ def ensure_context_now_state(config: dict[str, Any], now: str) -> dict[str, Any]
     state.setdefault("updated_at", now)
     state.setdefault(
         "policy",
-        "When a context-now run finds more actionable signals than it should show, store short public-safe pointers here so the next assistant turn can surface the deferred items without re-scanning everything.",
+        "When a context-now run finds more actionable signals than it should show, store short public-safe pointers here so the next assistant turn can surface the deferred items without re-scanning everything. Deferred items should include id, created_at, source_pointer, reason, and expires_at or stale_after.",
     )
     state.setdefault("shown_signal_ids", [])
     state.setdefault("deferred_signal_queue", [])

@@ -107,7 +107,8 @@ At the start of a `context-now` turn, check `config.json` `context_now.deferred_
 
 - if the user is still in the same topic and a deferred signal is still actionable, surface at most one or two deferred signals first
 - if the user clearly changed topic, do not interrupt; keep the queue unless the item is expired or resolved
-- discard deferred signals that are no longer actionable, expired, or already resolved in the runtime source
+- discard deferred signals that are no longer actionable, expired, stale, or already resolved in the runtime source
+- require each queued item to carry compact expiry metadata: `id`, `created_at`, `source_pointer`, `reason`, and either `expires_at` or `stale_after`
 - after surfacing a deferred signal, move its ID/pointer to `context_now.shown_signal_ids`
 - keep the tone normal; do not turn the queue into an infinite nag list
 
@@ -120,6 +121,7 @@ Default bias:
 - show at most two or three actionable signals at a time
 - if more relevant signals exist, say briefly that there is more and surface it after the user handles the current items, or in the next assistant message if the user does not explicitly invite more
 - track already surfaced and deferred signal pointers in `config.json` under `context_now.shown_signal_ids` and `context_now.deferred_signal_queue`; keep entries compact and public-safe, and store pointers/IDs, not raw runtime data
+- every deferred signal should include `id`, `created_at`, `source_pointer`, `reason`, and either `expires_at` or `stale_after`; skip or remove items that are expired, stale, resolved, or no longer actionable
 - one clear recommendation beats a full status report
 - mention blockers/risks only when they affect what to do now
 - include a next action when it is useful and grounded

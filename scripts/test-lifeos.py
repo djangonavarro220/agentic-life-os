@@ -140,6 +140,7 @@ def main() -> int:
         assert context_now_config["shown_signal_ids"] == []
         assert context_now_config["deferred_signal_queue"] == []
         assert "next assistant turn" in context_now_config["policy"]
+        assert "expires_at or stale_after" in context_now_config["policy"]
         context_sources = run("context-sources", data_dir=data_dir)
         assert context_sources["ok"] is True
         assert context_sources["action"] == "context-sources"
@@ -269,6 +270,12 @@ def main() -> int:
         assert "At the start of a `context-now` turn" in context_now_skill
         assert "surface at most one or two deferred signals first" in context_now_skill
         assert "do not turn the queue into an infinite nag list" in context_now_skill
+        assert "every deferred signal should include" in context_now_skill
+        assert "expires_at` or `stale_after" in context_now_skill
+        schema = (ROOT / "schemas/config.schema.json").read_text(encoding="utf-8")
+        assert "Compact pointer for a context-now signal" in schema
+        assert '"source_pointer"' in schema
+        assert '"stale_after"' in schema
         assert "Do not follow a fixed priority formula" in context_now_skill
         assert "the agent decides" in context_now_skill
         assert "do not merely suggest what to inspect" in context_now_skill

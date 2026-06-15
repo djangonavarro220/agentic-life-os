@@ -105,7 +105,22 @@
           "type": "array",
           "items": {
             "type": "object",
-            "additionalProperties": true
+            "description": "Compact pointer for a context-now signal deferred to a later assistant turn. Store public-safe IDs/pointers and expiry metadata, not raw runtime data.",
+            "additionalProperties": true,
+            "required": ["id", "created_at", "source_pointer", "reason"],
+            "properties": {
+              "id": {"type": "string"},
+              "created_at": {"type": "string"},
+              "source_pointer": {"type": "string"},
+              "reason": {"type": "string"},
+              "expires_at": {"type": "string"},
+              "stale_after": {"type": "string"},
+              "status": {"type": "string"}
+            },
+            "anyOf": [
+              {"required": ["expires_at"]},
+              {"required": ["stale_after"]}
+            ]
           }
         }
       }
