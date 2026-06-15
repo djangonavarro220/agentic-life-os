@@ -107,6 +107,7 @@ At the start of a `context-now` turn, check `config.json` `context_now.deferred_
 
 - if the user is still in the same topic and a deferred signal is still actionable, surface at most one or two deferred signals first
 - if the user clearly changed topic, do not interrupt; keep the queue unless the item is expired or resolved
+- if a live deferred signal cannot be surfaced after two or three same-thread turns because the user keeps a different topic active, demote it to background deferred or leave it for the next explicit `context-now` request
 - discard deferred signals that are no longer actionable, expired, stale, or already resolved in the runtime source
 - require each queued item to carry compact expiry metadata: `id`, `created_at`, `source_pointer`, `reason`, and either `expires_at` or `stale_after`
 - after surfacing a deferred signal, move its ID/pointer to `context_now.shown_signal_ids`

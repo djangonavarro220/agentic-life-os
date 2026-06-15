@@ -115,7 +115,9 @@
               "reason": {"type": "string"},
               "expires_at": {"type": "string"},
               "stale_after": {"type": "string"},
-              "status": {"type": "string"}
+              "status": {"type": "string"},
+              "topic_shift_turns": {"type": "integer", "minimum": 0},
+              "background_deferred": {"type": "boolean"}
             },
             "anyOf": [
               {"required": ["expires_at"]},

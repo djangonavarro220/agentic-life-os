@@ -270,12 +270,16 @@ def main() -> int:
         assert "At the start of a `context-now` turn" in context_now_skill
         assert "surface at most one or two deferred signals first" in context_now_skill
         assert "do not turn the queue into an infinite nag list" in context_now_skill
+        assert "two or three same-thread turns" in context_now_skill
+        assert "background deferred" in context_now_skill
         assert "every deferred signal should include" in context_now_skill
         assert "expires_at` or `stale_after" in context_now_skill
         schema = (ROOT / "schemas/config.schema.json").read_text(encoding="utf-8")
         assert "Compact pointer for a context-now signal" in schema
         assert '"source_pointer"' in schema
         assert '"stale_after"' in schema
+        assert '"topic_shift_turns"' in schema
+        assert '"background_deferred"' in schema
         assert "Do not follow a fixed priority formula" in context_now_skill
         assert "the agent decides" in context_now_skill
         assert "do not merely suggest what to inspect" in context_now_skill
