@@ -53,12 +53,17 @@ Do not add helper-script heuristics for runtime discovery. Runtime installations
    - migrate/reconnect references when moving between runtimes, using runtime-native stores for real data where possible
 9. Ask approval before creating any bridge, import, migration, cron, delivery route, global skill registration, config edit, or destructive change.
 10. Run private state install and doctor.
-11. If `doctor.semantic_health.complete` is false, ask the next pending setup question from `python3 scripts/lifeos.py next-question`.
+11. If `doctor.semantic_health.complete` is false, ask the next pending setup question from `python3 scripts/lifeos.py next-question`. The install must ask for the autonomy mode; recommend `safe-internal` if the user is unsure.
 12. Save each approved answer with `python3 scripts/lifeos.py answer <key> '<answer or runtime pointer>' --kind <reuse_existing|manual_only|propose_change|disabled|custom>`.
-13. Review meeting crons are part of setup completion. Either create/reuse the approved runtime cron jobs for review meetings, or save the user's explicit manual-only/disabled opt-out. Do not claim setup complete while this is undecided.
-14. Repeat doctor -> next-question -> ask -> answer until semantic health is complete, or until the user explicitly stops setup.
-15. Use `python3 scripts/lifeos.py plan` to show runtime cron templates and remaining steps without creating jobs.
-16. Verify with runtime-native skill visibility commands and `lifeos.py doctor`.
+13. Autonomy modes are install-wide policy:
+   - `approval-first`: ask before every write or external/runtime change.
+   - `safe-internal`: default; allow read-only inspection and Life OS private tracking writes, ask before external/runtime/destructive/public changes.
+   - `trusted-local`: allow clearly scoped reversible local maintenance, still ask before external/destructive/public/account changes.
+   - `allow-all`: proceed only within the explicit saved policy and runtime safety layer; still escalate dangerous, credential, legal, destructive, or external-contact actions.
+14. Review meeting crons are part of setup completion. Either create/reuse the approved runtime cron jobs for review meetings, or save the user's explicit manual-only/disabled opt-out. Do not claim setup complete while this is undecided.
+15. Repeat doctor -> next-question -> ask -> answer until semantic health is complete, or until the user explicitly stops setup.
+16. Use `python3 scripts/lifeos.py plan` to show runtime cron templates and remaining steps without creating jobs.
+17. Verify with runtime-native skill visibility commands and `lifeos.py doctor`.
 
 ## Private state install
 

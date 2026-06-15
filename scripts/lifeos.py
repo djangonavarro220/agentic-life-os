@@ -26,6 +26,12 @@ CONFIG_SCHEMA = PROJECT_ROOT / "schemas" / "config.schema.json"
 
 SEMANTIC_QUESTIONS: list[dict[str, str]] = [
     {
+        "key": "autonomy_mode",
+        "category": "core-policy",
+        "owner_skill": "core-config",
+        "question": "Which autonomy mode should Life OS use for this install: approval-first, safe-internal, trusted-local, or allow-all? Setup is not complete until the user chooses one. Default recommendation: safe-internal.",
+    },
+    {
         "key": "tasks_source",
         "category": "core-source",
         "owner_skill": "core-config",
@@ -89,6 +95,7 @@ SEMANTIC_QUESTIONS: list[dict[str, str]] = [
 SEMANTIC_VERSION = 1
 
 HORIZONTAL_CORE_DECISION_KEYS = {
+    "autonomy_mode",
     "tasks_source",
     "memory_source",
     "cron_record_source",
@@ -105,6 +112,7 @@ CORE_SOURCE_KEY_MAP = {
 }
 
 CORE_POLICY_KEYS = {
+    "autonomy_mode",
     "routine_schedule_policy",
     "review_cadence",
     "review_cron_install_policy",

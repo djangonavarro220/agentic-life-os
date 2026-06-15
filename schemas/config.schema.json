@@ -129,8 +129,25 @@
     },
     "policies": {
       "type": "object",
-      "description": "Horizontal Life OS policies such as schedule, delivery, trigger default, and approval behavior. Domain-specific preferences belong in the owning skill data file.",
-      "additionalProperties": true
+      "description": "Horizontal Life OS policies such as schedule, delivery, trigger default, autonomy mode, and approval behavior. Domain-specific preferences belong in the owning skill data file.",
+      "additionalProperties": true,
+      "properties": {
+        "autonomy_mode": {
+          "type": "object",
+          "description": "Install-wide agent-facing autonomy policy chosen during semantic setup. This guides behavior but does not bypass runtime permissions.",
+          "additionalProperties": true,
+          "properties": {
+            "answer": {
+              "type": "string",
+              "enum": ["approval-first", "safe-internal", "trusted-local", "allow-all"]
+            },
+            "decision_kind": {
+              "type": "string",
+              "enum": ["reuse_existing", "manual_only", "propose_change", "disabled", "custom"]
+            }
+          }
+        }
+      }
     }
   }
 }

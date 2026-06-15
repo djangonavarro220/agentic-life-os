@@ -46,6 +46,7 @@ def main() -> int:
         assert doctor["semantic_health"]["complete"] is False, doctor
         pending_keys = {q["key"] for q in doctor["semantic_health"]["pending_questions"]}
         assert {
+            "autonomy_mode",
             "tasks_source",
             "memory_source",
             "routine_schedule_policy",
@@ -196,8 +197,10 @@ def main() -> int:
         next_question = run("next-question", data_dir=data_dir)
         assert next_question["ok"] is True
         assert next_question["complete"] is False
-        assert next_question["question"]["key"] == "tasks_source"
-        assert next_question["command_hint"] == "lifeos.py answer tasks_source '<answer or runtime pointer>'"
+        assert next_question["question"]["key"] == "autonomy_mode"
+        assert "approval-first" in next_question["question"]["question"]
+        assert "safe-internal" in next_question["question"]["question"]
+        assert next_question["command_hint"] == "lifeos.py answer autonomy_mode '<answer or runtime pointer>'"
         assert doctor["install_claim"] == "mechanical_only"
         assert doctor["safe_to_claim_fully_installed"] is False
         assert doctor["setup_completion"]["status"] == "incomplete"
@@ -300,6 +303,15 @@ def main() -> int:
         assert "runtime adapters execute access" in life_os_skill
         assert "The agent operates the system" in life_os_skill
         assert "Semantic setup is revisable" in life_os_skill
+        assert "autonomy mode" in life_os_skill
+        assert "safe-internal" in life_os_skill
+        core_config_skill = (ROOT / "skills/life-os/skills/core-config/SKILL.md").read_text(encoding="utf-8")
+        assert "autonomy mode" in core_config_skill
+        assert "approval-first" in core_config_skill
+        assert "safe-internal" in core_config_skill
+        assert "trusted-local" in core_config_skill
+        assert "allow-all" in core_config_skill
+        assert "Setup is not complete" in core_config_skill
         readme = (ROOT / "README.md").read_text(encoding="utf-8")
         assert "agent behavior layer" in readme.splitlines()[2].lower()
         assert "user runs" not in readme.lower()
@@ -309,11 +321,19 @@ def main() -> int:
         assert "dynamically load" in heartbeat_template["prompt"]
         assert "not a fixed checklist" in heartbeat_template["prompt"]
 
+        answered_autonomy = run("answer", "autonomy_mode", "safe-internal", "--kind", "custom", data_dir=data_dir)
+        assert answered_autonomy["ok"] is True
+        assert answered_autonomy["stored_in"] == "config.json"
+        autonomy_config = run("config", data_dir=data_dir)["config"]
+        assert autonomy_config["policies"]["autonomy_mode"]["answer"] == "safe-internal"
+        assert autonomy_config["semantic_setup"]["decisions"]["autonomy_mode"]["answer"] == "safe-internal"
+        assert run("next-question", data_dir=data_dir)["question"]["key"] == "tasks_source"
+
         answered = run("answer", "tasks_source", "runtime todo system", "--kind", "reuse_existing", data_dir=data_dir)
         assert answered["ok"] is True
         assert answered["stored_in"] == "config.json"
         assert answered["decision_kind"] == "reuse_existing"
-        assert answered["semantic_health"]["answered"] == ["tasks_source"]
+        assert answered["semantic_health"]["answered"] == ["autonomy_mode", "tasks_source"]
         tasks_data = json.loads((data_dir / "tasks-todo" / "data.json").read_text(encoding="utf-8"))
         assert "tasks_source" not in tasks_data["source_decisions"]
         config_after_answer = run("config", data_dir=data_dir)["config"]
@@ -334,7 +354,7 @@ def main() -> int:
         assert config_after_memory["sources"]["memory"]["usage"] == "read current runtime memory instructions first; use pointers only"
         assert config_after_memory["semantic_setup"]["decisions"]["memory_source"]["usage"] == "read current runtime memory instructions first; use pointers only"
 
-        for key in pending_keys - {"tasks_source", "memory_source"}:
+        for key in pending_keys - {"autonomy_mode", "tasks_source", "memory_source"}:
             run("answer", key, f"test answer for {key}", data_dir=data_dir)
         complete_doctor = run("doctor", data_dir=data_dir)
         assert complete_doctor["semantic_health"]["complete"] is True, complete_doctor
@@ -349,6 +369,7 @@ def main() -> int:
         assert complete_config["sources"]["memory"]["answer"] == "runtime memory pointer"
         assert complete_config["policies"]["delivery_policy"]["answer"] == "test answer for delivery_policy"
         assert complete_config["policies"]["review_cron_install_policy"]["answer"] == "test answer for review_cron_install_policy"
+        assert complete_config["policies"]["autonomy_mode"]["answer"] == "safe-internal"
 
     with tempfile.TemporaryDirectory() as tmp:
         data_dir = Path(tmp) / "legacy-lifeos-data"
@@ -359,6 +380,7 @@ def main() -> int:
         saved = json.loads((data_dir / "config.json").read_text(encoding="utf-8"))
         assert saved["semantic_setup"]["status"] == "pending"
         assert set(saved["semantic_setup"]["missing"]) == {
+            "autonomy_mode",
             "tasks_source",
             "memory_source",
             "routine_schedule_policy",

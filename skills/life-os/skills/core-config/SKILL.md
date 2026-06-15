@@ -37,10 +37,30 @@ Global config owns install-wide coordination plus horizontal core choices used b
 - `skills`: per-skill enablement/preferences
 - `semantic_setup`: setup status and pointers
 - `sources`: cross-skill source pointers such as tasks, memory/context, calendar, and routine run records
-- `policies`: cross-skill policies such as schedule, delivery, trigger defaults, approval behavior, and review-item cadence defaults
+- `policies`: cross-skill policies such as schedule, delivery, trigger defaults, approval behavior, review-item cadence defaults, and the install-wide autonomy mode
 - active or paused guided-meeting pointers when they are horizontal context rather than domain state
 
 These horizontal choices belong in global config because `context-now`, `routines-pulse`, `routines-weekly-review`, `people-followups`, and domain skills may all need the same task or memory source. Forcing every skill to read `tasks-todo/data.json` as a pseudo-database is fake modularity.
+
+## Autonomy mode
+
+Setup is not complete until the user chooses an autonomy mode. The mode is saved as `policies.autonomy_mode`; it is agent-facing policy, not a bypass around runtime permissions.
+
+Recommended default: `safe-internal`.
+
+Available modes:
+
+- `approval-first`: ask before every write, runtime change, external action, or state mutation.
+- `safe-internal`: allow read-only inspection and Life OS private tracking writes; ask before contacting people, changing external systems, runtime config, cron changes, deletion, publishing, or broad migrations.
+- `trusted-local`: allow reversible local/runtime maintenance that is clearly scoped; ask before external communication, destructive changes, public publishing, credential/account changes, or broad migrations.
+- `allow-all`: do not ask for routine actions explicitly allowed by the saved policy and runtime safety layer; still escalate dangerous, legal, credential, destructive, or external communication actions when the runtime requires it.
+
+Installer behavior:
+
+1. Ask the user which mode they want during semantic setup.
+2. Recommend `safe-internal` if they are unsure.
+3. Save the approved answer in `policies.autonomy_mode` and `semantic_setup.decisions.autonomy_mode`.
+4. Keep `semantic_health.complete` false until this is answered.
 
 Example global source ownership:
 

@@ -375,6 +375,7 @@ Semantic install:
 - horizontal core sources and policies have been saved in `config.json`
 - domain-specific decisions have been saved in the owning skill data files
 - schedule and delivery policy have been chosen
+- autonomy mode has been chosen (`approval-first`, `safe-internal`, `trusted-local`, or `allow-all`; recommended default is `safe-internal`)
 - routine record sources are known
 - system-improvement review policy and backlog source are known
 - runtime-owned side effects are approved before being created
