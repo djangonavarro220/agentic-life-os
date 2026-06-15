@@ -136,6 +136,10 @@ def main() -> int:
         saved_inventory = run("config", data_dir=data_dir)["config"]["runtime_inventory"]
         assert saved_inventory["capabilities"]["mail"]["status"] == "available"
         assert saved_inventory["watch_targets"]["candidates"]["task-reminder-watcher"]["status"] == "candidate"
+        context_now_config = run("config", data_dir=data_dir)["config"]["context_now"]
+        assert context_now_config["shown_signal_ids"] == []
+        assert context_now_config["deferred_signal_queue"] == []
+        assert "next assistant turn" in context_now_config["policy"]
         context_sources = run("context-sources", data_dir=data_dir)
         assert context_sources["ok"] is True
         assert context_sources["action"] == "context-sources"
@@ -258,6 +262,9 @@ def main() -> int:
         assert "If a source is relevant and available, inspect it" in context_now_skill
         assert "do not list inspected sources by default" in context_now_skill
         assert "mention inspected/missing sources only when" in context_now_skill
+        assert "at most two or three actionable signals" in context_now_skill
+        assert "deferred_signal_queue" in context_now_skill
+        assert "next assistant message" in context_now_skill
         assert "do not merely suggest what to inspect" in context_now_skill
         core_doctor_skill = (ROOT / "skills/life-os/skills/core-doctor/SKILL.md").read_text(encoding="utf-8")
         assert "agent_next_message" in core_doctor_skill

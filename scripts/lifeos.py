@@ -279,6 +279,20 @@ def ensure_runtime_inventory(config: dict[str, Any], now: str) -> dict[str, Any]
     return inventory
 
 
+def ensure_context_now_state(config: dict[str, Any], now: str) -> dict[str, Any]:
+    """Ensure config has the mechanical queue for deferred context-now signals."""
+    state = config.setdefault("context_now", {})
+    state.setdefault("created_at", now)
+    state.setdefault("updated_at", now)
+    state.setdefault(
+        "policy",
+        "When a context-now run finds more actionable signals than it should show, store short public-safe pointers here so the next assistant turn can surface the deferred items without re-scanning everything.",
+    )
+    state.setdefault("shown_signal_ids", [])
+    state.setdefault("deferred_signal_queue", [])
+    return state
+
+
 def slugify(value: str) -> str:
     slug = re.sub(r"[^a-z0-9]+", "-", value.lower()).strip("-")
     return slug or "unnamed"
@@ -635,6 +649,7 @@ def install(args: argparse.Namespace) -> dict[str, Any]:
     config.setdefault("created_at", now)
     legacy_warnings = prune_empty_legacy_root_domain_keys(config)
     ensure_runtime_inventory(config, now)
+    ensure_context_now_state(config, now)
     ensure_semantic_setup(config, now)
     refresh_semantic_status(config, now, data_dir)
     config["updated_at"] = now
@@ -683,6 +698,7 @@ def doctor(args: argparse.Namespace) -> dict[str, Any]:
         now = utc_now()
         warnings.extend(prune_empty_legacy_root_domain_keys(config))
         ensure_runtime_inventory(config, now)
+        ensure_context_now_state(config, now)
         ensure_semantic_setup(config, now)
         refresh_semantic_status(config, now, data_dir)
         write_json(data_dir / "config.json", config)
@@ -716,6 +732,7 @@ def next_question(args: argparse.Namespace) -> dict[str, Any]:
     if isinstance(config, dict):
         now = utc_now()
         ensure_runtime_inventory(config, now)
+        ensure_context_now_state(config, now)
         ensure_semantic_setup(config, now)
         refresh_semantic_status(config, now, data_dir)
         write_json(data_dir / "config.json", config)
@@ -750,6 +767,7 @@ def plan(args: argparse.Namespace) -> dict[str, Any]:
     if isinstance(config, dict):
         now = utc_now()
         ensure_runtime_inventory(config, now)
+        ensure_context_now_state(config, now)
         ensure_semantic_setup(config, now)
         refresh_semantic_status(config, now, data_dir)
         write_json(data_dir / "config.json", config)
@@ -783,6 +801,7 @@ def answer(args: argparse.Namespace) -> dict[str, Any]:
     config.setdefault("created_at", now)
     prune_empty_legacy_root_domain_keys(config)
     ensure_runtime_inventory(config, now)
+    ensure_context_now_state(config, now)
     setup = ensure_semantic_setup(config, now)
 
     valid_keys = {item["key"] for item in SEMANTIC_QUESTIONS}
@@ -966,6 +985,7 @@ def discover_runtime(args: argparse.Namespace) -> dict[str, Any]:
     candidates = build_candidate_watch_targets(jobs)
 
     inventory = ensure_runtime_inventory(config, now)
+    ensure_context_now_state(config, now)
     inventory.update(
         {
             "runtime": args.runtime,

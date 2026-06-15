@@ -90,6 +90,26 @@
         }
       }
     },
+    "context_now": {
+      "type": "object",
+      "description": "Mechanical coordination state for context-now, such as which short signal pointers were already surfaced and which deferred pointers should be shown on the next assistant turn. Store compact public-safe pointers, not raw runtime data.",
+      "additionalProperties": true,
+      "properties": {
+        "shown_signal_ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "deferred_signal_queue": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": true
+          }
+        }
+      }
+    },
     "policies": {
       "type": "object",
       "description": "Horizontal Life OS policies such as schedule, delivery, trigger default, and approval behavior. Domain-specific preferences belong in the owning skill data file.",

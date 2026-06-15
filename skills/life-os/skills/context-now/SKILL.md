@@ -106,6 +106,9 @@ Produce the shortest useful current-context answer. Do not force a dashboard, ta
 
 Default bias:
 
+- show at most two or three actionable signals at a time
+- if more relevant signals exist, say briefly that there is more and surface it after the user handles the current items, or in the next assistant message if the user does not explicitly invite more
+- track already surfaced and deferred signal pointers in `config.json` under `context_now.shown_signal_ids` and `context_now.deferred_signal_queue`; keep entries compact and public-safe, and store pointers/IDs, not raw runtime data
 - one clear recommendation beats a full status report
 - mention blockers/risks only when they affect what to do now
 - include a next action when it is useful and grounded
@@ -126,6 +129,7 @@ Write only when the run discovers durable coordination state, for example:
 - a configured source pointer is missing, stale, or broken
 - a reusable setup/routine improvement should be proposed
 - a runtime-owned task/follow-up must be created or updated under the configured task policy
+- the run surfaced only two or three items and deferred additional relevant signals into `config.json` for the next assistant message
 
 Do not save every “what should I do now?” output. That creates archival sludge and trains future agents on stale noise. Do not use helper scripts for semantic routine decisions.
 
