@@ -4,7 +4,7 @@ This repo contains a portable Agent Skills based personal advisor OS.
 
 ## Rules
 
-- Always use the [`grill-me`](https://www.skills.sh/mattpocock/skills/grill-me) review pattern for non-trivial product/design changes: interview the plan one question at a time, recommend an answer for each question, inspect the repo instead of asking when code/docs can answer it, and walk the decision tree until the design is clear enough to implement. Keep the questions about the public repo/product, not the user's personal install.
+- Always use the [`grill-me`](https://github.com/mattpocock/skills/tree/main/skills/productivity/grill-me) review pattern for non-trivial product/design changes: interview the plan one question at a time, recommend an answer for each question, inspect the repo instead of asking when code/docs can answer it, and walk the decision tree until the design is clear enough to implement. Keep the questions about the public repo/product, not the user's personal install.
 - Keep the repo public-safe: no personal data, real chat IDs, secrets, tokens, local logs, or private runtime config.
 - Private state belongs in `$HOME/.life-os` by default, or `LIFEOS_DATA_DIR` when explicitly set. Never commit private state files.
 - Life OS is a helper/coordination layer over the active runtime, not the owner of the user's life data. By default, real data stays in Hermes/OpenClaw/external sources; each Life OS skill stores its own source decisions, pointers, access notes, operational state, caches, and Life-OS-specific preferences.
