@@ -251,6 +251,11 @@ def main() -> int:
         assert "ephemeral view" in context_now_skill
         assert "archival sludge" in context_now_skill
         assert "inspect broadly" in context_now_skill
+        assert "Relevance by horizon" in context_now_skill
+        assert "Immediate or today" in context_now_skill
+        assert "This week or planning horizon" in context_now_skill
+        assert "Explicit domain" in context_now_skill
+        assert "If a source is relevant and available, inspect it" in context_now_skill
         assert "do not merely suggest what to inspect" in context_now_skill
         core_doctor_skill = (ROOT / "skills/life-os/skills/core-doctor/SKILL.md").read_text(encoding="utf-8")
         assert "agent_next_message" in core_doctor_skill

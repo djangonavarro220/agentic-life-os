@@ -54,6 +54,18 @@ Use this order unless the user's request clearly narrows the scope:
 
 For broad current-context requests, inspect as many relevant configured sources as practical before answering so the agent has real context, not vibes. Skip only sources that are clearly irrelevant to the user's horizon, unavailable, too expensive for the moment, or forbidden by policy. Do not load sources just to produce a longer answer; inspect broadly, then distill hard.
 
+## Relevance by horizon
+
+Choose relevant sources from the user's horizon and question type:
+
+- Immediate or today: current conversation, configured task/follow-up source, paused guided meetings, recent routine/cron records, and active blockers.
+- Catch-up or “where are we?”: recent session/context source when available, configured task source, recent decisions, blockers, and relevant routine records.
+- This week or planning horizon: configured task source, calendar/deadline source when available, waiting/dependencies, risks, and domain states with due items.
+- Explicit domain: load that domain subskill plus the minimal task/memory/context pointers needed to decide next action.
+- Strategic/open-ended: inspect setup pointers, task source, recent routine records, and only the domains with active/due/blocked signals.
+
+If a source is relevant and available, inspect it rather than merely saying it should be inspected. If a source is relevant but unavailable or too expensive, say that briefly and continue with the best grounded context.
+
 ## Freshness rules
 
 - Prefer live runtime state over stale summaries when the next action depends on timing or status.
