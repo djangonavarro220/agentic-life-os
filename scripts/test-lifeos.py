@@ -209,6 +209,12 @@ def main() -> int:
         assert doctor["setup_completion"]["status"] == "incomplete"
         assert doctor["setup_completion"]["headline"] == "Life OS installation is not complete yet."
         assert doctor["setup_completion"]["ask_user_to_complete"] is True
+        assert doctor["next_setup_decision"]["key"] == "autonomy_mode"
+        assert doctor["next_setup_decision"]["recommended_answer"] == "safe-internal"
+        assert doctor["next_setup_decision"]["human_options"][0]["answer"] == "approval-first"
+        assert doctor["next_setup_decision"]["human_options"][1]["recommended"] is True
+        assert next_question["next_setup_decision"]["key"] == "autonomy_mode"
+        assert next_question["next_setup_decision"]["recommended_answer"] == "safe-internal"
         assert "complete the installation" in doctor["setup_completion"]["next_user_prompt"]
         assert "agent_next_message" in doctor["setup_completion"]
         assert "I found a mechanical Life OS install" in doctor["setup_completion"]["agent_next_message"]
@@ -291,6 +297,9 @@ def main() -> int:
         assert "do not merely suggest what to inspect" in context_now_skill
         core_doctor_skill = (ROOT / "skills/life-os/skills/core-doctor/SKILL.md").read_text(encoding="utf-8")
         assert "agent_next_message" in core_doctor_skill
+        assert "next_setup_decision" in core_doctor_skill
+        assert "recommended_answer" in core_doctor_skill
+        assert "human_options" in core_doctor_skill
         assert "Do not ask the user to run helper commands" in core_doctor_skill
 
         heartbeat_skill = (ROOT / "skills/life-os/skills/routines-heartbeat/SKILL.md").read_text(encoding="utf-8")

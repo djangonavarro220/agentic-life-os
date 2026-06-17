@@ -24,12 +24,39 @@ SKILL_INDEX = LIFE_OS_ROOT / "skill-index.yaml"
 INSTALL_YAML = LIFE_OS_ROOT / "install.yaml"
 CONFIG_SCHEMA = PROJECT_ROOT / "schemas" / "config.schema.json"
 
-SEMANTIC_QUESTIONS: list[dict[str, str]] = [
+SEMANTIC_QUESTIONS: list[dict[str, Any]] = [
     {
         "key": "autonomy_mode",
         "category": "core-policy",
         "owner_skill": "core-config",
         "question": "How much freedom should Life OS have? Choose one: Ask me before almost anything (approval-first); Recommended: Safe internal, inspect and save Life OS private state but ask before external/runtime/destructive/public changes (safe-internal); More autonomous for reversible local maintenance (trusted-local); Act within the saved policy unless dangerous or blocked by the runtime (allow-all). Setup is not complete until the user chooses one.",
+        "recommended_answer": "safe-internal",
+        "human_options": [
+            {
+                "answer": "approval-first",
+                "label": "Ask me before almost anything",
+                "summary": "Ask before every write, runtime change, external action, or state mutation.",
+                "recommended": False,
+            },
+            {
+                "answer": "safe-internal",
+                "label": "Safe internal",
+                "summary": "Inspect and save Life OS private state, but ask before external, runtime, destructive, or public changes.",
+                "recommended": True,
+            },
+            {
+                "answer": "trusted-local",
+                "label": "More autonomous for reversible local maintenance",
+                "summary": "Allow clearly scoped reversible local maintenance; still ask before external, destructive, public, account, or credential changes.",
+                "recommended": False,
+            },
+            {
+                "answer": "allow-all",
+                "label": "Act within the saved policy unless dangerous or blocked by the runtime",
+                "summary": "Proceed within saved policy and runtime safety; still escalate dangerous, legal, credential, destructive, or external-contact actions.",
+                "recommended": False,
+            },
+        ],
     },
     {
         "key": "tasks_source",
@@ -454,7 +481,7 @@ def semantic_health(config: dict[str, Any] | None, data_dir: Path | None = None)
     raw_setup = config.get("semantic_setup")
     setup = raw_setup if isinstance(raw_setup, dict) else {}
     answered: list[str] = []
-    pending: list[dict[str, str]] = []
+    pending: list[dict[str, Any]] = []
     for item in SEMANTIC_QUESTIONS:
         answer = semantic_decision_answer(data_dir, setup, item["key"])
         if isinstance(answer, str) and answer.strip():
@@ -467,6 +494,33 @@ def semantic_health(config: dict[str, Any] | None, data_dir: Path | None = None)
         "missing": [item["key"] for item in pending],
         "pending_questions": pending,
     }
+
+
+def setup_decision_payload(question: dict[str, Any] | None) -> dict[str, Any] | None:
+    """Return machine-readable setup guidance for agents.
+
+    This is not final user UX. The agent should use it to ask a concise
+    human-facing question without parsing prose from the generic question text.
+    """
+    if not isinstance(question, dict):
+        return None
+    return {
+        "key": question.get("key", ""),
+        "category": question.get("category", ""),
+        "owner_skill": question.get("owner_skill", ""),
+        "question": question.get("question", ""),
+        "recommended_answer": question.get("recommended_answer"),
+        "human_options": question.get("human_options", []),
+        "agent_contract": "Use this structure to ask the user one clear setup decision; do not expose raw doctor output as the user experience.",
+    }
+
+
+def next_setup_decision(health: dict[str, Any]) -> dict[str, Any] | None:
+    pending = health.get("pending_questions", [])
+    if not isinstance(pending, list) or not pending:
+        return None
+    first = pending[0]
+    return setup_decision_payload(first if isinstance(first, dict) else None)
 
 
 def setup_completion_summary(health: dict[str, Any]) -> dict[str, Any]:
@@ -675,6 +729,7 @@ def install(args: argparse.Namespace) -> dict[str, Any]:
         "subskills": len(subskills),
         "semantic_health": health,
         "setup_completion": setup_completion_summary(health),
+        "next_setup_decision": next_setup_decision(health),
         "install_claim": "fully_configured" if health["complete"] else "mechanical_only",
         "safe_to_claim_fully_installed": bool(health["complete"]),
         "warnings": legacy_warnings,
@@ -729,6 +784,7 @@ def doctor(args: argparse.Namespace) -> dict[str, Any]:
         "warnings": warnings,
         "semantic_health": health,
         "setup_completion": setup_completion_summary(health),
+        "next_setup_decision": next_setup_decision(health),
         "install_claim": "fully_configured" if health["complete"] else "mechanical_only",
         "safe_to_claim_fully_installed": bool(health["complete"]),
     }
@@ -755,6 +811,7 @@ def next_question(args: argparse.Namespace) -> dict[str, Any]:
             "command_hint": None,
             "semantic_health": health,
             "setup_completion": setup_completion_summary(health),
+            "next_setup_decision": None,
         }
     question = health["pending_questions"][0]
     return {
@@ -766,6 +823,7 @@ def next_question(args: argparse.Namespace) -> dict[str, Any]:
         "command_hint": f"lifeos.py answer {question['key']} '<answer or runtime pointer>'",
         "semantic_health": health,
         "setup_completion": setup_completion_summary(health),
+        "next_setup_decision": next_setup_decision(health),
     }
 
 

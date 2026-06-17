@@ -65,6 +65,8 @@ When the helper returns `setup_completion.status: incomplete`, surface it to the
 
 Use `setup_completion.agent_next_message` as the default wording seed for the visible reply when it is present. Adapt it to the active conversation, but preserve the contract: the agent operates the helper and runtime checks, then asks for one clear decision. Do not ask the user to run helper commands or paste JSON back into the chat. The user-facing output is the decision, not the plumbing.
 
+Use `next_setup_decision` when present as the machine-readable setup cursor. It may include `recommended_answer` and `human_options` so agents can ask one clear question without parsing prose from `question` or the checklist. These fields are agent-facing structure, not final UX; translate them into the current conversation style.
+
 ## Hermes doctor checklist
 
 Load `../../runtimes/hermes.md`, then use native Hermes commands as available:
