@@ -58,6 +58,10 @@ def main() -> int:
             "delivery_policy",
             "cron_record_source",
         } <= pending_keys
+        for question in doctor["semantic_health"]["pending_questions"]:
+            assert question.get("recommended_answer"), question
+            assert isinstance(question.get("human_options"), list) and question["human_options"], question
+            assert all(option.get("answer") for option in question["human_options"]), question
 
         config = run("config", data_dir=data_dir)
         assert config["ok"] is True
@@ -339,7 +343,11 @@ def main() -> int:
         autonomy_config = run("config", data_dir=data_dir)["config"]
         assert autonomy_config["policies"]["autonomy_mode"]["answer"] == "safe-internal"
         assert autonomy_config["semantic_setup"]["decisions"]["autonomy_mode"]["answer"] == "safe-internal"
-        assert run("next-question", data_dir=data_dir)["question"]["key"] == "tasks_source"
+        next_after_autonomy = run("next-question", data_dir=data_dir)
+        assert next_after_autonomy["question"]["key"] == "tasks_source"
+        assert next_after_autonomy["next_setup_decision"]["key"] == "tasks_source"
+        assert next_after_autonomy["next_setup_decision"]["recommended_answer"]
+        assert next_after_autonomy["next_setup_decision"]["human_options"][0]["answer"]
 
         answered = run("answer", "tasks_source", "runtime todo system", "--kind", "reuse_existing", data_dir=data_dir)
         assert answered["ok"] is True

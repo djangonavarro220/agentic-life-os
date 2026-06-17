@@ -24,6 +24,61 @@ SKILL_INDEX = LIFE_OS_ROOT / "skill-index.yaml"
 INSTALL_YAML = LIFE_OS_ROOT / "install.yaml"
 CONFIG_SCHEMA = PROJECT_ROOT / "schemas" / "config.schema.json"
 
+SOURCE_DECISION_OPTIONS: list[dict[str, Any]] = [
+    {
+        "answer": "reuse existing runtime-owned source",
+        "decision_kind": "reuse_existing",
+        "label": "Use what already exists",
+        "summary": "Prefer the active runtime or external source of truth; store only pointers and access notes in Life OS.",
+        "recommended": True,
+    },
+    {
+        "answer": "manual only for now",
+        "decision_kind": "manual_only",
+        "label": "Keep it manual for now",
+        "summary": "Record that Life OS should not create or connect a source yet.",
+        "recommended": False,
+    },
+    {
+        "answer": "propose a new bridge after approval",
+        "decision_kind": "propose_change",
+        "label": "Propose a bridge",
+        "summary": "Ask before creating or changing any runtime-owned integration.",
+        "recommended": False,
+    },
+]
+
+ROUTINE_DECISION_OPTIONS: list[dict[str, Any]] = [
+    {
+        "answer": "reuse existing runtime routine if available",
+        "decision_kind": "reuse_existing",
+        "label": "Reuse an existing routine",
+        "summary": "Use an existing runtime-owned routine when one already fits.",
+        "recommended": True,
+    },
+    {
+        "answer": "keep manual only",
+        "decision_kind": "manual_only",
+        "label": "Keep it manual",
+        "summary": "Do not create schedules; run the playbook only when requested.",
+        "recommended": False,
+    },
+    {
+        "answer": "propose runtime schedule after approval",
+        "decision_kind": "propose_change",
+        "label": "Propose a scheduled routine",
+        "summary": "Prepare a runtime-owned schedule but ask before creating it.",
+        "recommended": False,
+    },
+    {
+        "answer": "disable this routine",
+        "decision_kind": "disabled",
+        "label": "Disable it",
+        "summary": "Record that Life OS should not run or suggest this routine.",
+        "recommended": False,
+    },
+]
+
 SEMANTIC_QUESTIONS: list[dict[str, Any]] = [
     {
         "key": "autonomy_mode",
@@ -63,60 +118,102 @@ SEMANTIC_QUESTIONS: list[dict[str, Any]] = [
         "category": "core-source",
         "owner_skill": "core-config",
         "question": "Where should Life OS read and update tasks or follow-ups for this runtime?",
+        "recommended_answer": "reuse existing runtime-owned task source when available",
+        "human_options": SOURCE_DECISION_OPTIONS,
     },
     {
         "key": "memory_source",
         "category": "core-source",
         "owner_skill": "core-config",
         "question": "Where should Life OS read durable user context and preferences, and what runtime-specific memory instructions should agents follow when using it?",
+        "recommended_answer": "reuse existing runtime-owned memory or context source when available",
+        "human_options": SOURCE_DECISION_OPTIONS,
     },
     {
         "key": "routine_schedule_policy",
         "category": "core-policy",
         "owner_skill": "core-config",
         "question": "Should Life OS stay manual, propose schedules only, or create/maintain runtime cron jobs after approval?",
+        "recommended_answer": "propose schedules only; create or change runtime crons after approval",
+        "human_options": [
+            {
+                "answer": "manual only",
+                "decision_kind": "manual_only",
+                "label": "Manual only",
+                "summary": "Run Life OS routines only when asked; do not schedule anything.",
+                "recommended": False,
+            },
+            {
+                "answer": "propose schedules only; require approval before runtime changes",
+                "decision_kind": "propose_change",
+                "label": "Recommend schedules, ask before creating them",
+                "summary": "Use templates and runtime discovery, but require approval for cron creation or edits.",
+                "recommended": True,
+            },
+            {
+                "answer": "reuse existing runtime schedules where available",
+                "decision_kind": "reuse_existing",
+                "label": "Reuse existing schedules",
+                "summary": "Prefer existing runtime jobs when they already fit Life OS routines.",
+                "recommended": False,
+            },
+        ],
     },
     {
         "key": "daily_briefing",
         "category": "routine",
         "owner_skill": "routines-pulse",
         "question": "What existing daily briefing or pulse routines already exist in the active runtime, and should Life OS reuse, ignore, or propose changes to them?",
+        "recommended_answer": "reuse existing daily briefing or keep manual if none fits",
+        "human_options": ROUTINE_DECISION_OPTIONS,
     },
     {
         "key": "quiet_heartbeat",
         "category": "routine",
         "owner_skill": "routines-heartbeat",
         "question": "What existing heartbeat/watch routines already exist in the active runtime, and should Life OS reuse, ignore, or propose changes to them? Include frequency, delivery, and no-news policy.",
+        "recommended_answer": "reuse an existing quiet heartbeat if available; otherwise propose one after approval",
+        "human_options": ROUTINE_DECISION_OPTIONS,
     },
     {
         "key": "review_cadence",
         "category": "core-policy",
         "owner_skill": "core-config",
         "question": "What existing review routines or cadence signals already exist in the active runtime, and which should Life OS reuse, ignore, or propose changing?",
+        "recommended_answer": "reuse existing review cadence where available; otherwise keep reviews manual until approved",
+        "human_options": ROUTINE_DECISION_OPTIONS,
     },
     {
         "key": "review_cron_install_policy",
         "category": "core-policy",
         "owner_skill": "core-config",
         "question": "Should Life OS install runtime cron jobs for the review meetings, reuse existing review crons, or explicitly keep the review meetings manual/disabled? Setup is not complete until review crons are installed/reused or the user opts out.",
+        "recommended_answer": "reuse existing review crons if available; otherwise ask before creating them or save manual-only opt-out",
+        "human_options": ROUTINE_DECISION_OPTIONS,
     },
     {
         "key": "system_improvement_review",
         "category": "routine",
         "owner_skill": "system-improvement",
         "question": "What existing system-improvement, skill-maintenance, or improvement-backlog routines already exist, and should Life OS reuse, ignore, or propose changes to them?",
+        "recommended_answer": "treat system improvement as a review item and reuse existing maintenance routines when available",
+        "human_options": ROUTINE_DECISION_OPTIONS,
     },
     {
         "key": "delivery_policy",
         "category": "core-policy",
         "owner_skill": "core-config",
         "question": "What runtime-owned delivery routes already exist for similar routine output, and which pointer or policy should Life OS reuse?",
+        "recommended_answer": "reuse an existing runtime-owned delivery route when available",
+        "human_options": SOURCE_DECISION_OPTIONS,
     },
     {
         "key": "cron_record_source",
         "category": "core-source",
         "owner_skill": "core-config",
         "question": "Where does the active runtime already store routine run records and cron output history, and how should Life OS read it without duplicating it?",
+        "recommended_answer": "reuse existing runtime-owned cron or routine history records when available",
+        "human_options": SOURCE_DECISION_OPTIONS,
     },
 ]
 SEMANTIC_VERSION = 1
