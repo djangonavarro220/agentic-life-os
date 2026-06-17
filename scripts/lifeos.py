@@ -644,6 +644,23 @@ def next_setup_decision(health: dict[str, Any]) -> dict[str, Any] | None:
     return setup_decision_payload(first if isinstance(first, dict) else None)
 
 
+def setup_progress(health: dict[str, Any]) -> dict[str, Any]:
+    """Return compact machine-readable setup progress for agents."""
+    complete = bool(health.get("complete"))
+    answered = [key for key in health.get("answered", []) if isinstance(key, str)]
+    missing = [key for key in health.get("missing", []) if isinstance(key, str)]
+    return {
+        "status": "complete" if complete else "incomplete",
+        "current_step": None if complete else next_setup_decision(health),
+        "completed_steps": answered,
+        "blocked_on": [] if complete else missing,
+        "total_steps": len(SEMANTIC_QUESTIONS),
+        "completed_count": len(answered),
+        "remaining_count": 0 if complete else len(missing),
+        "agent_contract": "Use this as setup progress state. Do not infer progress from checklist order when this structure is present.",
+    }
+
+
 def setup_completion_summary(health: dict[str, Any]) -> dict[str, Any]:
     """Return a user-facing semantic setup checklist."""
     answered = set(health.get("answered", []))
@@ -850,6 +867,7 @@ def install(args: argparse.Namespace) -> dict[str, Any]:
         "subskills": len(subskills),
         "semantic_health": health,
         "setup_completion": setup_completion_summary(health),
+        "setup_progress": setup_progress(health),
         "next_setup_decision": next_setup_decision(health),
         "install_claim": "fully_configured" if health["complete"] else "mechanical_only",
         "safe_to_claim_fully_installed": bool(health["complete"]),
@@ -905,6 +923,7 @@ def doctor(args: argparse.Namespace) -> dict[str, Any]:
         "warnings": warnings,
         "semantic_health": health,
         "setup_completion": setup_completion_summary(health),
+        "setup_progress": setup_progress(health),
         "next_setup_decision": next_setup_decision(health),
         "install_claim": "fully_configured" if health["complete"] else "mechanical_only",
         "safe_to_claim_fully_installed": bool(health["complete"]),
@@ -932,6 +951,7 @@ def next_question(args: argparse.Namespace) -> dict[str, Any]:
             "command_hint": None,
             "semantic_health": health,
             "setup_completion": setup_completion_summary(health),
+            "setup_progress": setup_progress(health),
             "next_setup_decision": None,
         }
     question = health["pending_questions"][0]
@@ -944,6 +964,7 @@ def next_question(args: argparse.Namespace) -> dict[str, Any]:
         "command_hint": f"lifeos.py answer {question['key']} '<answer or runtime pointer>'",
         "semantic_health": health,
         "setup_completion": setup_completion_summary(health),
+        "setup_progress": setup_progress(health),
         "next_setup_decision": next_setup_decision(health),
     }
 
@@ -971,6 +992,8 @@ def plan(args: argparse.Namespace) -> dict[str, Any]:
         "data_dir": str(data_dir),
         "semantic_health": health,
         "setup_completion": setup_completion_summary(health),
+        "setup_progress": setup_progress(health),
+        "next_setup_decision": next_setup_decision(health),
         "steps": steps,
         "cron_templates": CRON_TEMPLATES,
         "side_effects": "none; this command does not create runtime crons or delivery routes",
@@ -1090,6 +1113,8 @@ def answer(args: argparse.Namespace) -> dict[str, Any]:
         "stored_in": "config.json" if args.key in HORIZONTAL_CORE_DECISION_KEYS else f"{owner_skill}/data.json",
         "decision_kind": decision_kind,
         "semantic_health": health,
+        "setup_progress": setup_progress(health),
+        "next_setup_decision": next_setup_decision(health),
     }
 
 

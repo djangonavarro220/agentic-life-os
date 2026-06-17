@@ -227,6 +227,11 @@ def main() -> int:
         assert doctor["next_setup_decision"]["human_options"][1]["recommended"] is True
         assert next_question["next_setup_decision"]["key"] == "autonomy_mode"
         assert next_question["next_setup_decision"]["recommended_answer"] == "safe-internal"
+        assert doctor["setup_progress"]["status"] == "incomplete"
+        assert doctor["setup_progress"]["current_step"]["key"] == "autonomy_mode"
+        assert "autonomy_mode" in doctor["setup_progress"]["blocked_on"]
+        assert "tasks_source" not in doctor["setup_progress"]["completed_steps"]
+        assert next_question["setup_progress"]["current_step"]["key"] == "autonomy_mode"
         assert "complete the installation" in doctor["setup_completion"]["next_user_prompt"]
         assert "agent_next_message" in doctor["setup_completion"]
         assert "I found a mechanical Life OS install" in doctor["setup_completion"]["agent_next_message"]
@@ -373,6 +378,9 @@ def main() -> int:
         doctor_after_one_answer = run("doctor", data_dir=data_dir)
         assert doctor_after_one_answer["semantic_health"]["complete"] is False
         assert "tasks_source" not in {q["key"] for q in doctor_after_one_answer["semantic_health"]["pending_questions"]}
+        assert "autonomy_mode" in doctor_after_one_answer["setup_progress"]["completed_steps"]
+        assert "tasks_source" in doctor_after_one_answer["setup_progress"]["completed_steps"]
+        assert doctor_after_one_answer["setup_progress"]["current_step"]["key"] == "memory_source"
         assert run("next-question", data_dir=data_dir)["question"]["key"] == "memory_source"
 
         answered_memory = run("answer", "memory_source", "runtime memory pointer", "--usage", "read current runtime memory instructions first; use pointers only", data_dir=data_dir)
@@ -389,6 +397,10 @@ def main() -> int:
         assert complete_doctor["semantic_health"]["pending_questions"] == []
         assert complete_doctor["install_claim"] == "fully_configured"
         assert complete_doctor["safe_to_claim_fully_installed"] is True
+        assert complete_doctor["setup_progress"]["status"] == "complete"
+        assert complete_doctor["setup_progress"]["current_step"] is None
+        assert complete_doctor["setup_progress"]["blocked_on"] == []
+        assert set(complete_doctor["setup_progress"]["completed_steps"]) == pending_keys
         assert run("next-question", data_dir=data_dir)["complete"] is True
         complete_config = run("config", data_dir=data_dir)["config"]
         assert complete_config["semantic_setup"]["status"] == "complete"

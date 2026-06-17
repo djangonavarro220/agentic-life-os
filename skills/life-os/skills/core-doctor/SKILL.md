@@ -65,7 +65,7 @@ When the helper returns `setup_completion.status: incomplete`, surface it to the
 
 Use `setup_completion.agent_next_message` as the default wording seed for the visible reply when it is present. Adapt it to the active conversation, but preserve the contract: the agent operates the helper and runtime checks, then asks for one clear decision. Do not ask the user to run helper commands or paste JSON back into the chat. The user-facing output is the decision, not the plumbing.
 
-Use `next_setup_decision` when present as the machine-readable setup cursor. It may include `recommended_answer`, `human_options`, `requires_runtime_discovery`, and `inspect_before_asking` so agents can inspect the right runtime-owned state and ask one clear question without parsing prose from `question` or the checklist. These fields are agent-facing structure, not final UX; translate them into the current conversation style.
+Use `next_setup_decision` when present as the machine-readable setup cursor. It may include `recommended_answer`, `human_options`, `requires_runtime_discovery`, and `inspect_before_asking` so agents can inspect the right runtime-owned state and ask one clear question without parsing prose from `question` or the checklist. Use `setup_progress` for `current_step`, `completed_steps`, and `blocked_on`; do not infer progress from checklist order when that structure is present. These fields are agent-facing structure, not final UX; translate them into the current conversation style.
 
 ## Hermes doctor checklist
 
