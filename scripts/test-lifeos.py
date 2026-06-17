@@ -62,6 +62,14 @@ def main() -> int:
             assert question.get("recommended_answer"), question
             assert isinstance(question.get("human_options"), list) and question["human_options"], question
             assert all(option.get("answer") for option in question["human_options"]), question
+            assert isinstance(question.get("requires_runtime_discovery"), bool), question
+            assert question.get("inspect_before_asking"), question
+        questions_by_key = {q["key"]: q for q in doctor["semantic_health"]["pending_questions"]}
+        assert questions_by_key["autonomy_mode"]["requires_runtime_discovery"] is False
+        assert questions_by_key["tasks_source"]["requires_runtime_discovery"] is True
+        assert "task" in questions_by_key["tasks_source"]["inspect_before_asking"].lower()
+        assert questions_by_key["review_cron_install_policy"]["requires_runtime_discovery"] is True
+        assert "cron" in questions_by_key["review_cron_install_policy"]["inspect_before_asking"].lower()
 
         config = run("config", data_dir=data_dir)
         assert config["ok"] is True
