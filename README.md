@@ -1,8 +1,10 @@
 # Agentic Life OS
 
-An agent behavior layer for portable personal-advisor agents.
+An agent behavior layer for portable personal-advisor agents, compatible with Hermes, OpenClaw, and other runtimes that can load Agent Skills-style skill packs.
 
-Agentic Life OS is a skill pack for agents that need to help with day-to-day context, routines, tasks, reminders, relationships, documents, health trends, finance checks, purchases, travel, learning, work evidence, and digital hygiene without becoming a giant private database.
+Agentic Life OS is a runtime-compatible skill pack for agents that need to help with day-to-day context, routines, tasks, reminders, relationships, documents, health trends, finance checks, purchases, travel, learning, work evidence, and digital hygiene without becoming a giant private database.
+
+It ships first-class adapters for **Hermes** and **OpenClaw**. The core design is portable to any agent runtime that can load Markdown/Agent Skills-style skills and expose runtime-owned tools for tasks, memory, scheduling, delivery, mail, calendar, browser, files, or equivalent integrations.
 
 The UX contract is agent-operated: the agent runs helper commands, inspects the active runtime, saves approved pointers/policies, and verifies state. The user gets clear decisions and questions, not instructions to babysit a CLI.
 
@@ -13,6 +15,7 @@ The design is simple: keep real user data in the runtime or external system that
 - [What this is](#what-this-is)
 - [What this is not](#what-this-is-not)
 - [Architecture at a glance](#architecture-at-a-glance)
+- [Compatibility](#compatibility)
 - [Request flow](#request-flow)
 - [Execution modes](#execution-modes)
 - [Runtime model](#runtime-model)
@@ -43,6 +46,21 @@ It provides:
 - public-safe playbooks for personal routines, domain workflows, and system self-improvement
 
 It is designed for agent runtimes that already have tools for memory, tasks, cron, mail, calendar, docs, browser, vaults, and message delivery.
+
+## Compatibility
+
+Agentic Life OS is **Hermes/OpenClaw compatible today**:
+
+- **Hermes:** first-class runtime adapter, install/doctor guidance, skill visibility rules, cron/delivery boundaries, and runtime-owned memory/task/config safety notes.
+- **OpenClaw:** first-class runtime adapter, install/visibility guidance, workspace/agent scoping notes, cron/delivery boundaries, and runtime-owned data safety notes.
+
+It is also intended to work with **other Agent Skills-compatible runtimes**. A new runtime needs three things:
+
+1. a way to load the `life-os` umbrella skill and its subskills;
+2. runtime-native tools or integrations for the sources it wants Life OS to coordinate;
+3. a small runtime adapter documenting discovery, install, scheduling, delivery, skill visibility, and safety boundaries.
+
+If a runtime can only load plain Markdown instructions, Life OS can still be used as a playbook pack, but features like setup discovery, cron templates, and private state helpers depend on the runtime exposing tools or allowing the agent to run the helper commands.
 
 ## What this is not
 
@@ -166,7 +184,7 @@ Review meetings are containers for due review items, not fixed bundles. Each rev
 
 ## Runtime model
 
-Hermes and OpenClaw are first-class supported runtimes.
+Hermes and OpenClaw are first-class supported runtimes. Other Agent Skills-compatible runtimes can be supported by adding a runtime adapter instead of rewriting the skill pack.
 
 Runtime-wide adapters live here:
 
