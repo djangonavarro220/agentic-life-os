@@ -342,7 +342,13 @@ def main() -> int:
         assert "allow-all" in core_config_skill
         assert "Setup is not complete" in core_config_skill
         readme = (ROOT / "README.md").read_text(encoding="utf-8")
-        assert "agent behavior layer" in readme.splitlines()[2].lower()
+        hero = readme.split("\n\n", 2)[1]
+        assert "portable skill pack" in hero.lower()
+        assert "hermes" in hero.lower()
+        assert "openclaw" in hero.lower()
+        assert hero.count(".") == 2
+        assert "## Why it exists" in readme
+        assert "🧭" in readme
         assert "user runs" not in readme.lower()
         heartbeat_template = next(item for item in plan["cron_templates"] if item["name"] == "quiet_heartbeat")
         assert "skills" in heartbeat_template["toolsets"]

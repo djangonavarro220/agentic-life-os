@@ -1,17 +1,31 @@
 # Agentic Life OS
 
-An agent behavior layer for portable personal-advisor agents, compatible with Hermes, OpenClaw, and other runtimes that can load Agent Skills-style skill packs.
+A portable skill pack for personal-advisor agents, compatible with Hermes, OpenClaw, and other Agent Skills-style runtimes. It helps agents coordinate daily context, routines, tasks, reminders, relationships, documents, finance, travel, learning, and work evidence without becoming a giant private database.
 
-Agentic Life OS is a runtime-compatible skill pack for agents that need to help with day-to-day context, routines, tasks, reminders, relationships, documents, health trends, finance checks, purchases, travel, learning, work evidence, and digital hygiene without becoming a giant private database.
+## Why it exists
 
-It ships first-class adapters for **Hermes** and **OpenClaw**. The core design is portable to any agent runtime that can load Markdown/Agent Skills-style skills and expose runtime-owned tools for tasks, memory, scheduling, delivery, mail, calendar, browser, files, or equivalent integrations.
+🧭 **Coordinate, don't replace**
 
-The UX contract is agent-operated: the agent runs helper commands, inspects the active runtime, saves approved pointers/policies, and verifies state. The user gets clear decisions and questions, not instructions to babysit a CLI.
+- Keep real user data in the runtime or external app that already owns it.
+- Store pointers, policies, setup decisions, and small operational state.
+- Avoid copying someone's life into yet another JSON swamp.
 
-The design is simple: keep real user data in the runtime or external system that already owns it, keep public skills generic, and store only private pointers, decisions, and operational state in a local Life OS data directory.
+🤖 **Agent-operated UX**
+
+- The agent runs helper commands.
+- The agent inspects the active runtime.
+- The agent verifies state before claiming work is done.
+- The user gets clear decisions, questions, and outcomes, not CLI babysitting.
+
+🔌 **Runtime-compatible**
+
+- First-class adapters for **Hermes** and **OpenClaw**.
+- Portable to runtimes that can load Markdown/Agent Skills-style skills.
+- Works best when the runtime exposes tools for tasks, memory, scheduling, delivery, mail, calendar, browser, files, or equivalent integrations.
 
 ## Index
 
+- [Why it exists](#why-it-exists)
 - [What this is](#what-this-is)
 - [What this is not](#what-this-is-not)
 - [Architecture at a glance](#architecture-at-a-glance)
